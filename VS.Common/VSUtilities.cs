@@ -7,6 +7,8 @@ namespace VS.Common
 {
     public static class VSUtilities
     {
+        private static readonly bool shouldAttachDebugger = false;
+
         /// <summary>
         /// Use this alongside a call to Debugger.Launch();
         /// Will prompt a dialogue box to choose a Visual Studio to attach.
@@ -17,7 +19,7 @@ namespace VS.Common
         /// <returns>bool - true if user wants to attach debugger, false otherwise.</returns>
         public static bool ShouldAttachDebugger()
         {
-            return false;
+            return shouldAttachDebugger;
         }
 
         public static IEnumerable<IVsHierarchy> EnumerateLoadedProjects(this IVsSolution solution, __VSENUMPROJFLAGS enumFlags)

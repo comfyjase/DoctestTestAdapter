@@ -1,0 +1,9 @@
+[23/01/2025 02:03:13 AM] C:\SideProjects\Repositories\DoctestTestAdapter\VS2022.DoctestTestAdapter\DoctestTestDiscoverer.cs Line: 16 DiscoverTests - Begin
+[23/01/2025 02:03:13 AM] C:\SideProjects\Repositories\DoctestTestAdapter\VS2022.DoctestTestAdapter\DoctestTestDiscoverer.cs Line: 16 DiscoverTests - Begin
+[23/01/2025 02:03:13 AM] C:\SideProjects\Repositories\DoctestTestAdapter\VS2022.DoctestTestAdapter\DoctestTestDiscoverer.cs Line: 16 DiscoverTests - Begin
+[23/01/2025 02:03:13 AM] C:\SideProjects\Repositories\DoctestTestAdapter\VS2022.DoctestTestAdapter\DoctestTestAdapterUtilities.cs Line: 26 GetTests - Begin
+[23/01/2025 02:03:13 AM] C:\SideProjects\Repositories\DoctestTestAdapter\VS2022.DoctestTestAdapter\DoctestTestAdapterUtilities.cs Line: 26 GetTests - Begin
+[23/01/2025 02:03:13 AM] C:\SideProjects\Repositories\DoctestTestAdapter\VS2022.DoctestTestAdapter\DoctestTestAdapterUtilities.cs Line: 32 GetTests - 	Searching file: C:\SideProjects\Repositories\DoctestTestAdapter\Examples\bin\x64\Debug\UsingDoctestMain\UsingDoctestMain.exe
+[23/01/2025 02:03:13 AM] C:\SideProjects\Repositories\DoctestTestAdapter\VS2022.DoctestTestAdapter\DoctestTestAdapterUtilities.cs Line: 40 GetTests - Found 0 TestCases
+[23/01/2025 02:03:13 AM] C:\SideProjects\Repositories\DoctestTestAdapter\VS2022.DoctestTestAdapter\DoctestTestAdapterUtilities.cs Line: 41 GetTests - End
+[23/01/2025 02:03:13 AM] C:\SideProjects\Repositories\DoctestTestAdapter\VS2022.DoctestTestAdapter\DoctestTestDiscoverer.cs Line: 26 DiscoverTests - End

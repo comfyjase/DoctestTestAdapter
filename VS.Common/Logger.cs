@@ -7,30 +7,46 @@ namespace VS.Common
 {
     public class Logger
     {
-        private static readonly Logger instance = new Logger();
-        public static Logger Instance
-        {
-            get { return instance; }
+        private static readonly Lazy<Logger> lazyLoggerInstance = new Lazy<Logger>(() => new Logger());
+
+        public static Logger Instance 
+        { 
+            get { return lazyLoggerInstance.Value; } 
         }
 
-        // = "C:\\Path\\To\\Debug\\Folder\\Log.txt";
-        private static string LogFilepath;
+        // "C:\\Path\\To\\Debug\\Folder\\";
+        private static string logDirectory;
+        // "C:\\Path\\To\\Debug\\Folder\\Log.txt";
+        private static string logFilepath;
 
         private Logger()
         {
-            // TODO: Test this...
-            //string vsixLocation = System.Reflection.Assembly.GetExecutingAssembly().Location;
-            string vsixLocation = Directory.GetCurrentDirectory();
-            LogFilepath = vsixLocation + GetCurrentTimestampForDebugFilename() + " logs.txt";
+            if (VSUtilities.ShouldAttachDebugger())
+            {
+                Debugger.Launch();
+            }
+
+            SetupLogDirectory();
             SetupLogFile();
+        }
+
+        private void SetupLogDirectory()
+        {
+            logDirectory = Directory.GetCurrentDirectory() + "\\DoctestTestAdapterLogs\\";
+            if (!Directory.Exists(logDirectory))
+            {
+                Directory.CreateDirectory(logDirectory);
+            }
         }
 
         private void SetupLogFile()
         {
-            if (!File.Exists(LogFilepath))
+            logFilepath = logDirectory + GetCurrentTimestampForDebugFilename() + ".txt";
+
+            if (!File.Exists(logFilepath))
             {
                 // Create the debug file.
-                using (StreamWriter sw = System.IO.File.CreateText(LogFilepath))
+                using (StreamWriter sw = System.IO.File.CreateText(logFilepath))
                 {
                     sw.WriteLine(GetCurrentTimestampForLogs() + " DoctestTestAdapter Log Start");
                     sw.WriteLine(GetCurrentTimestampForLogs() + " ============================");
@@ -39,29 +55,29 @@ namespace VS.Common
             else
             {
                 // Clear the contents of the file.
-                File.WriteAllText(LogFilepath, string.Empty);
+                File.WriteAllText(logFilepath, string.Empty);
             }
         }
 
         private string GetCurrentTimestampForDebugFilename()
         {
             DateTime currentTime = DateTime.Now;
-            string currentTimestampAsString = "[" + currentTime.ToString("D HH.mm.ss tt") + "]";
+            string currentTimestampAsString = "[" + currentTime.ToString("dd.MM.yyyy-HH.mm.ss tt") + "]";
             return currentTimestampAsString;
         }
 
         private string GetCurrentTimestampForLogs()
         {
             DateTime currentTime = DateTime.Now;
-            string currentTimestampAsString = "[" + currentTime.ToString("d HH:mm:ss tt") + "]";
+            string currentTimestampAsString = "[" + currentTime.ToString("dd/MM/yyyy HH:mm:ss tt") + "]";
             return currentTimestampAsString;
         }
 
         private void WriteLineToLogFile(string line)
         {
-            if (File.Exists(LogFilepath))
+            if (File.Exists(logFilepath))
             {
-                using (StreamWriter sw = System.IO.File.AppendText(LogFilepath))
+                using (StreamWriter sw = System.IO.File.AppendText(logFilepath))
                 {
                     sw.WriteLine(GetCurrentTimestampForLogs() + " " + line);
                 }
@@ -87,9 +103,9 @@ namespace VS.Common
 
         public void Dispose()
         {
-            if (File.Exists(LogFilepath))
+            if (File.Exists(logFilepath))
             {
-                using (StreamWriter sw = File.AppendText(LogFilepath))
+                using (StreamWriter sw = File.AppendText(logFilepath))
                 {
                     sw.WriteLine(GetCurrentTimestampForLogs() + " DoctestTestAdapter Log End");
                     sw.WriteLine(GetCurrentTimestampForLogs() + " ==========================");
