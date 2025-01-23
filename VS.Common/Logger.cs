@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Diagnostics;
 using System.IO;
+using System.Runtime.CompilerServices;
 
 namespace VS.Common
 {
@@ -13,23 +14,23 @@ namespace VS.Common
         }
 
         // = "C:\\Path\\To\\Debug\\Folder\\Log.txt";
-        private static string DEBUGFILEPATH;
+        private static string LogFilepath;
 
         private Logger()
         {
+            // TODO: Test this...
             //string vsixLocation = System.Reflection.Assembly.GetExecutingAssembly().Location;
             string vsixLocation = Directory.GetCurrentDirectory();
-            DEBUGFILEPATH = vsixLocation + GetCurrentTimestampForDebugFilename() + " logs.txt";
-            SetupDebugFile();
+            LogFilepath = vsixLocation + GetCurrentTimestampForDebugFilename() + " logs.txt";
+            SetupLogFile();
         }
 
-        private void SetupDebugFile()
+        private void SetupLogFile()
         {
-            // This text is added only once to the file.
-            if (!File.Exists(DEBUGFILEPATH))
+            if (!File.Exists(LogFilepath))
             {
-                // Create a file to write to.
-                using (StreamWriter sw = System.IO.File.CreateText(DEBUGFILEPATH))
+                // Create the debug file.
+                using (StreamWriter sw = System.IO.File.CreateText(LogFilepath))
                 {
                     sw.WriteLine(GetCurrentTimestampForLogs() + " DoctestTestAdapter Log Start");
                     sw.WriteLine(GetCurrentTimestampForLogs() + " ============================");
@@ -37,7 +38,8 @@ namespace VS.Common
             }
             else
             {
-                File.WriteAllText(DEBUGFILEPATH, string.Empty);
+                // Clear the contents of the file.
+                File.WriteAllText(LogFilepath, string.Empty);
             }
         }
 
@@ -55,30 +57,39 @@ namespace VS.Common
             return currentTimestampAsString;
         }
 
-        private void WriteLineToDebugFile(string line)
+        private void WriteLineToLogFile(string line)
         {
-            if (File.Exists(DEBUGFILEPATH))
+            if (File.Exists(LogFilepath))
             {
-                // Create a file to write to.
-                using (StreamWriter sw = System.IO.File.AppendText(DEBUGFILEPATH))
+                using (StreamWriter sw = System.IO.File.AppendText(LogFilepath))
                 {
                     sw.WriteLine(GetCurrentTimestampForLogs() + " " + line);
                 }
             }
         }
 
-        public void WriteLine(string line)
+        public void WriteLine(string line,
+            int indentLevel = 0,
+            [CallerMemberName]  string memberName = "",
+            [CallerFilePath]    string sourceFilePath = "",
+            [CallerLineNumber]  int sourceLineNumber = 0)
         {
-            WriteLineToDebugFile(line);
-            Trace.WriteLine(line);
+            string indents = "";
+            for (int i = 0; i < indentLevel; i++)
+            {
+                indents += "\t";
+            }
+            // C:Path/To/Source/Code/Class.cs Line: 31 FunctionA - Debug message.
+            string message = sourceFilePath + " Line: " + sourceLineNumber.ToString() + " " + memberName + " - " + indents + line;
+            WriteLineToLogFile(message);
+            Trace.WriteLine(message);
         }
 
         public void Dispose()
         {
-            if (File.Exists(DEBUGFILEPATH))
+            if (File.Exists(LogFilepath))
             {
-                // Create a file to write to.
-                using (StreamWriter sw = File.AppendText(DEBUGFILEPATH))
+                using (StreamWriter sw = File.AppendText(LogFilepath))
                 {
                     sw.WriteLine(GetCurrentTimestampForLogs() + " DoctestTestAdapter Log End");
                     sw.WriteLine(GetCurrentTimestampForLogs() + " ==========================");
