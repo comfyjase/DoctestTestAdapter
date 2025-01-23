@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace VS.Common
+namespace VS2022.DoctestTestAdapter
 {
     public static class DoctestTestAdapterConstants
     {

@@ -40,12 +40,6 @@
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\VS.Common\VS.Common.csproj">
-      <Project>{518c5ac7-c069-4725-be6d-3907e6211d4f}</Project>
-      <Name>VS.Common</Name>
-    </ProjectReference>
-  </ItemGroup>
-  <ItemGroup>
     <Compile Include="DoctestTestAdapterUtilities.cs" />
     <Compile Include="DoctestTestDiscoverer.cs" />
     <Compile Include="DoctestTestExecutor.cs" />
@@ -86,6 +80,12 @@
     </Reference>
     <Reference Include="System.Runtime.Serialization" />
     <Reference Include="System.Xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\VS.Common.DoctestTestAdapter\VS.Common.DoctestTestAdapter.csproj">
+      <Project>{518c5ac7-c069-4725-be6d-3907e6211d4f}</Project>
+      <Name>VS.Common.DoctestTestAdapter</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

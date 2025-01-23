@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace VS.Common
+namespace VS.Common.DoctestTestAdapter
 {
     public interface ITestFileAddRemoveListener
     {

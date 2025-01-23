@@ -3,7 +3,7 @@ using Microsoft.VisualStudio;
 using System;
 using System.Collections.Generic;
 
-namespace VS.Common
+namespace VS.Common.DoctestTestAdapter
 {
     public static class VSUtilities
     {

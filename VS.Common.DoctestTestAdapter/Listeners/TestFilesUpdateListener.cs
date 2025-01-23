@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using System.ComponentModel.Composition;
 using System.IO;
 
-namespace VS.Common
+namespace VS.Common.DoctestTestAdapter
 {
     [Export(typeof(ITestFilesUpdateListener))]
     public class TestFilesUpdateListener : IDisposable, ITestFilesUpdateListener

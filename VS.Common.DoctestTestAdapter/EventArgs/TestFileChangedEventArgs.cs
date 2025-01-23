@@ -1,4 +1,4 @@
-﻿namespace VS.Common
+﻿namespace VS.Common.DoctestTestAdapter
 {
     public enum TestFileChangedReason
     {

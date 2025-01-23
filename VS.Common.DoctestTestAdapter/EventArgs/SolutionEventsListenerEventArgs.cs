@@ -1,6 +1,6 @@
 ﻿using Microsoft.VisualStudio.Shell.Interop;
 
-namespace VS.Common
+namespace VS.Common.DoctestTestAdapter
 {
     public enum SolutionChangedReason
     {

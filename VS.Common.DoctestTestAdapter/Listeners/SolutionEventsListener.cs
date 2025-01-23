@@ -5,7 +5,7 @@ using Microsoft.VisualStudio.TestPlatform.ObjectModel;
 using System;
 using System.ComponentModel.Composition;
 
-namespace VS.Common
+namespace VS.Common.DoctestTestAdapter
 {
     [Export(typeof(ISolutionEventsListener))]
     public class SolutionEventsListener : IVsSolutionEvents, ISolutionEventsListener

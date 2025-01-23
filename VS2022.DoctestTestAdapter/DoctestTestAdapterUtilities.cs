@@ -2,7 +2,7 @@
 using Microsoft.VisualStudio.TestPlatform.ObjectModel.Adapter;
 using Microsoft.VisualStudio.TestPlatform.ObjectModel.Logging;
 using System.Collections.Generic;
-using VS.Common;
+using VS.Common.DoctestTestAdapter;
 
 namespace VS2022.DoctestTestAdapter
 {

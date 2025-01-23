@@ -5,7 +5,7 @@ using Microsoft.VisualStudio;
 using System;
 using System.ComponentModel.Composition;
 
-namespace VS.Common
+namespace VS.Common.DoctestTestAdapter
 {
     [Export(typeof(ITestFileAddRemoveListener))]
     public sealed class TestFileAddRemoveListener : IVsTrackProjectDocumentsEvents2, IDisposable, ITestFileAddRemoveListener
