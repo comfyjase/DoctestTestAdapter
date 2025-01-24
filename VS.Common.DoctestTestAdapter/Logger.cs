@@ -19,9 +19,9 @@ namespace VS.Common.DoctestTestAdapter
         }
 
         // "C:\\Path\\To\\Debug\\Folder\\";
-        private static string logDirectory;
+        private static string logDirectory = "";
         // "C:\\Path\\To\\Debug\\Folder\\[Date-Time].log";
-        private static string logFilepath;
+        private static string logFilepath = "";
 
         private Logger()
         {
@@ -34,7 +34,7 @@ namespace VS.Common.DoctestTestAdapter
         {
             // There doesn't appear to be a way to query the associated project name during discovery time from here.
             // E.g. C++DoctestProjectA
-            // I could store a projectName static var in this class and then set it when first iterating through source files.
+            // I could store a projectName static variable in this class and then set it when first iterating through source files.
             // But that feels very hacky and not very generic/good.
             // Instead, I'm just creating a unique ID for the logs to be stored under - not as ideal as trying to get the calling project name but it works!
             Guid guid = Guid.NewGuid();

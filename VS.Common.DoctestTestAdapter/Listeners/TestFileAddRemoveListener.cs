@@ -10,7 +10,7 @@ namespace VS.Common.DoctestTestAdapter
     [Export(typeof(ITestFileAddRemoveListener))]
     public sealed class TestFileAddRemoveListener : IVsTrackProjectDocumentsEvents2, IDisposable, ITestFileAddRemoveListener
     {
-        private readonly IVsTrackProjectDocuments2 projectDocTracker;
+        private readonly IVsTrackProjectDocuments2 projectDocTracker = null;
         private uint cookie = VSConstants.VSCOOKIE_NIL;
 
         public event EventHandler<TestFileChangedEventArgs> TestFileChanged;

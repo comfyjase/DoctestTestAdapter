@@ -41,6 +41,7 @@
   <ItemGroup>
     <Compile Include="DoctestTestAdapterUtilities.cs" />
     <Compile Include="DoctestTestContainer.cs" />
+    <Compile Include="DoctestTestContainerDiscoverer.cs" />
     <Compile Include="DoctestTestDiscoverer.cs" />
     <Compile Include="DoctestTestExecutor.cs" />
     <Compile Include="DoctestTestAdapterConstants.cs" />

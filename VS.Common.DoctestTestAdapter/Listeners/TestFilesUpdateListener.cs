@@ -21,12 +21,12 @@ namespace VS.Common.DoctestTestAdapter
             public DateTime LastEventTime { get; set; }
         }
 
-        private IDictionary<string, FileListenerInfo> fileWatchers;
+        private IDictionary<string, FileListenerInfo> fileWatchers = new Dictionary<string, FileListenerInfo>(StringComparer.OrdinalIgnoreCase);
         public event EventHandler<TestFileChangedEventArgs> FileChangedEvent;
 
         public TestFilesUpdateListener()
         {
-            fileWatchers = new Dictionary<string, FileListenerInfo>(StringComparer.OrdinalIgnoreCase);
+
         }
 
         public void AddWatch(string _path)

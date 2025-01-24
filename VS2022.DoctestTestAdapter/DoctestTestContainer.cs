@@ -11,7 +11,17 @@ namespace VS2022.DoctestTestAdapter
 {
     public class DoctestTestContainer : ITestContainer
     {
-        private ITestContainerDiscoverer discoverer;
+        private ITestContainerDiscoverer discoverer = null;
+        private readonly DateTime timeStamp = DateTime.Now;
+
+        public string Source { get; set; }
+        public Uri ExecutorUri { get; set; }
+        public IEnumerable<Guid> DebugEngines { get; set; }
+        public FrameworkVersion TargetFramework { get; set; }
+        public Architecture TargetPlatform { get; set; }
+        public IDeploymentData DeployAppContainer() { return null; }
+        public bool IsAppContainerTestContainer { get { return false; } }
+        public ITestContainerDiscoverer Discoverer { get { return discoverer; } }
 
         public DoctestTestContainer(ITestContainerDiscoverer _discoverer, string _source, Uri _executorUri)
             : this(_discoverer, _source, _executorUri, Enumerable.Empty<Guid>())
@@ -46,33 +56,22 @@ namespace VS2022.DoctestTestAdapter
             {
                 return DateTime.MinValue;
             }
-
         }
 
-        private readonly DateTime timeStamp;
-
-        public string Source { get; set; }
-        public Uri ExecutorUri { get; set; }
-        public IEnumerable<Guid> DebugEngines { get; set; }
-        public FrameworkVersion TargetFramework { get; set; }
-        public Architecture TargetPlatform { get; set; }
         public override string ToString()
         {
             return ExecutorUri.ToString() + "/" + Source;
         }
-        public IDeploymentData DeployAppContainer() { return null; }
-        public bool IsAppContainerTestContainer { get { return false; } }
-        public ITestContainerDiscoverer Discoverer { get { return discoverer; } }
 
         public int CompareTo(ITestContainer _other)
         {
-            var testContainer = _other as DoctestTestContainer;
+            DoctestTestContainer testContainer = _other as DoctestTestContainer;
             if (testContainer == null)
             {
                 return -1;
             }
 
-            var result = String.Compare(Source, testContainer.Source, StringComparison.OrdinalIgnoreCase);
+            int result = String.Compare(Source, testContainer.Source, StringComparison.OrdinalIgnoreCase);
             if (result != 0)
             {
                 return result;

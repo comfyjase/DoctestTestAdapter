@@ -10,7 +10,7 @@ namespace VS.Common.DoctestTestAdapter
     [Export(typeof(ISolutionEventsListener))]
     public class SolutionEventsListener : IVsSolutionEvents, ISolutionEventsListener
     {
-        private readonly IVsSolution solution;
+        private readonly IVsSolution solution = null;
         private uint cookie = VSConstants.VSCOOKIE_NIL;
 
         public event EventHandler<SolutionEventsListenerEventArgs> SolutionProjectChanged;
