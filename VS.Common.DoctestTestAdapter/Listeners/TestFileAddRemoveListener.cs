@@ -16,12 +16,12 @@ namespace VS.Common.DoctestTestAdapter
         public event EventHandler<TestFileChangedEventArgs> TestFileChanged;
 
         [ImportingConstructor]
-        public TestFileAddRemoveListener([Import(typeof(SVsServiceProvider))] IServiceProvider serviceProvider)
+        public TestFileAddRemoveListener([Import(typeof(SVsServiceProvider))] IServiceProvider _serviceProvider)
         {
             ThreadHelper.ThrowIfNotOnUIThread();
 
-            ValidateArg.NotNull(serviceProvider, "serviceProvider");
-            projectDocTracker = serviceProvider.GetService(typeof(SVsTrackProjectDocuments)) as IVsTrackProjectDocuments2;
+            ValidateArg.NotNull(_serviceProvider, "serviceProvider");
+            projectDocTracker = _serviceProvider.GetService(typeof(SVsTrackProjectDocuments)) as IVsTrackProjectDocuments2;
         }
 
         public void StartListeningForTestFileChanges()
@@ -47,22 +47,18 @@ namespace VS.Common.DoctestTestAdapter
             }
         }
 
-        private int OnNotifyTestFileAddRemove(int changedProjectCount,
-                                              IVsProject[] changedProjects,
-                                              string[] changedProjectItems,
-                                              int[] rgFirstIndices,
-                                              TestFileChangedReason reason)
+        private int OnNotifyTestFileAddRemove(int _changedProjectCount, IVsProject[] _changedProjects, string[] _changedProjectItems, int[] _rgFirstIndices, TestFileChangedReason _reason)
         {
-            int projItemIndex = 0;
-            for (int changeProjIndex = 0; changeProjIndex < changedProjectCount; changeProjIndex++)
+            int projectItemIndex = 0;
+            for (int changeProjectIndex = 0; changeProjectIndex < _changedProjectCount; changeProjectIndex++)
             {
-                int endProjectIndex = ((changeProjIndex + 1) == changedProjectCount) ? changedProjectItems.Length : rgFirstIndices[changeProjIndex + 1];
+                int endProjectIndex = ((changeProjectIndex + 1) == _changedProjectCount) ? _changedProjectItems.Length : _rgFirstIndices[changeProjectIndex + 1];
 
-                for (; projItemIndex < endProjectIndex; projItemIndex++)
+                for (; projectItemIndex < endProjectIndex; projectItemIndex++)
                 {
-                    if (changedProjects[changeProjIndex] != null && TestFileChanged != null)
+                    if (_changedProjects[changeProjectIndex] != null && TestFileChanged != null)
                     {
-                        TestFileChanged(this, new TestFileChangedEventArgs(changedProjectItems[projItemIndex], reason));
+                        TestFileChanged(this, new TestFileChangedEventArgs(_changedProjectItems[projectItemIndex], _reason));
                     }
 
                 }
@@ -70,138 +66,68 @@ namespace VS.Common.DoctestTestAdapter
             return VSConstants.S_OK;
         }
 
-        int IVsTrackProjectDocumentsEvents2.OnAfterAddFilesEx(int cProjects,
-                                                              int cFiles,
-                                                              IVsProject[] rgpProjects,
-                                                              int[] rgFirstIndices,
-                                                              string[] rgpszMkDocuments,
-                                                              VSADDFILEFLAGS[] rgFlags)
+        int IVsTrackProjectDocumentsEvents2.OnAfterAddFilesEx(int _cProjects, int _cFiles, IVsProject[] _rgpProjects, int[] _rgFirstIndices, string[] _rgpszMkDocuments, VSADDFILEFLAGS[] _rgFlags)
         {
-            return OnNotifyTestFileAddRemove(cProjects, rgpProjects, rgpszMkDocuments, rgFirstIndices, TestFileChangedReason.Added);
+            return OnNotifyTestFileAddRemove(_cProjects, _rgpProjects, _rgpszMkDocuments, _rgFirstIndices, TestFileChangedReason.Added);
         }
 
-        int IVsTrackProjectDocumentsEvents2.OnAfterRemoveFiles(int cProjects,
-                                                               int cFiles,
-                                                               IVsProject[] rgpProjects,
-                                                               int[] rgFirstIndices,
-                                                               string[] rgpszMkDocuments,
-                                                               VSREMOVEFILEFLAGS[] rgFlags)
+        int IVsTrackProjectDocumentsEvents2.OnAfterRemoveFiles(int _cProjects, int _cFiles, IVsProject[] _rgpProjects, int[] _rgFirstIndices, string[] _rgpszMkDocuments, VSREMOVEFILEFLAGS[] _rgFlags)
         {
-            return OnNotifyTestFileAddRemove(cProjects, rgpProjects, rgpszMkDocuments, rgFirstIndices, TestFileChangedReason.Removed);
+            return OnNotifyTestFileAddRemove(_cProjects, _rgpProjects, _rgpszMkDocuments, _rgFirstIndices, TestFileChangedReason.Removed);
         }
 
-        int IVsTrackProjectDocumentsEvents2.OnAfterRenameFiles(int cProjects,
-                                                               int cFiles,
-                                                               IVsProject[] rgpProjects,
-                                                               int[] rgFirstIndices,
-                                                               string[] rgszMkOldNames,
-                                                               string[] rgszMkNewNames,
-                                                               VSRENAMEFILEFLAGS[] rgFlags)
+        int IVsTrackProjectDocumentsEvents2.OnAfterRenameFiles(int _cProjects, int _cFiles, IVsProject[] _rgpProjects, int[] _rgFirstIndices, string[] _rgszMkOldNames, string[] _rgszMkNewNames, VSRENAMEFILEFLAGS[] _rgFlags)
         {
-            OnNotifyTestFileAddRemove(cProjects, rgpProjects, rgszMkOldNames, rgFirstIndices, TestFileChangedReason.Removed);
-            return OnNotifyTestFileAddRemove(cProjects, rgpProjects, rgszMkNewNames, rgFirstIndices, TestFileChangedReason.Added);
+            OnNotifyTestFileAddRemove(_cProjects, _rgpProjects, _rgszMkOldNames, _rgFirstIndices, TestFileChangedReason.Removed);
+            return OnNotifyTestFileAddRemove(_cProjects, _rgpProjects, _rgszMkNewNames, _rgFirstIndices, TestFileChangedReason.Added);
         }
 
-        int IVsTrackProjectDocumentsEvents2.OnAfterAddDirectoriesEx(int cProjects,
-                                                                    int cDirectories,
-                                                                    IVsProject[] rgpProjects,
-                                                                    int[] rgFirstIndices,
-                                                                    string[] rgpszMkDocuments,
-                                                                    VSADDDIRECTORYFLAGS[] rgFlags)
+        int IVsTrackProjectDocumentsEvents2.OnAfterAddDirectoriesEx(int _cProjects, int _cDirectories, IVsProject[] _rgpProjects, int[] _rgFirstIndices, string[] _rgpszMkDocuments, VSADDDIRECTORYFLAGS[] _rgFlags)
         {
             return VSConstants.S_OK;
         }
 
-        int IVsTrackProjectDocumentsEvents2.OnAfterRemoveDirectories(int cProjects,
-                                                                     int cDirectories,
-                                                                     IVsProject[] rgpProjects,
-                                                                     int[] rgFirstIndices,
-                                                                     string[] rgpszMkDocuments,
-                                                                     VSREMOVEDIRECTORYFLAGS[] rgFlags)
+        int IVsTrackProjectDocumentsEvents2.OnAfterRemoveDirectories(int _cProjects, int _cDirectories, IVsProject[] _rgpProjects, int[] _rgFirstIndices, string[] _rgpszMkDocuments, VSREMOVEDIRECTORYFLAGS[] _rgFlags)
         {
             return VSConstants.S_OK;
         }
 
-
-        int IVsTrackProjectDocumentsEvents2.OnAfterRenameDirectories(int cProjects,
-                                                                     int cDirs,
-                                                                     IVsProject[] rgpProjects,
-                                                                     int[] rgFirstIndices,
-                                                                     string[] rgszMkOldNames,
-                                                                     string[] rgszMkNewNames,
-                                                                     VSRENAMEDIRECTORYFLAGS[] rgFlags)
+        int IVsTrackProjectDocumentsEvents2.OnAfterRenameDirectories(int _cProjects, int _cDirs, IVsProject[] _rgpProjects, int[] _rgFirstIndices, string[] _rgszMkOldNames, string[] _rgszMkNewNames, VSRENAMEDIRECTORYFLAGS[] _rgFlags)
         {
             return VSConstants.S_OK;
         }
 
-        int IVsTrackProjectDocumentsEvents2.OnAfterSccStatusChanged(int cProjects,
-                                                                    int cFiles,
-                                                                    IVsProject[] rgpProjects,
-                                                                    int[] rgFirstIndices,
-                                                                    string[] rgpszMkDocuments,
-                                                                    uint[] rgdwSccStatus)
+        int IVsTrackProjectDocumentsEvents2.OnAfterSccStatusChanged(int _cProjects, int _cFiles, IVsProject[] _rgpProjects, int[] _rgFirstIndices, string[] _rgpszMkDocuments, uint[] _rgdwSccStatus)
         {
             return VSConstants.S_OK;
         }
 
-        int IVsTrackProjectDocumentsEvents2.OnQueryAddDirectories(IVsProject pProject,
-                                                                  int cDirectories,
-                                                                  string[] rgpszMkDocuments,
-                                                                  VSQUERYADDDIRECTORYFLAGS[] rgFlags,
-                                                                  VSQUERYADDDIRECTORYRESULTS[] pSummaryResult,
-                                                                  VSQUERYADDDIRECTORYRESULTS[] rgResults)
+        int IVsTrackProjectDocumentsEvents2.OnQueryAddDirectories(IVsProject _pProject, int _cDirectories, string[] _rgpszMkDocuments, VSQUERYADDDIRECTORYFLAGS[] _rgFlags, VSQUERYADDDIRECTORYRESULTS[] _pSummaryResult, VSQUERYADDDIRECTORYRESULTS[] _rgResults)
         {
             return VSConstants.S_OK;
         }
 
-        int IVsTrackProjectDocumentsEvents2.OnQueryAddFiles(IVsProject pProject,
-                                                            int cFiles,
-                                                            string[] rgpszMkDocuments,
-                                                            VSQUERYADDFILEFLAGS[] rgFlags,
-                                                            VSQUERYADDFILERESULTS[] pSummaryResult,
-                                                            VSQUERYADDFILERESULTS[] rgResults)
+        int IVsTrackProjectDocumentsEvents2.OnQueryAddFiles(IVsProject _pProject, int _cFiles, string[] _rgpszMkDocuments, VSQUERYADDFILEFLAGS[] _rgFlags, VSQUERYADDFILERESULTS[] _pSummaryResult, VSQUERYADDFILERESULTS[] _rgResults)
         {
             return VSConstants.S_OK;
         }
 
-        int IVsTrackProjectDocumentsEvents2.OnQueryRemoveDirectories(IVsProject pProject,
-                                                                     int cDirectories,
-                                                                     string[] rgpszMkDocuments,
-                                                                     VSQUERYREMOVEDIRECTORYFLAGS[] rgFlags,
-                                                                     VSQUERYREMOVEDIRECTORYRESULTS[] pSummaryResult,
-                                                                     VSQUERYREMOVEDIRECTORYRESULTS[] rgResults)
+        int IVsTrackProjectDocumentsEvents2.OnQueryRemoveDirectories(IVsProject _pProject, int _cDirectories, string[] _rgpszMkDocuments, VSQUERYREMOVEDIRECTORYFLAGS[] _rgFlags, VSQUERYREMOVEDIRECTORYRESULTS[] _pSummaryResult, VSQUERYREMOVEDIRECTORYRESULTS[] _rgResults)
         {
             return VSConstants.S_OK;
         }
 
-        int IVsTrackProjectDocumentsEvents2.OnQueryRemoveFiles(IVsProject pProject,
-                                                               int cFiles,
-                                                               string[] rgpszMkDocuments,
-                                                               VSQUERYREMOVEFILEFLAGS[] rgFlags,
-                                                               VSQUERYREMOVEFILERESULTS[] pSummaryResult,
-                                                               VSQUERYREMOVEFILERESULTS[] rgResults)
+        int IVsTrackProjectDocumentsEvents2.OnQueryRemoveFiles(IVsProject _pProject, int _cFiles, string[] _rgpszMkDocuments, VSQUERYREMOVEFILEFLAGS[] _rgFlags, VSQUERYREMOVEFILERESULTS[] _pSummaryResult, VSQUERYREMOVEFILERESULTS[] _rgResults)
         {
             return VSConstants.S_OK;
         }
 
-        int IVsTrackProjectDocumentsEvents2.OnQueryRenameDirectories(IVsProject pProject,
-                                                                     int cDirs,
-                                                                     string[] rgszMkOldNames,
-                                                                     string[] rgszMkNewNames,
-                                                                     VSQUERYRENAMEDIRECTORYFLAGS[] rgFlags,
-                                                                     VSQUERYRENAMEDIRECTORYRESULTS[] pSummaryResult,
-                                                                     VSQUERYRENAMEDIRECTORYRESULTS[] rgResults)
+        int IVsTrackProjectDocumentsEvents2.OnQueryRenameDirectories(IVsProject _pProject, int _cDirs, string[] _rgszMkOldNames, string[] _rgszMkNewNames, VSQUERYRENAMEDIRECTORYFLAGS[] _rgFlags, VSQUERYRENAMEDIRECTORYRESULTS[] _pSummaryResult, VSQUERYRENAMEDIRECTORYRESULTS[] _rgResults)
         {
             return VSConstants.S_OK;
         }
 
-        int IVsTrackProjectDocumentsEvents2.OnQueryRenameFiles(IVsProject pProject,
-                                                               int cFiles,
-                                                               string[] rgszMkOldNames,
-                                                               string[] rgszMkNewNames,
-                                                               VSQUERYRENAMEFILEFLAGS[] rgFlags,
-                                                               VSQUERYRENAMEFILERESULTS[] pSummaryResult,
-                                                               VSQUERYRENAMEFILERESULTS[] rgResults)
+        int IVsTrackProjectDocumentsEvents2.OnQueryRenameFiles(IVsProject _pProject, int _cFiles, string[] _rgszMkOldNames, string[] _rgszMkNewNames, VSQUERYRENAMEFILEFLAGS[] _rgFlags, VSQUERYRENAMEFILERESULTS[] _pSummaryResult, VSQUERYRENAMEFILERESULTS[] _rgResults)
         {
             return VSConstants.S_OK;
         }

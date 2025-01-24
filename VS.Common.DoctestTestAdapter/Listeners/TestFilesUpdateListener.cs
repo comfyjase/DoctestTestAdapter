@@ -11,9 +11,9 @@ namespace VS.Common.DoctestTestAdapter
     {
         private class FileListenerInfo
         {
-            public FileListenerInfo(FileSystemWatcher watcher)
+            public FileListenerInfo(FileSystemWatcher _watcher)
             {
-                Watcher = watcher;
+                Watcher = _watcher;
                 LastEventTime = DateTime.MinValue;
             }
 
@@ -29,20 +29,20 @@ namespace VS.Common.DoctestTestAdapter
             fileWatchers = new Dictionary<string, FileListenerInfo>(StringComparer.OrdinalIgnoreCase);
         }
 
-        public void AddWatch(string path)
+        public void AddWatch(string _path)
         {
-            ValidateArg.NotNullOrEmpty(path, "path");
+            ValidateArg.NotNullOrEmpty(_path, "path");
 
-            if (!String.IsNullOrEmpty(path))
+            if (!String.IsNullOrEmpty(_path))
             {
-                string directoryName = Path.GetDirectoryName(path);
-                string fileName = Path.GetFileName(path);
+                string directoryName = Path.GetDirectoryName(_path);
+                string fileName = Path.GetFileName(_path);
 
                 FileListenerInfo watcherInfo;
-                if (!fileWatchers.TryGetValue(path, out watcherInfo))
+                if (!fileWatchers.TryGetValue(_path, out watcherInfo))
                 {
                     watcherInfo = new FileListenerInfo(new FileSystemWatcher(directoryName, fileName));
-                    fileWatchers.Add(path, watcherInfo);
+                    fileWatchers.Add(_path, watcherInfo);
 
                     watcherInfo.Watcher.Changed += OnChanged;
                     watcherInfo.Watcher.EnableRaisingEvents = true;
@@ -50,18 +50,18 @@ namespace VS.Common.DoctestTestAdapter
             }
         }
 
-        public void RemoveWatch(string path)
+        public void RemoveWatch(string _path)
         {
-            ValidateArg.NotNullOrEmpty(path, "path");
+            ValidateArg.NotNullOrEmpty(_path, "path");
 
-            if (!String.IsNullOrEmpty(path))
+            if (!String.IsNullOrEmpty(_path))
             {
                 FileListenerInfo watcherInfo;
-                if (fileWatchers.TryGetValue(path, out watcherInfo))
+                if (fileWatchers.TryGetValue(_path, out watcherInfo))
                 {
                     watcherInfo.Watcher.EnableRaisingEvents = false;
 
-                    fileWatchers.Remove(path);
+                    fileWatchers.Remove(_path);
 
                     watcherInfo.Watcher.Changed -= OnChanged;
                     watcherInfo.Watcher.Dispose();
@@ -70,16 +70,16 @@ namespace VS.Common.DoctestTestAdapter
             }
         }
 
-        private void OnChanged(object sender, FileSystemEventArgs e)
+        private void OnChanged(object _sender, FileSystemEventArgs _e)
         {
             FileListenerInfo watcherInfo;
-            if (FileChangedEvent != null && fileWatchers.TryGetValue(e.FullPath, out watcherInfo))
+            if (FileChangedEvent != null && fileWatchers.TryGetValue(_e.FullPath, out watcherInfo))
             {
-                DateTime writeTime = File.GetLastWriteTime(e.FullPath);
+                DateTime writeTime = File.GetLastWriteTime(_e.FullPath);
                 if (writeTime.Subtract(watcherInfo.LastEventTime).TotalMilliseconds > 500)
                 {
                     watcherInfo.LastEventTime = writeTime;
-                    FileChangedEvent(sender, new TestFileChangedEventArgs(e.FullPath, TestFileChangedReason.Changed));
+                    FileChangedEvent(_sender, new TestFileChangedEventArgs(_e.FullPath, TestFileChangedReason.Changed));
                 }
             }
         }
@@ -90,9 +90,9 @@ namespace VS.Common.DoctestTestAdapter
             GC.SuppressFinalize(this);
         }
 
-        protected virtual void Dispose(bool disposing)
+        protected virtual void Dispose(bool _disposing)
         {
-            if (disposing && fileWatchers != null)
+            if (_disposing && fileWatchers != null)
             {
                 foreach (FileListenerInfo fileWatcher in fileWatchers.Values)
                 {

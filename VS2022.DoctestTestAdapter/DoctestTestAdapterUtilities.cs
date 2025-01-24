@@ -14,20 +14,20 @@ namespace VS2022.DoctestTestAdapter
 
             TestCase testCase = new TestCase();
 
-
+            
 
             Logger.Instance.WriteLine("End");
 
             return testCase;
         }
 
-        public static List<TestCase> GetTests(IEnumerable<string> sources, IDiscoveryContext discoveryContext, IMessageLogger logger, ITestCaseDiscoverySink discoverySink)
+        public static List<TestCase> GetTests(IEnumerable<string> _sources, IDiscoveryContext _discoveryContext, IMessageLogger _logger, ITestCaseDiscoverySink _discoverySink)
         {
             Logger.Instance.WriteLine("Begin");
 
             List<TestCase> tests = new List<TestCase>();
 
-            foreach (string source in sources)
+            foreach (string source in _sources)
             {
                 Logger.Instance.WriteLine("Searching file: " + source, 1);
 

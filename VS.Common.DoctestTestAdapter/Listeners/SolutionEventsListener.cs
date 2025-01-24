@@ -17,12 +17,12 @@ namespace VS.Common.DoctestTestAdapter
         public event EventHandler SolutionUnloaded;
 
         [ImportingConstructor]
-        public SolutionEventsListener([Import(typeof(SVsServiceProvider))] IServiceProvider serviceProvider)
+        public SolutionEventsListener([Import(typeof(SVsServiceProvider))] IServiceProvider _serviceProvider)
         {
             ThreadHelper.ThrowIfNotOnUIThread();
 
-            ValidateArg.NotNull(serviceProvider, "serviceProvider");
-            solution = serviceProvider.GetService(typeof(SVsSolution)) as IVsSolution;
+            ValidateArg.NotNull(_serviceProvider, "serviceProvider");
+            solution = _serviceProvider.GetService(typeof(SVsSolution)) as IVsSolution;
         }
 
         public void StartListeningForChanges()
@@ -48,11 +48,11 @@ namespace VS.Common.DoctestTestAdapter
             }
         }
 
-        public void OnSolutionProjectUpdated(IVsProject project, SolutionChangedReason reason)
+        public void OnSolutionProjectUpdated(IVsProject _project, SolutionChangedReason _reason)
         {
-            if (SolutionProjectChanged != null && project != null)
+            if (SolutionProjectChanged != null && _project != null)
             {
-                SolutionProjectChanged(this, new SolutionEventsListenerEventArgs(project, reason));
+                SolutionProjectChanged(this, new SolutionEventsListenerEventArgs(_project, _reason));
             }
         }
 
@@ -64,61 +64,61 @@ namespace VS.Common.DoctestTestAdapter
             }
         }
 
-        public int OnAfterLoadProject(IVsHierarchy pStubHierarchy, IVsHierarchy pRealHierarchy)
+        public int OnAfterLoadProject(IVsHierarchy _pStubHierarchy, IVsHierarchy _pRealHierarchy)
         {
             ThreadHelper.ThrowIfNotOnUIThread();
 
-            IVsProject project = pRealHierarchy as IVsProject;
+            IVsProject project = _pRealHierarchy as IVsProject;
             OnSolutionProjectUpdated(project, SolutionChangedReason.Load);
             return VSConstants.S_OK;
         }
 
-        public int OnBeforeUnloadProject(IVsHierarchy pRealHierarchy, IVsHierarchy pStubHierarchy)
+        public int OnBeforeUnloadProject(IVsHierarchy _pRealHierarchy, IVsHierarchy _pStubHierarchy)
         {
             ThreadHelper.ThrowIfNotOnUIThread();
 
-            IVsProject project = pRealHierarchy as IVsProject;
+            IVsProject project = _pRealHierarchy as IVsProject;
             OnSolutionProjectUpdated(project, SolutionChangedReason.Unload);
             return VSConstants.S_OK;
         }
 
-        public int OnAfterCloseSolution(object pUnkReserved)
+        public int OnAfterCloseSolution(object _pUnkReserved)
         {
             OnSolutionUnloaded();
             return VSConstants.S_OK;
         }
 
-        public int OnAfterOpenProject(IVsHierarchy pHierarchy, int fAdded)
+        public int OnAfterOpenProject(IVsHierarchy _pHierarchy, int _fAdded)
         {
             return VSConstants.S_OK;
         }
 
-        public int OnAfterOpenSolution(object pUnkReserved, int fNewSolution)
+        public int OnAfterOpenSolution(object _pUnkReserved, int _fNewSolution)
         {
             return VSConstants.S_OK;
         }
 
-        public int OnBeforeCloseProject(IVsHierarchy pHierarchy, int fRemoved)
+        public int OnBeforeCloseProject(IVsHierarchy _pHierarchy, int _fRemoved)
         {
             return VSConstants.S_OK;
         }
 
-        public int OnBeforeCloseSolution(object pUnkReserved)
+        public int OnBeforeCloseSolution(object _pUnkReserved)
         {
             return VSConstants.S_OK;
         }
 
-        public int OnQueryCloseProject(IVsHierarchy pHierarchy, int fRemoving, ref int pfCancel)
+        public int OnQueryCloseProject(IVsHierarchy _pHierarchy, int _fRemoving, ref int _pfCancel)
         {
             return VSConstants.S_OK;
         }
 
-        public int OnQueryCloseSolution(object pUnkReserved, ref int pfCancel)
+        public int OnQueryCloseSolution(object _pUnkReserved, ref int _pfCancel)
         {
             return VSConstants.S_OK;
         }
 
-        public int OnQueryUnloadProject(IVsHierarchy pRealHierarchy, ref int pfCancel)
+        public int OnQueryUnloadProject(IVsHierarchy _pRealHierarchy, ref int _pfCancel)
         {
             return VSConstants.S_OK;
         }

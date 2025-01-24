@@ -12,19 +12,19 @@ namespace VS2022.DoctestTestAdapter
     {
         private bool cancelled = false;
 
-        private void RunTest(TestCase test, TestResult testResult)
+        private void RunTest(TestCase _test, TestResult _testResult)
         {
             // TODO: Logic to run doctest tests?
 
         }
 
-        public void RunTests(IEnumerable<TestCase> tests, IRunContext runContext, IFrameworkHandle frameworkHandle)
+        public void RunTests(IEnumerable<TestCase> _tests, IRunContext _runContext, IFrameworkHandle _frameworkHandle)
         {
             Logger.Instance.WriteLine("Begin");
 
             cancelled = false;
 
-            foreach (TestCase test in tests)
+            foreach (TestCase test in _tests)
             {
                 if (cancelled)
                     break;
@@ -33,21 +33,21 @@ namespace VS2022.DoctestTestAdapter
 
                 TestResult testResult = new TestResult(test);
                 RunTest(test, testResult);
-                frameworkHandle.RecordResult(testResult);
+                _frameworkHandle.RecordResult(testResult);
             }
 
             Logger.Instance.WriteLine("End");
         }
 
-        public void RunTests(IEnumerable<string> sources, IRunContext runContext, IFrameworkHandle frameworkHandle)
+        public void RunTests(IEnumerable<string> _sources, IRunContext _runContext, IFrameworkHandle _frameworkHandle)
         {
             Logger.Instance.WriteLine("Begin");
 
-            IDiscoveryContext discoveryContext = runContext;
-            IMessageLogger logger = frameworkHandle;
+            IDiscoveryContext discoveryContext = _runContext;
+            IMessageLogger logger = _frameworkHandle;
             ITestCaseDiscoverySink discoverySink = null;
-            IEnumerable<TestCase> tests = DoctestTestAdapterUtilities.GetTests(sources, discoveryContext, logger, discoverySink);
-            RunTests(tests, runContext, frameworkHandle);
+            IEnumerable<TestCase> tests = DoctestTestAdapterUtilities.GetTests(_sources, discoveryContext, logger, discoverySink);
+            RunTests(tests, _runContext, _frameworkHandle);
 
             Logger.Instance.WriteLine("End");
         }

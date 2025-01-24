@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<CodeSnippets xmlns="http://schemas.microsoft.com/VisualStudio/2005/CodeSnippet">
+    <CodeSnippet Format="1.0.0">
+        <Header>
+			<Title>Helpful Comments</Title>
+			<Author>Jase Mottershead</Author>
+			<Shortcut>cc</Shortcut>
+			<Description>Snippets for displaying helpful comment styles.</Description>
+			<SnippetTypes>
+				<SnippetType>Expansion</SnippetType>
+			</SnippetTypes>
+		</Header>
+        <Snippet>
+			<Declarations>
+				<Literal>
+					<ID>Jase_TODO</ID>
+					<ToolTip>Inserts a TODO comment with current date and username.</ToolTip>
+					<Default>//TODO_%USERNAME%_%date%: </Default>
+				</Literal>
+			</Declarations>
+			<Code Language="CSharp">
+				<![CDATA[//TODO_%USERNAME%_%date%: ]]>
+			</Code>
+      <Code Language="CPP">
+				<![CDATA[//TODO_%USERNAME%_%date%: ]]>
+      </Code>
+		</Snippet>
+    </CodeSnippet>
+</CodeSnippets>

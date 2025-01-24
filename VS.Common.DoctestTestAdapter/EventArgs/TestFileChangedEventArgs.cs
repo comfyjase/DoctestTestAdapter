@@ -13,10 +13,10 @@
         public string File { get; private set; }
         public TestFileChangedReason ChangedReason { get; private set; }
 
-        public TestFileChangedEventArgs(string file, TestFileChangedReason reason)
+        public TestFileChangedEventArgs(string _file, TestFileChangedReason _reason)
         {
-            File = file;
-            ChangedReason = reason;
+            File = _file;
+            ChangedReason = _reason;
         }
     }
 }
