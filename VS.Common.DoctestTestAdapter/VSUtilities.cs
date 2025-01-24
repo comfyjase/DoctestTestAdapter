@@ -22,79 +22,83 @@ namespace VS.Common.DoctestTestAdapter
             return shouldAttachDebugger;
         }
 
-        public static IEnumerable<IVsHierarchy> EnumerateLoadedProjects(this IVsSolution solution, __VSENUMPROJFLAGS enumFlags)
+        public static IEnumerable<IVsHierarchy> EnumerateLoadedProjects(this IVsSolution _solution, __VSENUMPROJFLAGS _enumFlags)
         {
+            //TODO_comfyjase_24/01/2025: Comment back in once the thread exception has been fixed to fix compiler warning VSTHRD010.
             //ThreadHelper.ThrowIfNotOnUIThread();
 
-            Guid prjType = Guid.Empty;
-            IEnumHierarchies ppHier;
+            Guid projectType = Guid.Empty;
+            IEnumHierarchies ppHierarchy;
 
-            int hr = solution.GetProjectEnum((uint)enumFlags, ref prjType, out ppHier);
-            if (ErrorHandler.Succeeded(hr) && ppHier != null)
+            int hr = _solution.GetProjectEnum((uint)_enumFlags, ref projectType, out ppHierarchy);
+            if (ErrorHandler.Succeeded(hr) && ppHierarchy != null)
             {
                 uint fetched = 0;
                 IVsHierarchy[] hierarchies = new IVsHierarchy[1];
-                while (ppHier.Next(1, hierarchies, out fetched) == VSConstants.S_OK)
+                while (ppHierarchy.Next(1, hierarchies, out fetched) == VSConstants.S_OK)
                 {
                     yield return hierarchies[0];
                 }
             }
         }
 
-        public static IEnumerable<string> GetProjectItems(IVsProject project)
+        public static IEnumerable<string> GetProjectItems(IVsProject _project)
         {
+            //TODO_comfyjase_24/01/2025: Comment back in once the thread exception has been fixed to fix compiler warning VSTHRD010.
             //ThreadHelper.ThrowIfNotOnUIThread();
 
             // Each item in VS OM is IVSHierarchy. 
-            IVsHierarchy hierarchy = (IVsHierarchy)project;
+            IVsHierarchy hierarchy = (IVsHierarchy)_project;
             return GetProjectItems(hierarchy, VSConstants.VSITEMID_ROOT);
         }
 
-        public static IEnumerable<string> GetProjectItems(IVsHierarchy project, uint itemId)
+        public static IEnumerable<string> GetProjectItems(IVsHierarchy _project, uint _itemId)
         {
             //ThreadHelper.ThrowIfNotOnUIThread();
 
-            object pVar = GetPropertyValue((int)__VSHPROPID.VSHPROPID_FirstChild, itemId, project);
+            object childPropertyValue = GetPropertyValue((int)__VSHPROPID.VSHPROPID_FirstChild, _itemId, _project);
 
-            uint childId = GetItemId(pVar);
+            uint childId = GetItemId(childPropertyValue);
             while (childId != VSConstants.VSITEMID_NIL)
             {
-                string childPath = GetCanonicalName(childId, project);
+                string childPath = GetCanonicalName(childId, _project);
                 yield return childPath;
 
-                foreach (string childNodePath in GetProjectItems(project, childId)) yield return childNodePath;
+                foreach (string childNodePath in GetProjectItems(_project, childId)) 
+                    yield return childNodePath;
 
-                pVar = GetPropertyValue((int)__VSHPROPID.VSHPROPID_NextSibling, childId, project);
-                childId = GetItemId(pVar);
+                childPropertyValue = GetPropertyValue((int)__VSHPROPID.VSHPROPID_NextSibling, childId, _project);
+                childId = GetItemId(childPropertyValue);
             }
         }
 
-        public static uint GetItemId(object pvar)
+        public static uint GetItemId(object _propertyValue)
         {
-            if (pvar == null) return VSConstants.VSITEMID_NIL;
-            if (pvar is int) return (uint)(int)pvar;
-            if (pvar is uint) return (uint)pvar;
-            if (pvar is short) return (uint)(short)pvar;
-            if (pvar is ushort) return (uint)(ushort)pvar;
-            if (pvar is long) return (uint)(long)pvar;
+            if (_propertyValue == null)     return VSConstants.VSITEMID_NIL;
+            if (_propertyValue is int)      return (uint)(int)_propertyValue;
+            if (_propertyValue is uint)     return (uint)_propertyValue;
+            if (_propertyValue is short)    return (uint)(short)_propertyValue;
+            if (_propertyValue is ushort)   return (uint)(ushort)_propertyValue;
+            if (_propertyValue is long)     return (uint)(long)_propertyValue;
             return VSConstants.VSITEMID_NIL;
         }
 
-        public static object GetPropertyValue(int propid, uint itemId, IVsHierarchy vsHierarchy)
+        public static object GetPropertyValue(int _propertyId, uint _itemId, IVsHierarchy _vsHierarchy)
         {
+            //TODO_comfyjase_24/01/2025: Comment back in once the thread exception has been fixed to fix compiler warning VSTHRD010.
             //ThreadHelper.ThrowIfNotOnUIThread();
 
-            if (itemId == VSConstants.VSITEMID_NIL)
+            if (_itemId == VSConstants.VSITEMID_NIL)
             {
                 return null;
             }
 
             try
             {
-                object o;
-                ErrorHandler.ThrowOnFailure(vsHierarchy.GetProperty(itemId, propid, out o));
+                object propertyValue;
+                ErrorHandler.ThrowOnFailure(_vsHierarchy.GetProperty(_itemId, _propertyId, out propertyValue));
 
-                return o;
+                return propertyValue;
             }
             catch (System.NotImplementedException)
             {
@@ -110,16 +114,16 @@ namespace VS.Common.DoctestTestAdapter
             }
         }
 
-        public static string GetCanonicalName(uint itemId, IVsHierarchy hierarchy)
+        public static string GetCanonicalName(uint _itemId, IVsHierarchy _hierarchy)
         {
+            //TODO_comfyjase_24/01/2025: Comment back in once the thread exception has been fixed to fix compiler warning VSTHRD010.
             //ThreadHelper.ThrowIfNotOnUIThread();
 
             string strRet = string.Empty;
-            int hr = hierarchy.GetCanonicalName(itemId, out strRet);
+            int hr = _hierarchy.GetCanonicalName(_itemId, out strRet);
 
             if (hr == VSConstants.E_NOTIMPL)
             {
-                // Special case E_NOTIMLP to avoid perf hit to throw an exception.
                 return string.Empty;
             }
             else
@@ -133,7 +137,6 @@ namespace VS.Common.DoctestTestAdapter
                     strRet = string.Empty;
                 }
 
-                // This could be in the case of S_OK, S_FALSE, etc.
                 return strRet;
             }
         }

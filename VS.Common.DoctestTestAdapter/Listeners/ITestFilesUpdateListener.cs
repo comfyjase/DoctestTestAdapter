@@ -6,7 +6,7 @@ namespace VS.Common.DoctestTestAdapter
     {
         event EventHandler<TestFileChangedEventArgs> FileChangedEvent;
 
-        void AddWatch(string path);
-        void RemoveWatch(string path);
+        void AddWatch(string _path);
+        void RemoveWatch(string _path);
     }
 }

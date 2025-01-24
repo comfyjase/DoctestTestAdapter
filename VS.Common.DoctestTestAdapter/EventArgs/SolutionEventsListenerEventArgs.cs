@@ -14,10 +14,10 @@ namespace VS.Common.DoctestTestAdapter
         public IVsProject Project { get; private set; }
         public SolutionChangedReason ChangedReason { get; private set; }
 
-        public SolutionEventsListenerEventArgs(IVsProject project, SolutionChangedReason reason)
+        public SolutionEventsListenerEventArgs(IVsProject _project, SolutionChangedReason _reason)
         {
-            Project = project;
-            ChangedReason = reason;
+            Project = _project;
+            ChangedReason = _reason;
         }
     }
 }

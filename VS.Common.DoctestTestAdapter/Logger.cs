@@ -8,38 +8,23 @@ namespace VS.Common.DoctestTestAdapter
 {
     public class Logger
     {
-        private static Logger instance = null;
-        private static readonly object padlock = new object();
+        private static readonly Lazy<Logger> instance = new Lazy<Logger>(() => new Logger());
 
         public static Logger Instance 
         {
             get 
             {
-                lock (padlock)
-                {
-                    if (instance == null)
-                    {
-                        instance = new Logger();
-                    }
-                    return instance;
-                }
+                return instance.Value;
             }
         }
 
         // "C:\\Path\\To\\Debug\\Folder\\";
         private static string logDirectory;
-        // "C:\\Path\\To\\Debug\\Folder\\Log.log";
+        // "C:\\Path\\To\\Debug\\Folder\\[Date-Time].log";
         private static string logFilepath;
-
-        private static int projectID = 0;
 
         private Logger()
         {
-            if (VSUtilities.ShouldAttachDebugger())
-            {
-                Debugger.Launch();
-            }
-
             SetupLogDirectory();
             SetupLogFile();
             WriteLine("New logger created");
@@ -51,7 +36,7 @@ namespace VS.Common.DoctestTestAdapter
             // E.g. C++DoctestProjectA
             // I could store a projectName static var in this class and then set it when first iterating through source files.
             // But that feels very hacky and not very generic/good.
-            // This isn't much better but at least provides unique folders for storing logs somewhere.
+            // Instead, I'm just creating a unique ID for the logs to be stored under - not as ideal as trying to get the calling project name but it works!
             Guid guid = Guid.NewGuid();
             string uniqueIDStr = guid.ToString("n");
             string currentDirectory = Directory.GetCurrentDirectory();
@@ -70,7 +55,7 @@ namespace VS.Common.DoctestTestAdapter
 
             if (!File.Exists(logFilepath))
             {
-                // Create the debug file.
+                // Create the log file.
                 using (StreamWriter sw = File.CreateText(logFilepath))
                 {
                     WriteLineToOutput("[DoctestTestAdapter] Created log file: " + logFilepath);
@@ -93,6 +78,12 @@ namespace VS.Common.DoctestTestAdapter
             }
         }
 
+        /// <summary>
+        /// This is separate from the function below because we need to respect the Windows filenaming rules.
+        /// Can't have certain characters like "/" or ":" etc.
+        /// So use a slightly different format just for the filename.
+        /// </summary>
+        /// <returns></returns>
         private string GetCurrentTimestampForDebugFilename()
         {
             DateTime currentTime = DateTime.Now;
@@ -100,6 +91,10 @@ namespace VS.Common.DoctestTestAdapter
             return currentTimestampAsString;
         }
 
+        /// <summary>
+        /// Will be prefixed to all messages in the log file.
+        /// </summary>
+        /// <returns></returns>
         private string GetCurrentTimestampForLogs()
         {
             DateTime currentTime = DateTime.Now;
@@ -107,36 +102,56 @@ namespace VS.Common.DoctestTestAdapter
             return currentTimestampAsString;
         }
 
-        private void WriteLineToOutput(string line)
+        private void WriteLineToOutput(string _line)
         {
-            Trace.WriteLine(line);
-            Console.WriteLine(line);
+            Trace.WriteLine(_line);
+            Console.WriteLine(_line);
         }
 
-        private void WriteLineToLogFile(string line)
+        private void WriteLineToLogFile(string _line)
         {
             if (File.Exists(logFilepath))
             {
                 using (StreamWriter sw = File.AppendText(logFilepath))
                 {
-                    sw.WriteLine(line);
+                    sw.WriteLine(_line);
                 }
             }
         }
 
-        public void WriteLine(string line,
-            int indentLevel = 0,
-            [CallerMemberName]  string memberName = "",
-            [CallerFilePath]    string sourceFilePath = "",
-            [CallerLineNumber]  int sourceLineNumber = 0)
+        /// <summary>
+        /// Writes _line to the debug/console output as well as to the log file.
+        /// Note: This will automatically prefix a timestamp, logtag, filename, line number and function name to the message.
+        /// E.g. 
+        /// private void Foo()
+        /// {
+        ///     // Will print out: [Timestamp] [DoctestTestAdapter] Class.cs Line: 31 Foo - Debug message here.
+        ///     Logger.Instance.WriteLine("Debug message here.");
+        /// }
+        /// 
+        /// </summary>
+        /// <param name="_line"></param>
+        /// <param name="_indentLevel"></param>
+        /// <param name="_memberName"></param>
+        /// <param name="_sourceFilePath"></param>
+        /// <param name="_sourceLineNumber"></param>
+        public void WriteLine(string _line, int _indentLevel = 0, [CallerMemberName] string _memberName = "", [CallerFilePath] string _sourceFilePath = "", [CallerLineNumber] int _sourceLineNumber = 0)
         {
             string indents = "";
-            for (int i = 0; i < indentLevel; i++)
+            for (int i = 0; i < _indentLevel; i++)
             {
                 indents += "\t";
             }
+            
+            string timeStamp = GetCurrentTimestampForLogs();
+            string logTag = "[DoctestTestAdapter]";
+            string filename = Path.GetFileName(_sourceFilePath);
+            string lineNumber = "Line: " + _sourceLineNumber.ToString();
+            string functionName = _memberName;
+            string separator = " ";
+
             // Full message should end up being: [Timestamp] [DoctestTestAdapter] Class.cs Line: 31 FunctionA - Debug message.
-            string message = GetCurrentTimestampForLogs() + " [DoctestTestAdapter] " + Path.GetFileName(sourceFilePath) + " Line: " + sourceLineNumber.ToString() + " " + memberName + " - " + indents + line;
+            string message = timeStamp + separator + logTag + separator + filename + separator + lineNumber + separator + functionName + " - " + indents + _line;
             WriteLineToLogFile(message);
             WriteLineToOutput(message);
         }
