@@ -93,18 +93,18 @@ namespace VS2022.DoctestTestAdapter
                 IEnumerable<string> files = FindTestFiles(_e.Project);
                 if (_e.ChangedReason == SolutionChangedReason.Load)
                 {
-                    UpdateFileWatcher(files, true);
+                    UpdateFileListener(files, true);
                 }
                 else if (_e.ChangedReason == SolutionChangedReason.Unload)
                 {
-                    UpdateFileWatcher(files, false);
+                    UpdateFileListener(files, false);
                 }
             }
 
             Logger.Instance.WriteLine("End");
         }
 
-        private void UpdateFileWatcher(IEnumerable<string> _files, bool _isAdd)
+        private void UpdateFileListener(IEnumerable<string> _files, bool _isAdd)
         {
             Logger.Instance.WriteLine("Begin");
 
@@ -112,12 +112,12 @@ namespace VS2022.DoctestTestAdapter
             {
                 if (_isAdd)
                 {
-                    testFilesUpdateListener.AddWatch(file);
+                    testFilesUpdateListener.AddFileListener(file);
                     AddTestContainerIfTestFile(file);
                 }
                 else
                 {
-                    testFilesUpdateListener.RemoveWatch(file);
+                    testFilesUpdateListener.RemoveFileListener(file);
                     RemoveTestContainer(file);
                 }
             }
@@ -138,12 +138,12 @@ namespace VS2022.DoctestTestAdapter
                 switch (_e.ChangedReason)
                 {
                     case TestFileChangedReason.Added:
-                        testFilesUpdateListener.AddWatch(_e.File);
+                        testFilesUpdateListener.AddFileListener(_e.File);
                         AddTestContainerIfTestFile(_e.File);
 
                         break;
                     case TestFileChangedReason.Removed:
-                        testFilesUpdateListener.RemoveWatch(_e.File);
+                        testFilesUpdateListener.RemoveFileListener(_e.File);
                         RemoveTestContainer(_e.File);
 
                         break;
@@ -162,7 +162,7 @@ namespace VS2022.DoctestTestAdapter
         {
             Logger.Instance.WriteLine("Begin");
 
-            bool isTestFile = this.IsTestFile(_file);
+            bool isTestFile = IsTestFile(_file);
             RemoveTestContainer(_file);
 
             if (isTestFile)
@@ -198,7 +198,7 @@ namespace VS2022.DoctestTestAdapter
             {
                 cachedContainers.Clear();
                 IEnumerable<string> testFiles = FindTestFiles();
-                UpdateFileWatcher(testFiles, true);
+                UpdateFileListener(testFiles, true);
                 initialContainerSearch = false;
             }
 
@@ -254,7 +254,9 @@ namespace VS2022.DoctestTestAdapter
                 Logger.Instance.WriteLine("End");
                 
                 bool isTestFile = (DoctestTestAdapterConstants.HFileExtension.Equals(Path.GetExtension(_path), StringComparison.OrdinalIgnoreCase)
-                                 || DoctestTestAdapterConstants.HPPFileExtension.Equals(Path.GetExtension(_path), StringComparison.OrdinalIgnoreCase));
+                                 || DoctestTestAdapterConstants.HPPFileExtension.Equals(Path.GetExtension(_path), StringComparison.OrdinalIgnoreCase)
+                                 || DoctestTestAdapterConstants.DLLFileExtension.Equals(Path.GetExtension(_path), StringComparison.OrdinalIgnoreCase)
+                                 || DoctestTestAdapterConstants.ExeFileExtension.Equals(Path.GetExtension(_path), StringComparison.OrdinalIgnoreCase));
 
                 return isTestFile;
             }
