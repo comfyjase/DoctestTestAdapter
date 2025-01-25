@@ -61,7 +61,7 @@
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\VS2022.DoctestTestAdapter\VS2022.DoctestTestAdapter.csproj">
-      <Project>{9eb6f6e2-faf6-42d3-9114-c784062c679c}</Project>
+      <Project>{9EB6F6E2-FAF6-42D3-9114-C784062C679C}</Project>
       <Name>VS2022.DoctestTestAdapter</Name>
       <IncludeOutputGroupsInVSIX>BuiltProjectOutputGroup%3bBuiltProjectOutputGroupDependencies%3bGetCopyToOutputDirectoryItems%3bSatelliteDllsProjectOutputGroup%3b</IncludeOutputGroupsInVSIX>
       <IncludeOutputGroupsInVSIXLocalOnly>DebugSymbolsProjectOutputGroup%3b</IncludeOutputGroupsInVSIXLocalOnly>

@@ -54,15 +54,6 @@
   </ItemGroup>
   <ItemGroup>
     <Reference Include="Microsoft.CSharp" />
-    <Reference Include="Microsoft.ServiceHub.Analyzers, Version=4.7.36.61943, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
-      <HintPath>..\packages\Microsoft.ServiceHub.Analyzers.4.7.36\lib\net472\Microsoft.ServiceHub.Analyzers.dll</HintPath>
-    </Reference>
-    <Reference Include="Microsoft.ServiceHub.Analyzers.CodeFixes, Version=4.7.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
-      <HintPath>..\packages\Microsoft.ServiceHub.Analyzers.4.7.36\lib\net472\Microsoft.ServiceHub.Analyzers.CodeFixes.dll</HintPath>
-    </Reference>
-    <Reference Include="Microsoft.ServiceHub.Analyzers.CSharp, Version=4.7.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
-      <HintPath>..\packages\Microsoft.ServiceHub.Analyzers.4.7.36\lib\net472\Microsoft.ServiceHub.Analyzers.CSharp.dll</HintPath>
-    </Reference>
     <Reference Include="netstandard" />
     <Reference Include="System" />
     <Reference Include="System.ComponentModel.Composition" />

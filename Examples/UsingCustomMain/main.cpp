@@ -1,7 +1,7 @@
 #define DOCTEST_CONFIG_IMPLEMENT
 #include <doctest.h>
 
-#include "TestIsEven.h"
+#include "TestIsEvenUsingCustomMain.h"
 
 int main(int argc, char** argv)
 {

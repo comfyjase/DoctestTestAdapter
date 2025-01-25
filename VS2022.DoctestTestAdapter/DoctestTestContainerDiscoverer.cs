@@ -237,7 +237,7 @@ namespace VS2022.DoctestTestAdapter
             Logger.Instance.WriteLine("Begin");
 
             IEnumerable<string> testFiles = (from item in VSUtilities.GetProjectItems(_project)
-                    where this.IsTestFile(item)
+                    where IsTestFile(item)
                     select item); 
             
             Logger.Instance.WriteLine("End");
@@ -251,13 +251,21 @@ namespace VS2022.DoctestTestAdapter
 
             try
             {
-                Logger.Instance.WriteLine("End");
-                
-                bool isTestFile = (DoctestTestAdapterConstants.HFileExtension.Equals(Path.GetExtension(_path), StringComparison.OrdinalIgnoreCase)
-                                 || DoctestTestAdapterConstants.HPPFileExtension.Equals(Path.GetExtension(_path), StringComparison.OrdinalIgnoreCase)
-                                 || DoctestTestAdapterConstants.DLLFileExtension.Equals(Path.GetExtension(_path), StringComparison.OrdinalIgnoreCase)
-                                 || DoctestTestAdapterConstants.ExeFileExtension.Equals(Path.GetExtension(_path), StringComparison.OrdinalIgnoreCase));
+                string currentDirectory = Directory.GetCurrentDirectory();
+                bool isProjectFile = _path.Contains(currentDirectory);
+                bool isDLLFile = (Path.GetExtension(_path).Equals(DoctestTestAdapterConstants.DLLFileExtension, StringComparison.OrdinalIgnoreCase));
+                bool isExeFile = (Path.GetExtension(_path).Equals(DoctestTestAdapterConstants.ExeFileExtension, StringComparison.OrdinalIgnoreCase));
+                bool isHFile = (Path.GetExtension(_path).Equals(DoctestTestAdapterConstants.HFileExtension, StringComparison.OrdinalIgnoreCase));
+                bool isHPPFile = (Path.GetExtension(_path).Equals(DoctestTestAdapterConstants.HPPFileExtension, StringComparison.OrdinalIgnoreCase));
 
+                bool isTestFile = (isProjectFile && (isDLLFile || isExeFile || isHFile || isHPPFile));
+
+                if (isTestFile)
+                {
+                    Logger.Instance.WriteLine("Found potential test file: " + _path, 1);
+                }
+
+                Logger.Instance.WriteLine("End");
                 return isTestFile;
             }
             catch (IOException e)

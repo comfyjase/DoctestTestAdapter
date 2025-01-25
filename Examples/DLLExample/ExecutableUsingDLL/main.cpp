@@ -1,6 +1,6 @@
 #define DOCTEST_CONFIG_IMPLEMENTATION_IN_DLL
 #include <doctest.h>
-#include "TestIsEvenExe.h"
+#include "TestIsEvenExecutableUsingDLL.h"
 
 #include <iostream>
 

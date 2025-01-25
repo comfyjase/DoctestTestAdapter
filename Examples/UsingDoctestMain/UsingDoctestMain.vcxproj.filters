@@ -20,7 +20,7 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="TestIsEven.h">
+    <ClInclude Include="TestIsEvenUsingDoctestMain.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
