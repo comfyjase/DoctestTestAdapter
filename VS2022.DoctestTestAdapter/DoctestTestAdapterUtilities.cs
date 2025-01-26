@@ -1,28 +1,124 @@
-﻿using Microsoft.ServiceHub.Resources;
-using Microsoft.VisualStudio.TestPlatform.ObjectModel;
+﻿using Microsoft.VisualStudio.TestPlatform.ObjectModel;
 using Microsoft.VisualStudio.TestPlatform.ObjectModel.Adapter;
 using Microsoft.VisualStudio.TestPlatform.ObjectModel.Logging;
+using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
-using System.Linq;
 using VS.Common.DoctestTestAdapter;
 
 namespace VS2022.DoctestTestAdapter
 {
     public static class DoctestTestAdapterUtilities
     {
-        public static TestCase CreateTestCase(string _testName, string _source, int _lineNumber)
+        private static readonly String EmptyNamespaceString = "Empty Namespace";
+        private static readonly String EmptyClassString = "Empty Class";
+
+        public static TestCase CreateTestCase(string _namespace, string _className, string _testName, string _sourceFilePath, int _lineNumber)
         {
             Logger.Instance.WriteLine("Begin");
 
-            TestCase testCase = new TestCase(_testName, DoctestTestAdapterConstants.ExecutorUri, _source);
-            testCase.CodeFilePath = _source;
+            string[] parts = new string[] { _namespace, _className, _testName };
+            string fullyQualifiedName = String.Join("::", parts);
+            
+            TestCase testCase = new TestCase(fullyQualifiedName, DoctestTestAdapterConstants.ExecutorUri, _sourceFilePath);
+            testCase.DisplayName = _testName;
+            testCase.CodeFilePath = _sourceFilePath;
             testCase.LineNumber = _lineNumber;
 
             Logger.Instance.WriteLine("End");
 
             return testCase;
+        }
+
+        private static string GetSubstring(string _line, int startIndex, int endIndex)
+        {
+            Debug.Assert(startIndex > 0, "startIndex should be above 0");
+            Debug.Assert(endIndex > 0, "endIndex should be above 0");
+            Debug.Assert(endIndex > startIndex, "endIndex should be more than startIndex");
+            Debug.Assert(endIndex <= _line.Length, "endIndex should be less than or equal to _line.Length");
+
+            string substring = "";
+
+            substring = _line.Substring(startIndex, endIndex - startIndex);
+
+            return substring;
+        }
+
+        private static string GetNamespaceSubstring(string _line)
+        {
+            string testFileNamespace = EmptyNamespaceString;
+
+            string namespaceKeyword = "namespace";
+            int startIndex = _line.IndexOf(namespaceKeyword) + namespaceKeyword.Length;
+            
+            // E.g. if the line only contains the namespace keyword and nothing else...
+            // Then just count this as an empty namespace.
+            if (startIndex == _line.Length)
+            {
+                return testFileNamespace;
+            }
+
+            int endIndex = (_line.Contains("{") ? _line.IndexOf("{") : _line.Length);
+            
+            string subString = GetSubstring(_line, startIndex, endIndex).Replace(" ", "");
+            if (!string.IsNullOrEmpty(subString))
+            {
+                testFileNamespace = subString.Replace(" ", "");
+            }
+
+            return testFileNamespace;
+        }
+
+        private static string GetTestSuiteNameSubstring(string _line)
+        {
+            string testSuiteName = EmptyNamespaceString;
+
+            string openBracketStartString = "(\"";
+            int startIndex = _line.IndexOf(openBracketStartString) + openBracketStartString.Length;
+            int endIndex = _line.LastIndexOf("\")");
+
+            string subString = GetSubstring(_line, startIndex, endIndex);
+            if (!string.IsNullOrEmpty(subString))
+            {
+                testSuiteName = subString;
+            }
+
+            return testSuiteName;
+        }
+
+        private static string GetClassNameSubstring(string _line)
+        {
+            string className = EmptyClassString;
+
+            string classKeyword = "class ";
+            int startIndex = _line.IndexOf(classKeyword) + classKeyword.Length;
+            int endIndex = (_line.Contains(":") ? _line.LastIndexOf(" :") : _line.Length);
+
+            string subString = GetSubstring(_line, startIndex, endIndex);
+            if (!string.IsNullOrEmpty(subString))
+            {
+                className = subString.Replace(" ", "");
+            }
+
+            return className;
+        }
+
+        private static string GetTestNameSubstring(string _line)
+        {
+            string testName = string.Empty;
+
+            string openBracketStartString = "(\"";
+            int startIndex = _line.IndexOf(openBracketStartString) + openBracketStartString.Length;
+            int endIndex = _line.LastIndexOf("\")");
+
+            string subString = GetSubstring(_line, startIndex, endIndex);
+            if (!string.IsNullOrEmpty(subString))
+            {
+                testName = subString;
+            }
+
+            return testName;
         }
 
         public static List<TestCase> GetTests(IEnumerable<string> _sources, IDiscoveryContext _discoveryContext, IMessageLogger _logger, ITestCaseDiscoverySink _discoverySink)
@@ -34,15 +130,15 @@ namespace VS2022.DoctestTestAdapter
             string currentDirectory = Directory.GetCurrentDirectory();
             Logger.Instance.WriteLine("Searching current directory: " + currentDirectory);
 
-            foreach (string source in _sources)
+            foreach (string sourceFile in _sources)
             {
-                if (source.Contains(currentDirectory))
+                if (sourceFile.Contains(currentDirectory))
                 {
-                    Logger.Instance.WriteLine("Searching file: " + source, 1);
+                    Logger.Instance.WriteLine("Searching file: " + sourceFile, 1);
 
                     // Executable files
-                    if (Path.GetExtension(source).Equals(DoctestTestAdapterConstants.ExeFileExtension, System.StringComparison.OrdinalIgnoreCase)
-                        || Path.GetExtension(source).Equals(DoctestTestAdapterConstants.DLLFileExtension, System.StringComparison.OrdinalIgnoreCase))
+                    if (Path.GetExtension(sourceFile).Equals(DoctestTestAdapterConstants.ExeFileExtension, System.StringComparison.OrdinalIgnoreCase)
+                        || Path.GetExtension(sourceFile).Equals(DoctestTestAdapterConstants.DLLFileExtension, System.StringComparison.OrdinalIgnoreCase))
                     {
                         //TODO_comfyjase_25/01/2025: Check if you need to store these executables in order to run the unit tests during RunTests...
                         // Might need to use them as for creating a new Process to actually run the tests?
@@ -51,22 +147,33 @@ namespace VS2022.DoctestTestAdapter
                     else
                     {
                         // If the file contains the TEST_CASE macro, for now just consider it a valid test case.
-                        string[] allLines = File.ReadAllLines(source);
+                        string[] allLines = File.ReadAllLines(sourceFile);
                         int currentLineNumber = 1;
+                        string testFileNamespace = EmptyNamespaceString;
+                        string testClassName = EmptyClassString;
+
                         foreach (string line in allLines)
                         {
-                            if (line.Contains("TEST_CASE(\""))
+                            if (line.Contains("namespace"))
                             {
-                                int startIndex = line.IndexOf("(\"") + 2;
-                                int endIndex = line.LastIndexOf("\")");
-
-                                Debug.Assert(startIndex > 0, "startIndex should be above 0");
-                                Debug.Assert(endIndex > 0, "endIndex should be above 0");
-                                Debug.Assert(endIndex > startIndex, "endIndex should be more than startIndex");
-
-                                string testName = line.Substring(startIndex, endIndex - startIndex);
-
-                                TestCase testCase = CreateTestCase(testName, source, currentLineNumber);
+                                testFileNamespace = GetNamespaceSubstring(line);
+                            }
+                            else if (line.Contains("TEST_SUITE"))
+                            {
+                                testFileNamespace = GetTestSuiteNameSubstring(line);
+                            }
+                            else if (line.Contains("class"))
+                            {
+                                testClassName = GetClassNameSubstring(line);
+                            }
+                            else if (line.Contains("TEST_CASE(\""))
+                            {
+                                string testName = GetTestNameSubstring(line);
+                                TestCase testCase = CreateTestCase(testFileNamespace, 
+                                    testClassName, 
+                                    testName, 
+                                    sourceFile, 
+                                    currentLineNumber);
                                 tests.Add(testCase);
                             }
 

@@ -30,6 +30,9 @@ namespace VS2022.DoctestTestAdapter
         private ISolutionEventsListener solutionListener = null;
         private ITestFilesUpdateListener testFilesUpdateListener = null;
         private ITestFileAddRemoveListener testFilesAddRemoveListener = null;
+        private IVsSolution solution = null;
+
+        private string solutionDirectory = "";
         private bool initialContainerSearch = true;
         private readonly List<ITestContainer> cachedContainers = new List<ITestContainer>();
 
@@ -45,6 +48,9 @@ namespace VS2022.DoctestTestAdapter
             }
 
             serviceProvider = _serviceProvider;
+            solution = serviceProvider.GetService(typeof(SVsSolution)) as IVsSolution;
+            solution.GetSolutionInfo(out solutionDirectory, out string solutionName, out string solutionDirectory2);
+            Debug.Assert(!String.IsNullOrEmpty(solutionDirectory), "Couldn't find solutionDirectory?");
 
             solutionListener = new SolutionEventsListener(serviceProvider);
             testFilesUpdateListener = new TestFilesUpdateListener();
@@ -214,7 +220,6 @@ namespace VS2022.DoctestTestAdapter
 
             Logger.Instance.WriteLine("Begin");
 
-            IVsSolution solution = (IVsSolution)serviceProvider.GetService(typeof(SVsSolution));
             if (solution != null)
             {
                 IEnumerable<IVsProject> loadedProjects = solution.EnumerateLoadedProjects(__VSENUMPROJFLAGS.EPF_LOADEDINSOLUTION).OfType<IVsProject>();
@@ -251,8 +256,7 @@ namespace VS2022.DoctestTestAdapter
 
             try
             {
-                string currentDirectory = Directory.GetCurrentDirectory();
-                bool isProjectFile = _path.Contains(currentDirectory);
+                bool isProjectFile = _path.Contains(solutionDirectory);
                 bool isDLLFile = (Path.GetExtension(_path).Equals(DoctestTestAdapterConstants.DLLFileExtension, StringComparison.OrdinalIgnoreCase));
                 bool isExeFile = (Path.GetExtension(_path).Equals(DoctestTestAdapterConstants.ExeFileExtension, StringComparison.OrdinalIgnoreCase));
                 bool isHFile = (Path.GetExtension(_path).Equals(DoctestTestAdapterConstants.HFileExtension, StringComparison.OrdinalIgnoreCase));
