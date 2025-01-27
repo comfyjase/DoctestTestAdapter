@@ -99,6 +99,7 @@ namespace VS2022.DoctestTestAdapter
                 IEnumerable<string> files = FindTestFiles(_e.Project);
                 if (_e.ChangedReason == SolutionChangedReason.Load)
                 {
+                    _e.Project.ToString();
                     UpdateFileListener(files, true);
                 }
                 else if (_e.ChangedReason == SolutionChangedReason.Unload)
@@ -241,10 +242,17 @@ namespace VS2022.DoctestTestAdapter
 
             Logger.Instance.WriteLine("Begin");
 
+            //_project.
+
             IEnumerable<string> testFiles = (from item in VSUtilities.GetProjectItems(_project)
                     where IsTestFile(item)
-                    select item); 
-            
+                    select item);
+
+            foreach (string testFile in testFiles)
+            {
+                
+            }
+
             Logger.Instance.WriteLine("End");
 
             return testFiles;
