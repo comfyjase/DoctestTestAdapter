@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RunSettings>
+  <!-- Generic run configuration settings here for the whole test suite to use. -->
+  <RunConfiguration>
+	<!-- Path relative to directory that contains .runsettings file-->
+    <ResultsDirectory>.\TestResults</ResultsDirectory>
+	
+    <!-- Timeout in milliseconds. A valid value should be greater than 0. -->
+    <TestSessionTimeout>10000</TestSessionTimeout>
+  </RunConfiguration>
+  
+  <!-- Doctest Test Adapter specific settings here. -->
+  <DoctestTestAdapter>
+	<!-- List of output files the project produces, used so the test executor knows what executable files are available. -->
+	<OutputFiles>
+		<OutputFile FilePath="C:\SideProjects\Repositories\DoctestTestAdapter\Examples\bin\x64\Debug\UsingDoctestMain\UsingDoctestMain.exe" CommandArguments=""/>
+		<OutputFile FilePath="C:\SideProjects\Repositories\DoctestTestAdapter\Examples\bin\x64\Debug\UsingCustomMain\UsingCustomMain.exe" CommandArguments=""/>
+		<OutputFile FilePath="C:\SideProjects\Repositories\DoctestTestAdapter\Examples\bin\x64\Debug\ExecutableUsingDLL\ExecutableUsingDLL.exe" CommandArguments=""/>
+		<OutputFile FilePath="C:\SideProjects\Repositories\DoctestTestAdapter\Examples\bin\x64\Debug\DLL\DLL.dll" CommandArguments=""/>
+	</OutputFiles>
+  </DoctestTestAdapter>
+  
+</RunSettings>

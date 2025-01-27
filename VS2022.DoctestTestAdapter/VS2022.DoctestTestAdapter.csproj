@@ -45,6 +45,7 @@
     <Compile Include="DoctestTestDiscoverer.cs" />
     <Compile Include="DoctestTestExecutor.cs" />
     <Compile Include="DoctestTestAdapterConstants.cs" />
+    <Compile Include="Settings\DoctestSettingsOutputFileData.cs" />
     <Compile Include="Settings\DoctestSettingsProvider.cs" />
   </ItemGroup>
   <ItemGroup>
