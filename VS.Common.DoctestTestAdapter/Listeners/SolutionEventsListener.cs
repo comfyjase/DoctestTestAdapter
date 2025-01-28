@@ -13,6 +13,7 @@ namespace VS.Common.DoctestTestAdapter
         private readonly IVsSolution solution = null;
         private uint cookie = VSConstants.VSCOOKIE_NIL;
 
+        public event EventHandler SolutionOpened;
         public event EventHandler<SolutionEventsListenerEventArgs> SolutionProjectChanged;
         public event EventHandler SolutionUnloaded;
 
@@ -95,6 +96,7 @@ namespace VS.Common.DoctestTestAdapter
 
         public int OnAfterOpenSolution(object _pUnkReserved, int _fNewSolution)
         {
+            SolutionOpened?.Invoke(this, EventArgs.Empty);
             return VSConstants.S_OK;
         }
 

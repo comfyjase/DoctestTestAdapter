@@ -26,7 +26,7 @@ namespace VS2022.DoctestTestAdapter
         }
         public event EventHandler TestContainersUpdated;
 
-        private IServiceProvider serviceProvider = null;
+        private System.IServiceProvider serviceProvider = null;
         private ISolutionEventsListener solutionListener = null;
         private ITestFilesUpdateListener testFilesUpdateListener = null;
         private ITestFileAddRemoveListener testFilesAddRemoveListener = null;
@@ -38,7 +38,7 @@ namespace VS2022.DoctestTestAdapter
 
         [ImportingConstructor]
         public DoctestTestContainerDiscoverer(
-            [Import(typeof(SVsServiceProvider))] IServiceProvider _serviceProvider)
+            [Import(typeof(SVsServiceProvider))] System.IServiceProvider _serviceProvider)
         {
             Logger.Instance.WriteLine("Constructor called");
 
@@ -49,8 +49,11 @@ namespace VS2022.DoctestTestAdapter
 
             serviceProvider = _serviceProvider;
             solution = serviceProvider.GetService(typeof(SVsSolution)) as IVsSolution;
-            solution.GetSolutionInfo(out solutionDirectory, out string solutionName, out string solutionDirectory2);
-            Debug.Assert(!String.IsNullOrEmpty(solutionDirectory), "Couldn't find solutionDirectory?");
+            if (solution != null)
+            {
+                solution.GetSolutionInfo(out solutionDirectory, out string solutionName, out string solutionDirectory2);
+            }
+            //Debug.Assert(!String.IsNullOrEmpty(solutionDirectory), "Couldn't find solutionDirectory?");
 
             solutionListener = new SolutionEventsListener(serviceProvider);
             testFilesUpdateListener = new TestFilesUpdateListener();
@@ -59,13 +62,27 @@ namespace VS2022.DoctestTestAdapter
             testFilesAddRemoveListener.TestFileChanged += OnProjectItemChanged;
             testFilesAddRemoveListener.StartListeningForTestFileChanges();
 
+            solutionListener.SolutionOpened += SolutionListenerOnSolutionOpened;
             solutionListener.SolutionUnloaded += SolutionListenerOnSolutionUnloaded;
-            solutionListener.SolutionProjectChanged += OnSolutionProjectChanged;
+            solutionListener.SolutionProjectChanged += SolutionListenerOnProjectChanged;
             solutionListener.StartListeningForChanges();
 
             testFilesUpdateListener.FileChangedEvent += OnProjectItemChanged;
         }
 
+        private void SolutionListenerOnSolutionOpened(object sender, EventArgs e)
+        {
+            Debug.Assert(serviceProvider != null);
+
+            if (solution == null)
+            {
+                solution = serviceProvider.GetService(typeof(SVsSolution)) as IVsSolution;
+                if (solution != null)
+                {
+                    solution.GetSolutionInfo(out solutionDirectory, out string solutionName, out string solutionDirectory2);
+                }
+            }
+        }
 
         private void OnTestContainersChanged()
         {
@@ -88,7 +105,7 @@ namespace VS2022.DoctestTestAdapter
             Logger.Instance.WriteLine("End");
         }
 
-        private void OnSolutionProjectChanged(object _sender, SolutionEventsListenerEventArgs _e)
+        private void SolutionListenerOnProjectChanged(object _sender, SolutionEventsListenerEventArgs _e)
         {
             ThreadHelper.ThrowIfNotOnUIThread();
 
@@ -319,7 +336,9 @@ namespace VS2022.DoctestTestAdapter
 
                 if (solutionListener != null)
                 {
-                    solutionListener.SolutionProjectChanged -= OnSolutionProjectChanged;
+                    solutionListener.SolutionOpened -= SolutionListenerOnSolutionOpened;
+                    solutionListener.SolutionProjectChanged -= SolutionListenerOnProjectChanged;
+                    solutionListener.SolutionUnloaded -= SolutionListenerOnSolutionUnloaded;
                     solutionListener.StopListeningForChanges();
                     solutionListener = null;
                 }

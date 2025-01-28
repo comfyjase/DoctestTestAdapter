@@ -5,7 +5,9 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
+using System.Text.RegularExpressions;
 using VS.Common.DoctestTestAdapter;
+using VS2022.DoctestTestAdapter.Settings;
 
 namespace VS2022.DoctestTestAdapter
 {
@@ -14,14 +16,14 @@ namespace VS2022.DoctestTestAdapter
         private static readonly String EmptyNamespaceString = "Empty Namespace";
         private static readonly String EmptyClassString = "Empty Class";
 
-        public static TestCase CreateTestCase(string _namespace, string _className, string _testName, string _sourceFilePath, int _lineNumber)
+        public static TestCase CreateTestCase(string _testOwner, string _namespace, string _className, string _testName, string _sourceFilePath, int _lineNumber)
         {
             Logger.Instance.WriteLine("Begin");
 
             string[] parts = new string[] { _namespace, _className, _testName };
             string fullyQualifiedName = String.Join("::", parts);
-            
-            TestCase testCase = new TestCase(fullyQualifiedName, DoctestTestAdapterConstants.ExecutorUri, _sourceFilePath);
+
+            TestCase testCase = new TestCase(fullyQualifiedName, DoctestTestAdapterConstants.ExecutorUri, _testOwner);
             testCase.DisplayName = _testName;
             testCase.CodeFilePath = _sourceFilePath;
             testCase.LineNumber = _lineNumber;
@@ -121,6 +123,50 @@ namespace VS2022.DoctestTestAdapter
             return testName;
         }
 
+        public static string GetTestProjectName(IRunSettings _runSettings, string _filePath)
+        {
+            // Updating the source of tests to use the correct output files.
+            // In these cases, exe/dll files.
+            //IRunSettings runSettings = _discoveryContext.RunSettings;
+
+            // Just default to the source filepath if nothing else was found.
+            string testSource = _filePath;
+            
+            if (_runSettings != null)
+            {
+                Logger.Instance.WriteLine("1) Found run settings");
+
+                DoctestSettingsProvider doctestSettingsProvider = _runSettings.GetSettings(DoctestTestAdapterConstants.DoctestTestAdapterSettingsName) as DoctestSettingsProvider;
+
+                if (doctestSettingsProvider != null)
+                {
+                    Logger.Instance.WriteLine("2) Found doctest run settings");
+
+                    Debug.Assert(doctestSettingsProvider.OutputFileData.Count > 0, "Run settings file should have at least one OutputFile entry.");
+
+                    foreach (DoctestSettingsOutputFileData outputFileData in doctestSettingsProvider.OutputFileData)
+                    {
+                        string searchString = outputFileData.ProjectFilePath;
+                        //string searchString = outputFileData.FilePath;
+
+                        string regexPattern = @"\b" + Regex.Escape(Path.GetFileNameWithoutExtension(searchString)) + @"\b";
+                        if (Regex.Match(_filePath, regexPattern, RegexOptions.IgnoreCase).Success)
+                        {
+                            // Associate this test with this output filepath.
+                            Logger.Instance.WriteLine("3) Associating test file " + Path.GetFileName(_filePath) + " with file " + Path.GetFileName(searchString));
+                            return (testSource = searchString);
+                        }
+                        else
+                        {
+                            Logger.Instance.WriteLine("3) Test file " + _filePath + " didn't match regexPattern " + regexPattern + " for file " + Regex.Escape(Path.GetFileNameWithoutExtension(searchString)));
+                        }
+                    }
+                }
+            }
+
+            return testSource;
+        }
+
         public static List<TestCase> GetTests(IEnumerable<string> _sources, IDiscoveryContext _discoveryContext, IMessageLogger _logger, ITestCaseDiscoverySink _discoverySink)
         {
             Logger.Instance.WriteLine("Begin");
@@ -168,8 +214,12 @@ namespace VS2022.DoctestTestAdapter
                             }
                             else if (line.Contains("TEST_CASE(\""))
                             {
+                                //TODO_comfyjase_28/01/2025: Find out if there is a way to update the test owner to point to the project instead of the individual header files.
+                                //string testOwner = GetTestProjectName(_discoveryContext.RunSettings, sourceFile);
+                                string testOwner = sourceFile;
                                 string testName = GetTestNameSubstring(line);
-                                TestCase testCase = CreateTestCase(testFileNamespace, 
+                                TestCase testCase = CreateTestCase(testOwner,
+                                    testFileNamespace, 
                                     testClassName, 
                                     testName, 
                                     sourceFile, 
@@ -182,6 +232,8 @@ namespace VS2022.DoctestTestAdapter
                     }                    
                 }
             }
+
+            
 
             Logger.Instance.WriteLine("Found " + tests.Count + " TestCases");
             Logger.Instance.WriteLine("End");

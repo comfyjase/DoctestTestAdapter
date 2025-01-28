@@ -4,14 +4,17 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Xml;
-using VS.Common.DoctestTestAdapter;
 
 namespace VS2022.DoctestTestAdapter.Settings
 {
-    [SettingsName("DoctestTestAdapter")]
+    [SettingsName(DoctestTestAdapterConstants.DoctestTestAdapterSettingsName)]
     public class DoctestSettingsProvider : ISettingsProvider
     {
         private List<DoctestSettingsOutputFileData> outputFileData = new List<DoctestSettingsOutputFileData>();
+        public List<DoctestSettingsOutputFileData> OutputFileData 
+        { 
+            get { return outputFileData; } 
+        }
 
         public void Load(XmlReader reader)
         {
@@ -21,21 +24,18 @@ namespace VS2022.DoctestTestAdapter.Settings
             {
                 if (reader.Name.Equals("OutputFile", StringComparison.OrdinalIgnoreCase))
                 {
-                    //Logger.Instance.WriteLine("Node Name: " + reader.Name + " Node Type: " + reader.NodeType.ToString() + " Node Value: " + reader.Value);
-
+                    string projectFilePathAttribute = reader.GetAttribute("ProjectFilePath");
                     string filePathAttribute = reader.GetAttribute("FilePath");
                     string commandArgumentsAttribute = reader.GetAttribute("CommandArguments");
 
                     // Note, not providing a check for command arguments because these should be optional.
                     if (!string.IsNullOrEmpty(filePathAttribute))
                     {
-                        DoctestSettingsOutputFileData fileData = new DoctestSettingsOutputFileData(filePathAttribute, commandArgumentsAttribute);
+                        DoctestSettingsOutputFileData fileData = new DoctestSettingsOutputFileData(projectFilePathAttribute, filePathAttribute, commandArgumentsAttribute);
 
                         if (!outputFileData.Contains(fileData))
                         {
                             outputFileData.Add(fileData);
-
-                            Logger.Instance.WriteLine("Stored output file data FilePath: " + fileData.FilePath + " CommandArguments: " + fileData.CommandArguments);
                         }
                     }
                 }

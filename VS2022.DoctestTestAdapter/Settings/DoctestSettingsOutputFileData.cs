@@ -1,15 +1,17 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace VS2022.DoctestTestAdapter.Settings
 {
     public class DoctestSettingsOutputFileData : IEquatable<DoctestSettingsOutputFileData>
     {
-        private string filePath = "";
-        private string commandArguments = "";
+        private String projectFilePath = String.Empty;
+        private String filePath = String.Empty;
+        private String commandArguments = String.Empty;
+
+        public String ProjectFilePath
+        {
+            get { return projectFilePath; }
+        }
 
         public string FilePath
         {
@@ -21,8 +23,9 @@ namespace VS2022.DoctestTestAdapter.Settings
             get { return commandArguments; }
         }
 
-        public DoctestSettingsOutputFileData(string _filePath, string _commandArguments)
+        public DoctestSettingsOutputFileData(string _projectFilePath, string _filePath, string _commandArguments)
         {
+            projectFilePath = _projectFilePath;
             filePath = _filePath;
             commandArguments = _commandArguments;
         }
@@ -31,6 +34,7 @@ namespace VS2022.DoctestTestAdapter.Settings
         {
             return 
             (
+                projectFilePath.Equals(other.projectFilePath) &&
                 FilePath.Equals(other.FilePath) &&
                 CommandArguments.Equals(other.CommandArguments)
             );
