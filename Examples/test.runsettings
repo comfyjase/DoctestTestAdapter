@@ -13,10 +13,10 @@
   <DoctestTestAdapter>
 	<!-- List of output files the project produces, used so the test executor knows what executable files are available. -->
 	<OutputFiles>
-		<OutputFile ProjectFilePath="C:\SideProjects\Repositories\DoctestTestAdapter\Examples\UsingDoctestMain\UsingDoctestMain.vcxproj" FilePath="C:\SideProjects\Repositories\DoctestTestAdapter\Examples\bin\x64\Debug\UsingDoctestMain\UsingDoctestMain.exe" CommandArguments=""/>
-		<OutputFile ProjectFilePath="C:\SideProjects\Repositories\DoctestTestAdapter\Examples\UsingCustomMain\UsingCustomMain.vcxproj" FilePath="C:\SideProjects\Repositories\DoctestTestAdapter\Examples\bin\x64\Debug\UsingCustomMain\UsingCustomMain.exe" CommandArguments=""/>
-		<OutputFile ProjectFilePath="C:\SideProjects\Repositories\DoctestTestAdapter\Examples\DLLExample\ExecutableUsingDLL\ExecutableUsingDLL.vcxproj" FilePath="C:\SideProjects\Repositories\DoctestTestAdapter\Examples\bin\x64\Debug\ExecutableUsingDLL\ExecutableUsingDLL.exe" CommandArguments=""/>
-		<OutputFile ProjectFilePath="C:\SideProjects\Repositories\DoctestTestAdapter\Examples\DLLExample\DLL\DLL.vcxproj" FilePath="C:\SideProjects\Repositories\DoctestTestAdapter\Examples\bin\x64\Debug\DLL\DLL.dll" CommandArguments=""/>
+		<OutputFile ProjectFilePath="C:\SideProjects\Repositories\DoctestTestAdapter\Examples\UsingDoctestMain\UsingDoctestMain.vcxproj" ExecutableFilePath="C:\SideProjects\Repositories\DoctestTestAdapter\Examples\bin\x64\Debug\UsingDoctestMain\UsingDoctestMain.exe" CommandArguments=""/>
+		<OutputFile ProjectFilePath="C:\SideProjects\Repositories\DoctestTestAdapter\Examples\UsingCustomMain\UsingCustomMain.vcxproj" ExecutableFilePath="C:\SideProjects\Repositories\DoctestTestAdapter\Examples\bin\x64\Debug\UsingCustomMain\UsingCustomMain.exe" CommandArguments=""/>
+		<OutputFile ProjectFilePath="C:\SideProjects\Repositories\DoctestTestAdapter\Examples\DLLExample\ExecutableUsingDLL\ExecutableUsingDLL.vcxproj" ExecutableFilePath="C:\SideProjects\Repositories\DoctestTestAdapter\Examples\bin\x64\Debug\ExecutableUsingDLL\ExecutableUsingDLL.exe" CommandArguments=""/>
+		<OutputFile ProjectFilePath="C:\SideProjects\Repositories\DoctestTestAdapter\Examples\DLLExample\DLL\DLL.vcxproj" ExecutableFilePath="C:\SideProjects\Repositories\DoctestTestAdapter\Examples\bin\x64\Debug\DLL\DLL.dll" CommandArguments=""/>
 	</OutputFiles>
   </DoctestTestAdapter>
   

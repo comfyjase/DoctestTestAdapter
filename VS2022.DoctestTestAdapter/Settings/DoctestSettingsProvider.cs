@@ -7,7 +7,7 @@ using System.Xml;
 
 namespace VS2022.DoctestTestAdapter.Settings
 {
-    [SettingsName(DoctestTestAdapterConstants.DoctestTestAdapterSettingsName)]
+    [SettingsName(DoctestTestAdapterConstants.SettingsName)]
     public class DoctestSettingsProvider : ISettingsProvider
     {
         private List<DoctestSettingsOutputFileData> outputFileData = new List<DoctestSettingsOutputFileData>();
@@ -22,11 +22,11 @@ namespace VS2022.DoctestTestAdapter.Settings
 
             while (reader.Read())
             {
-                if (reader.Name.Equals("OutputFile", StringComparison.OrdinalIgnoreCase))
+                if (reader.Name.Equals(DoctestTestAdapterConstants.OutputFileNodeName, StringComparison.OrdinalIgnoreCase))
                 {
-                    string projectFilePathAttribute = reader.GetAttribute("ProjectFilePath");
-                    string filePathAttribute = reader.GetAttribute("FilePath");
-                    string commandArgumentsAttribute = reader.GetAttribute("CommandArguments");
+                    string projectFilePathAttribute = reader.GetAttribute(DoctestTestAdapterConstants.ProjectFilePathNodeName);
+                    string filePathAttribute = reader.GetAttribute(DoctestTestAdapterConstants.ExecutableFilePathNodeName);
+                    string commandArgumentsAttribute = reader.GetAttribute(DoctestTestAdapterConstants.CommandArgumentsNodeName);
 
                     // Note, not providing a check for command arguments because these should be optional.
                     if (!string.IsNullOrEmpty(filePathAttribute))

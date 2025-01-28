@@ -123,48 +123,34 @@ namespace VS2022.DoctestTestAdapter
             return testName;
         }
 
-        public static string GetTestProjectName(IRunSettings _runSettings, string _filePath)
+        public static string GetTestFileExecutableFilePath(DoctestSettingsProvider _doctestSettings, string _filePath, out string _commandArguments)
         {
-            // Updating the source of tests to use the correct output files.
-            // In these cases, exe/dll files.
-            //IRunSettings runSettings = _discoveryContext.RunSettings;
+            String testExecutableToUse = String.Empty;
+            _commandArguments = String.Empty;
 
-            // Just default to the source filepath if nothing else was found.
-            string testSource = _filePath;
-            
-            if (_runSettings != null)
+            if (_doctestSettings != null)
             {
-                Logger.Instance.WriteLine("1) Found run settings");
+                Logger.Instance.WriteLine("1) Doctest test adapter run settings");
 
-                DoctestSettingsProvider doctestSettingsProvider = _runSettings.GetSettings(DoctestTestAdapterConstants.DoctestTestAdapterSettingsName) as DoctestSettingsProvider;
+                Debug.Assert(_doctestSettings.OutputFileData.Count > 0, "Run settings file should have at least one OutputFile entry.");
 
-                if (doctestSettingsProvider != null)
+                foreach (DoctestSettingsOutputFileData outputFileData in _doctestSettings.OutputFileData)
                 {
-                    Logger.Instance.WriteLine("2) Found doctest run settings");
+                    string searchString = outputFileData.ExecutableFilePath;
+                    string commandArguments = outputFileData.CommandArguments;
 
-                    Debug.Assert(doctestSettingsProvider.OutputFileData.Count > 0, "Run settings file should have at least one OutputFile entry.");
-
-                    foreach (DoctestSettingsOutputFileData outputFileData in doctestSettingsProvider.OutputFileData)
+                    string regexPattern = @"\b" + Regex.Escape(Path.GetFileNameWithoutExtension(searchString)) + @"\b";
+                    if (Regex.Match(_filePath, regexPattern, RegexOptions.IgnoreCase).Success)
                     {
-                        string searchString = outputFileData.ProjectFilePath;
-                        //string searchString = outputFileData.FilePath;
-
-                        string regexPattern = @"\b" + Regex.Escape(Path.GetFileNameWithoutExtension(searchString)) + @"\b";
-                        if (Regex.Match(_filePath, regexPattern, RegexOptions.IgnoreCase).Success)
-                        {
-                            // Associate this test with this output filepath.
-                            Logger.Instance.WriteLine("3) Associating test file " + Path.GetFileName(_filePath) + " with file " + Path.GetFileName(searchString));
-                            return (testSource = searchString);
-                        }
-                        else
-                        {
-                            Logger.Instance.WriteLine("3) Test file " + _filePath + " didn't match regexPattern " + regexPattern + " for file " + Regex.Escape(Path.GetFileNameWithoutExtension(searchString)));
-                        }
+                        Logger.Instance.WriteLine("3) Associating test file " + Path.GetFileName(_filePath) + " with executable " + Path.GetFileName(searchString) + " using command arguments: " + commandArguments);
+                        _commandArguments = commandArguments;
+                        return (testExecutableToUse = searchString);
                     }
                 }
             }
 
-            return testSource;
+            Debug.Assert(false, "Failed to find executable for test file: " + _filePath + " is there a suitable executable listed in the <OutputFiles> list in .runsettings?");
+            return testExecutableToUse;
         }
 
         public static List<TestCase> GetTests(IEnumerable<string> _sources, IDiscoveryContext _discoveryContext, IMessageLogger _logger, ITestCaseDiscoverySink _discoverySink)

@@ -5,7 +5,7 @@ namespace VS2022.DoctestTestAdapter.Settings
     public class DoctestSettingsOutputFileData : IEquatable<DoctestSettingsOutputFileData>
     {
         private String projectFilePath = String.Empty;
-        private String filePath = String.Empty;
+        private String executableFilePath = String.Empty;
         private String commandArguments = String.Empty;
 
         public String ProjectFilePath
@@ -13,9 +13,9 @@ namespace VS2022.DoctestTestAdapter.Settings
             get { return projectFilePath; }
         }
 
-        public string FilePath
+        public string ExecutableFilePath
         {
-            get { return filePath; }
+            get { return executableFilePath; }
         }
 
         public string CommandArguments
@@ -26,7 +26,7 @@ namespace VS2022.DoctestTestAdapter.Settings
         public DoctestSettingsOutputFileData(string _projectFilePath, string _filePath, string _commandArguments)
         {
             projectFilePath = _projectFilePath;
-            filePath = _filePath;
+            executableFilePath = _filePath;
             commandArguments = _commandArguments;
         }
 
@@ -35,7 +35,7 @@ namespace VS2022.DoctestTestAdapter.Settings
             return 
             (
                 projectFilePath.Equals(other.projectFilePath) &&
-                FilePath.Equals(other.FilePath) &&
+                ExecutableFilePath.Equals(other.ExecutableFilePath) &&
                 CommandArguments.Equals(other.CommandArguments)
             );
         }

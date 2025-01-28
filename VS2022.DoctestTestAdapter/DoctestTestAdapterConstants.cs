@@ -9,7 +9,11 @@ namespace VS2022.DoctestTestAdapter
         public static readonly Uri ExecutorUri = new Uri(ExecutorUriString);
 
         // Settings strings
-        public const String DoctestTestAdapterSettingsName = "DoctestTestAdapter";
+        public const String SettingsName                = "DoctestTestAdapter";
+        public const String OutputFileNodeName          = "OutputFile";
+        public const String ProjectFilePathNodeName     = "ProjectFilePath";
+        public const String ExecutableFilePathNodeName  = "ExecutableFilePath";
+        public const String CommandArgumentsNodeName    = "CommandArguments";
 
         // Supported file types
         public const String ExeFileExtension    = ".exe";
