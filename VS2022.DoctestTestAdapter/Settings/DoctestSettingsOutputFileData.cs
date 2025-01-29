@@ -4,11 +4,11 @@ namespace VS2022.DoctestTestAdapter.Settings
 {
     public class DoctestSettingsOutputFileData : IEquatable<DoctestSettingsOutputFileData>
     {
-        private String projectFilePath = String.Empty;
-        private String executableFilePath = String.Empty;
-        private String commandArguments = String.Empty;
+        private string projectFilePath = string.Empty;
+        private string executableFilePath = string.Empty;
+        private string commandArguments = string.Empty;
 
-        public String ProjectFilePath
+        public string ProjectFilePath
         {
             get { return projectFilePath; }
         }

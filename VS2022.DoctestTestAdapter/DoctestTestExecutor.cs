@@ -9,8 +9,10 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Windows.Threading;
 using VS.Common.DoctestTestAdapter;
 using VS2022.DoctestTestAdapter.Settings;
+using static System.Net.Mime.MediaTypeNames;
 
 namespace VS2022.DoctestTestAdapter
 {
@@ -18,18 +20,26 @@ namespace VS2022.DoctestTestAdapter
     public class DoctestTestExecutor : ITestExecutor
     {
         private bool cancelled = false;
+        private bool waitingForTestResults = false;
+        private int totalNumberOfExecutables = 0;
+        private int currentNumberOfRunningExecutables = 0;
 
         List<System.Diagnostics.Process> processList = new List<System.Diagnostics.Process>();
-        Dictionary<String, List<String>> mappedExecutableTestFiles = new Dictionary<String, List<String>>();
-        Dictionary<String, List<String>> mappedTestOutputs = new Dictionary<String, List<String>>();
-        Dictionary<String, EventHandler> mappedExitHandlers = new Dictionary<String, EventHandler>();
+        Dictionary<string, List<TestCase>> mappedExecutableTests = new Dictionary<string, List<TestCase>>();
+        Dictionary<string, List<string>> mappedTestOutputs = new Dictionary<string, List<string>>();
+        Dictionary<string, EventHandler> mappedExitHandlers = new Dictionary<string, EventHandler>();
 
         public void RunTests(IEnumerable<TestCase> _tests, IRunContext _runContext, IFrameworkHandle _frameworkHandle)
         {
             Logger.Instance.WriteLine("Begin");
 
+            waitingForTestResults = true;
+            //allTestsHaveStarted = true;
             cancelled = false;
             processList.Clear();
+            mappedExecutableTests.Clear();
+            mappedTestOutputs.Clear();
+            mappedExitHandlers.Clear();
 
             DoctestSettingsProvider doctestSettings = _runContext.RunSettings.GetSettings(DoctestTestAdapterConstants.SettingsName) as DoctestSettingsProvider;
             foreach (TestCase test in _tests)
@@ -39,37 +49,46 @@ namespace VS2022.DoctestTestAdapter
                     return;
                 }
 
-                string executableFilePath = DoctestTestAdapterUtilities.GetTestFileExecutableFilePath(doctestSettings, test.CodeFilePath, out string commandArguments); ;
+                _frameworkHandle.RecordStart(test);
 
-                //TODO_comfyjase_29/01/2025: Find a way to link dll -> related exe file
-                if (Path.GetExtension(executableFilePath).Equals(DoctestTestAdapterConstants.DLLFileExtension))
+                string executableFilePath = DoctestTestAdapterUtilities.GetTestFileExecutableFilePath(doctestSettings, test.CodeFilePath, out string commandArguments);
+
+                //TODO_comfyjase_29/01/2025: Find a way to link dll -> related exe file, in the meantime, mark it as skipped
+                if (Path.GetExtension(executableFilePath).Equals(DoctestTestAdapterConstants.DLLFileExtension, StringComparison.OrdinalIgnoreCase))
                 {
+                    TestResult testResult = new TestResult(test);
+                    testResult.Outcome = TestOutcome.Skipped;
+                    _frameworkHandle.RecordResult(testResult);
                     continue;
                 }    
 
-                if (mappedExecutableTestFiles.TryGetValue(executableFilePath, out List<String> testFiles))
+                if (mappedExecutableTests.TryGetValue(executableFilePath, out List<TestCase> testFiles))
                 {
-                    testFiles.Add(test.CodeFilePath);
-                    mappedExecutableTestFiles[executableFilePath] = testFiles;
+                    testFiles.Add(test);
+                    mappedExecutableTests[executableFilePath] = testFiles;
                 }
                 else
                 {
-                    List<String> newTestFiles = new List<String>();
-                    newTestFiles.Add(test.CodeFilePath);
-                    mappedExecutableTestFiles.Add(executableFilePath, newTestFiles);
+                    List<TestCase> newTestCaseList = new List<TestCase>{ test };
+                    mappedExecutableTests.Add(executableFilePath, newTestCaseList);
                 }
             }
 
-            foreach (KeyValuePair<String, List<String>> testSetup in mappedExecutableTestFiles)
+            totalNumberOfExecutables = mappedExecutableTests.Count;
+            currentNumberOfRunningExecutables = totalNumberOfExecutables;
+
+            foreach (KeyValuePair<string, List<TestCase>> testSetup in mappedExecutableTests)
             {
                 if (cancelled)
                 {
                     return;
                 }
 
-                List<String> testFileNames = testSetup.Value.Select(s => Path.GetFileNameWithoutExtension(s)).ToList();
+                List<string> testFileNames = testSetup.Value.Select(t => Path.GetFileNameWithoutExtension(t.CodeFilePath)).Distinct().ToList();
 
                 System.Diagnostics.Process testExecutable = new System.Diagnostics.Process();
+                processList.Add(testExecutable);
+
                 testExecutable.EnableRaisingEvents = true;
                 testExecutable.StartInfo.CreateNoWindow = true;
                 testExecutable.StartInfo.RedirectStandardOutput = true;
@@ -82,74 +101,147 @@ namespace VS2022.DoctestTestAdapter
                 string commaSeparatedListOfTestFiles = string.Join(",", testFileNames);
 
                 // Sorted into doctest specific argument formatting: "*TestFile1*,*TestFile2*"
-                string doctestSourceFileArgument = string.Join(",", commaSeparatedListOfTestFiles.Split(',').Select(x => string.Format("*{0}*", x)).ToList());
+                string doctestSourceFileArgument = "--source-file=" + string.Join(",", commaSeparatedListOfTestFiles.Split(',').Select(x => string.Format("*{0}*", x)).ToList());
 
-                // Full doctest arguments: --source-file="*TestFile1*,*TestFile2*" --success=true
-                string doctestArguments = "--source-file=" + doctestSourceFileArgument + " --success=true";
+                // Extra arguments to add
+                string excludeTestCasesArgument = "--test-case-exclude=" + DoctestTestAdapterConstants.SkipDecoratorsAsCommandArgument;
+
+                // Full doctest arguments: --source-file="*TestFile1*,*TestFile2*" --test-case-exclude=*[Skip],[SKIP]*
+                string doctestArguments = doctestSourceFileArgument + " " + excludeTestCasesArgument;
 
                 testExecutable.StartInfo.Arguments = doctestArguments;
 
-                processList.Add(testExecutable);
+                EventHandler testExecutableExitEventHandler = (_sender, _e) => OnTestExecutableFinished(_sender, _e, _runContext, _frameworkHandle, testExecutable);
+                testExecutable.Exited += testExecutableExitEventHandler;
+                mappedExitHandlers.Add(testSetup.Key, testExecutableExitEventHandler);
+                Logger.Instance.WriteLine("Executable " + testSetup.Key + " subscribed to Exit event.");
 
-                // Start the executable now to run the doctests unit tests
-                bool executableStartedSuccessfully = testExecutable.Start();
-                Debug.Assert(executableStartedSuccessfully, "Failed to start " + testSetup.Key + " test executable");
-
-                // Reset output strings for this test run
-                mappedTestOutputs.Clear();
-
-                mappedTestOutputs.Add(testSetup.Key, new List<String>());
                 testExecutable.OutputDataReceived += (object _sender, DataReceivedEventArgs _e) =>
                 {
                     if (_e.Data != null && _e.Data.Count() > 0)
                     {
-                        Logger.Instance.WriteLine(_e.Data);
-                        if (mappedTestOutputs.TryGetValue(testSetup.Key, out List<String> outputStrings))
+                        Console.WriteLine(_e.Data);
+
+                        //Logger.Instance.WriteLine(_e.Data);
+                        if (mappedTestOutputs.TryGetValue(testSetup.Key, out List<string> outputStrings))
                         {
                             outputStrings.Add(_e.Data + "\n");
                             mappedTestOutputs[testSetup.Key] = outputStrings;
                         }
+                        else
+                        {
+                            List<string> newOutputStringsList = new List<String> { (_e.Data + "\n") };
+                            mappedTestOutputs.Add(testSetup.Key, newOutputStringsList);
+                        }
                     }
                 };
-                testExecutable.BeginOutputReadLine();
 
-                EventHandler testExecutableExitEventHandler = (_sender, _e) => OnTestExecutableFinished(_sender, _e, testExecutable);
-                testExecutable.Exited += testExecutableExitEventHandler;
-                mappedExitHandlers.Add(testSetup.Key, testExecutableExitEventHandler);
+                Logger.Instance.WriteLine("About to start executable " + testExecutable.StartInfo.FileName + " with command arguments: " + testExecutable.StartInfo.Arguments);
+
+                // Start the executable now to run the doctests unit tests
+                bool executableStartedSuccessfully = testExecutable.Start();
+                Debug.Assert(executableStartedSuccessfully, "Failed to start " + testExecutable.StartInfo.FileName + " test executable");
+
+                testExecutable.BeginOutputReadLine();
+            }
+
+            // TEMP TEST...
+            while (waitingForTestResults)
+            {
+                System.Threading.Thread.Sleep(100);
+                //Thread.Sleep(checksInterval);
             }
 
             Logger.Instance.WriteLine("End");
         }
 
-        private void OnTestExecutableFinished(object _sender, EventArgs _e, System.Diagnostics.Process _testExecutable)
+        private void OnTestExecutableFinished(object _sender, EventArgs _e, IRunContext _runContext, IFrameworkHandle _frameworkHandle, System.Diagnostics.Process _testExecutable)
         {
+            Logger.Instance.WriteLine("Begin");
+
             if (_testExecutable != null)
             {
-                int textExecutableExitCode = _testExecutable.ExitCode;
-
-                if (mappedTestOutputs.TryGetValue(_testExecutable.StartInfo.FileName, out List<String> testOutput))
-                {
-                    //TODO_comfyjase_28/01/2025: read output and find any output relevant to the _tests?
-                    // Create new test result and record it into the _frameworkHandle
-                    foreach (String testOuputLine in testOutput)
-                    {
-                           
-                    }
-                    mappedTestOutputs.Remove(_testExecutable.StartInfo.FileName);
-                }
-                
                 if (mappedExitHandlers.TryGetValue(_testExecutable.StartInfo.FileName, out EventHandler exitEventHandler))
                 {
+                    currentNumberOfRunningExecutables--;
+
                     _testExecutable.Exited -= exitEventHandler;
                     mappedExitHandlers.Remove(_testExecutable.StartInfo.FileName);
+
+                    Logger.Instance.WriteLine("Test Executable: " + Path.GetFileName(_testExecutable.StartInfo.FileName) + " finished.");
+
+                    _testExecutable.Close();
+                    _testExecutable = null;
+
+                    if (currentNumberOfRunningExecutables > 0)
+                    {
+                        Logger.Instance.WriteLine("Waiting for " + currentNumberOfRunningExecutables + " executables...");
+                    }
+                    else
+                    {
+                        Logger.Instance.WriteLine("No more test executables to run...");
+                    }
+
+                    // No more test executables to run.
+                    if (currentNumberOfRunningExecutables == 0)
+                    {
+                        OnAllTestExecutablesFinished(_frameworkHandle);
+                    }
                 }
-
-                mappedExecutableTestFiles.Remove(_testExecutable.StartInfo.FileName);
-
-                processList.Remove(_testExecutable);
-                _testExecutable.Close();
-                _testExecutable = null;
             }
+
+            Logger.Instance.WriteLine("End");
+        }
+
+        private void OnAllTestExecutablesFinished(IFrameworkHandle _frameworkHandle)
+        {
+            Logger.Instance.WriteLine("All test executables have finished now.");
+
+            foreach (KeyValuePair<string, List<TestCase>> mappedTests in mappedExecutableTests)
+            {
+                bool mappedOutputExists = mappedTestOutputs.TryGetValue(mappedTests.Key, out List<string> testOutput);
+                Debug.Assert(mappedOutputExists, "No mapped output for " + Path.GetFileName(mappedTests.Key));
+
+                if (mappedOutputExists)
+                {
+                    List<string> failedTestFullErrorMessages = testOutput.Where(s => s.Contains(DoctestTestAdapterConstants.TestResultErrorKeyword)).ToList();
+                    List<string> failedTestErrorMessages = failedTestFullErrorMessages.Select(s =>
+                        s.Substring(s.IndexOf(DoctestTestAdapterConstants.TestResultErrorKeyword) + DoctestTestAdapterConstants.TestResultErrorKeyword.Length, s.Length - (s.IndexOf(DoctestTestAdapterConstants.TestResultErrorKeyword) + DoctestTestAdapterConstants.TestResultErrorKeyword.Length)))
+                        .ToList();
+
+                    foreach (TestCase test in mappedTests.Value)
+                    {
+                        string testName = test.DisplayName;
+                        bool testFailed = testOutput.Any(s => s.Contains(testName));
+
+                        TestResult testResult = new TestResult(test);
+                        if (testFailed)
+                        {
+                            testResult.Outcome = TestOutcome.Failed;
+                            //TODO_comfyjase_29/01/2025: Formatting based on how easy to read this is in the test explorer
+                            testResult.ErrorMessage = string.Join(",", failedTestErrorMessages);
+                        }
+                        else
+                        {
+                            bool testSkipped = DoctestTestAdapterConstants.SkipDecorators.Any(s => testName.Contains(s));
+                            if (testSkipped)
+                            {
+                                testResult.Outcome = TestOutcome.Skipped;
+                            }
+                            else
+                            {
+                                testResult.Outcome = TestOutcome.Passed;
+                            }
+                        }
+
+                        Logger.Instance.WriteLine("Recording result for test " + test.DisplayName);
+                        _frameworkHandle.RecordResult(testResult);
+                    }
+                }
+            }
+
+            processList.Clear();
+            waitingForTestResults = false;
         }
 
         public void RunTests(IEnumerable<string> _sources, IRunContext _runContext, IFrameworkHandle _frameworkHandle)

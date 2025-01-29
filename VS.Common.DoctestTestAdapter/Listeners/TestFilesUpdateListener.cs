@@ -33,7 +33,7 @@ namespace VS.Common.DoctestTestAdapter
         {
             ValidateArg.NotNullOrEmpty(_path, "path");
 
-            if (!String.IsNullOrEmpty(_path))
+            if (!string.IsNullOrEmpty(_path))
             {
                 string directoryName = Path.GetDirectoryName(_path);
                 string fileName = Path.GetFileName(_path);
@@ -54,7 +54,7 @@ namespace VS.Common.DoctestTestAdapter
         {
             ValidateArg.NotNullOrEmpty(_path, "path");
 
-            if (!String.IsNullOrEmpty(_path))
+            if (!string.IsNullOrEmpty(_path))
             {
                 FileListenerInfo fileListenerInfo;
                 if (fileListeners.TryGetValue(_path, out fileListenerInfo))

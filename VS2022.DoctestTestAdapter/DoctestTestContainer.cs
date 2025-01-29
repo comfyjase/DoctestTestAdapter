@@ -48,7 +48,7 @@ namespace VS2022.DoctestTestAdapter
 
         private DateTime GetTimeStamp()
         {
-            if (!String.IsNullOrEmpty(Source) && File.Exists(Source))
+            if (!string.IsNullOrEmpty(Source) && File.Exists(Source))
             {
                 return File.GetLastWriteTime(Source);
             }
@@ -71,7 +71,7 @@ namespace VS2022.DoctestTestAdapter
                 return -1;
             }
 
-            int result = String.Compare(Source, testContainer.Source, StringComparison.OrdinalIgnoreCase);
+            int result = string.Compare(Source, testContainer.Source, StringComparison.OrdinalIgnoreCase);
             if (result != 0)
             {
                 return result;

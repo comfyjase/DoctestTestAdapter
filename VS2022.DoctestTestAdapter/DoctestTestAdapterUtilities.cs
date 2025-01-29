@@ -13,15 +13,15 @@ namespace VS2022.DoctestTestAdapter
 {
     public static class DoctestTestAdapterUtilities
     {
-        private static readonly String EmptyNamespaceString = "Empty Namespace";
-        private static readonly String EmptyClassString = "Empty Class";
+        private static readonly string EmptyNamespaceString = "Empty Namespace";
+        private static readonly string EmptyClassString = "Empty Class";
 
         public static TestCase CreateTestCase(string _testOwner, string _namespace, string _className, string _testName, string _sourceFilePath, int _lineNumber)
         {
             Logger.Instance.WriteLine("Begin");
 
             string[] parts = new string[] { _namespace, _className, _testName };
-            string fullyQualifiedName = String.Join("::", parts);
+            string fullyQualifiedName = string.Join("::", parts);
 
             TestCase testCase = new TestCase(fullyQualifiedName, DoctestTestAdapterConstants.ExecutorUri, _testOwner);
             testCase.DisplayName = _testName;
@@ -125,8 +125,8 @@ namespace VS2022.DoctestTestAdapter
 
         public static string GetTestFileExecutableFilePath(DoctestSettingsProvider _doctestSettings, string _filePath, out string _commandArguments)
         {
-            String testExecutableToUse = String.Empty;
-            _commandArguments = String.Empty;
+            string testExecutableToUse = string.Empty;
+            _commandArguments = string.Empty;
 
             if (_doctestSettings != null)
             {
