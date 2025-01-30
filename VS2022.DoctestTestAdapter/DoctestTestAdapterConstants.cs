@@ -1,6 +1,8 @@
-﻿using System;
+﻿using Microsoft.VisualStudio.TestPlatform.ObjectModel;
+using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Resources;
 using static System.Windows.Forms.DataFormats;
 
 namespace VS2022.DoctestTestAdapter
@@ -23,6 +25,15 @@ namespace VS2022.DoctestTestAdapter
         public const string DLLFileExtension    = ".dll";
         public const string HFileExtension      = ".h";
         public const string HPPFileExtension    = ".hpp";
+
+        // Test Trait Strings
+        private const string ShouldBeSkippedTestPropertyId = "TestCase.ShouldBeSkipped";
+        public static readonly TestProperty ShouldBeSkippedTestProperty = TestProperty.Register(
+            ShouldBeSkippedTestPropertyId, 
+            "ShouldBeSkipped",
+            typeof(bool), 
+            TestPropertyAttributes.Hidden, 
+            typeof(TestCase));
 
         // Doctest strings
         public const string TestResultErrorKeyword = "ERROR: ";

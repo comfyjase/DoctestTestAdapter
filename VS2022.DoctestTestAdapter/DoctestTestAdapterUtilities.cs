@@ -28,10 +28,9 @@ namespace VS2022.DoctestTestAdapter
             testCase.DisplayName = _testName;
             testCase.CodeFilePath = _sourceFilePath;
             testCase.LineNumber = _lineNumber;
-            testCase.LocalExtensionData = _shouldBeSkipped;
 
-            Debug.Assert(testCase.LocalExtensionData is bool, "testCase.LocalExtensionData isn't a bool during discovery?");
-
+            testCase.SetPropertyValue(DoctestTestAdapterConstants.ShouldBeSkippedTestProperty, _shouldBeSkipped);
+            
             if (_shouldBeSkipped)
             {
                 Logger.Instance.WriteLine("Test " + _testName + " should be skipped.");
@@ -213,7 +212,11 @@ namespace VS2022.DoctestTestAdapter
                                 //string testOwner = GetTestProjectName(_discoveryContext.RunSettings, sourceFile);
                                 string testOwner = sourceFile;
                                 string testName = GetTestNameSubstring(line);
+                                
+                                //TODO_comfyjase_30/01/2025: This assumes '* doctest::skip()' is on the same line as the name of the test...
+                                // Would be nice to implement logic to be able to cope with '* doctest::skip()' being on a new line too
                                 bool markedWithDoctestSkip = DoctestTestAdapterConstants.SkipTestKeywords.Any(s => line.Contains(s));
+                                
                                 TestCase testCase = CreateTestCase(testOwner,
                                     testFileNamespace, 
                                     testClassName, 

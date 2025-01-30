@@ -211,8 +211,12 @@ namespace VS2022.DoctestTestAdapter
                     foreach (TestCase test in mappedTests.Value)
                     {
                         string testName = test.DisplayName;
-                        Debug.Assert(test.LocalExtensionData is bool, "test.LocalExtensionData isn't a bool?");
-                        bool testSkipped = (test.LocalExtensionData is bool ? (bool)test.LocalExtensionData : false);
+
+                        bool testSkipped = false;
+                        object shouldBeSkippedTestPropertyObject = test.GetPropertyValue(DoctestTestAdapterConstants.ShouldBeSkippedTestProperty);
+                        Debug.Assert(shouldBeSkippedTestPropertyObject != null);
+                        testSkipped = (bool)shouldBeSkippedTestPropertyObject;
+
                         string testResultString = "";
                         TestResult testResult = new TestResult(test);
 
