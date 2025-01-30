@@ -233,7 +233,7 @@ namespace VS2022.DoctestTestAdapter
                                 testResultString = "Failed";
                                 testResult.Outcome = TestOutcome.Failed;
                                 //TODO_comfyjase_29/01/2025: Formatting based on how easy to read this is in the test explorer
-                                testResult.ErrorMessage = string.Join(",", failedTestErrorMessages);
+                                testResult.ErrorMessage = string.Join("", failedTestErrorMessages);
                             }
                             else
                             {
