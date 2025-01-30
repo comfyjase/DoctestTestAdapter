@@ -80,6 +80,10 @@ namespace VS2022.DoctestTestAdapter
                 if (solution != null)
                 {
                     solution.GetSolutionInfo(out solutionDirectory, out string solutionName, out string solutionDirectory2);
+                    Debug.Assert(!string.IsNullOrEmpty(solutionDirectory));
+
+                    IEnumerable<string> files = FindTestFiles();
+                    UpdateFileListener(files, true);
                 }
             }
         }
@@ -259,16 +263,9 @@ namespace VS2022.DoctestTestAdapter
 
             Logger.Instance.WriteLine("Begin");
 
-            //_project.
-
             IEnumerable<string> testFiles = (from item in VSUtilities.GetProjectItems(_project)
                     where IsTestFile(item)
                     select item);
-
-            foreach (string testFile in testFiles)
-            {
-                
-            }
 
             Logger.Instance.WriteLine("End");
 
@@ -281,6 +278,9 @@ namespace VS2022.DoctestTestAdapter
 
             try
             {
+                Debug.Assert(solution != null);
+                Debug.Assert(!string.IsNullOrWhiteSpace(solutionDirectory));
+
                 bool isProjectFile = _path.Contains(solutionDirectory);
                 bool isDLLFile = (Path.GetExtension(_path).Equals(DoctestTestAdapterConstants.DLLFileExtension, StringComparison.OrdinalIgnoreCase));
                 bool isExeFile = (Path.GetExtension(_path).Equals(DoctestTestAdapterConstants.ExeFileExtension, StringComparison.OrdinalIgnoreCase));
@@ -295,6 +295,7 @@ namespace VS2022.DoctestTestAdapter
                 }
 
                 Logger.Instance.WriteLine("End");
+
                 return isTestFile;
             }
             catch (IOException e)

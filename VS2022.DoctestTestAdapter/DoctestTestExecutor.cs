@@ -1,18 +1,13 @@
-﻿using EnvDTE;
-using Microsoft.VisualStudio.TestPlatform.ObjectModel;
+﻿using Microsoft.VisualStudio.TestPlatform.ObjectModel;
 using Microsoft.VisualStudio.TestPlatform.ObjectModel.Adapter;
 using Microsoft.VisualStudio.TestPlatform.ObjectModel.Logging;
-using Microsoft.VisualStudio.TestWindow.Extensibility;
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
-using System.Windows.Threading;
 using VS.Common.DoctestTestAdapter;
 using VS2022.DoctestTestAdapter.Settings;
-using static System.Net.Mime.MediaTypeNames;
 
 namespace VS2022.DoctestTestAdapter
 {
@@ -84,7 +79,7 @@ namespace VS2022.DoctestTestAdapter
                     return;
                 }
 
-                List<string> testFileNames = testSetup.Value.Select(t => Path.GetFileNameWithoutExtension(t.CodeFilePath)).Distinct().ToList();
+                List<string> testCaseNames = testSetup.Value.Select(t => t.DisplayName).ToList();
 
                 System.Diagnostics.Process testExecutable = new System.Diagnostics.Process();
                 processList.Add(testExecutable);
@@ -97,17 +92,18 @@ namespace VS2022.DoctestTestAdapter
 
                 testExecutable.StartInfo.FileName = testSetup.Key;
 
-                // Should be something like: "TestFile, TestFile2"
-                string commaSeparatedListOfTestFiles = string.Join(",", testFileNames);
+                // Should be something like: "[TestDecorator] Test 1, [TestDecorator] Test 2"
+                string commaSeparatedListOfTestCaseNames = string.Join(",", testCaseNames);
 
-                // Sorted into doctest specific argument formatting: "*TestFile1*,*TestFile2*"
-                string doctestSourceFileArgument = "--source-file=" + string.Join(",", commaSeparatedListOfTestFiles.Split(',').Select(x => string.Format("*{0}*", x)).ToList());
+                // Sorted into doctest specific argument formatting: "*[TestDecorator] Test 1*,*[TestDecorator] Test 2*"
+                string doctestTestCaseCommandArgument = "--dt--test-case=" + string.Join(",", commaSeparatedListOfTestCaseNames.Split(',').Select(x => string.Format("*{0}*", x)).ToList());
 
                 // Extra arguments to add
+                // This only seems to work when it's written without the --dt, not sure why but I'm rolling with it
                 string excludeTestCasesArgument = "--test-case-exclude=" + DoctestTestAdapterConstants.SkipDecoratorsAsCommandArgument;
 
-                // Full doctest arguments: --source-file="*TestFile1*,*TestFile2*" --test-case-exclude=*[Skip],[SKIP]*
-                string doctestArguments = doctestSourceFileArgument + " " + excludeTestCasesArgument;
+                // Full doctest arguments: --test-case="*[TestDecorator] Test 1*,*[TestDecorator] Test 2*" --test-case-exclude=*[Skip]*,*[SKIP]*
+                string doctestArguments = doctestTestCaseCommandArgument + " " + excludeTestCasesArgument;
 
                 testExecutable.StartInfo.Arguments = doctestArguments;
 
@@ -214,9 +210,11 @@ namespace VS2022.DoctestTestAdapter
                         string testName = test.DisplayName;
                         bool testFailed = testOutput.Any(s => s.Contains(testName));
 
+                        string TEMPDEBUG = "";
                         TestResult testResult = new TestResult(test);
                         if (testFailed)
                         {
+                            TEMPDEBUG = "Failed";
                             testResult.Outcome = TestOutcome.Failed;
                             //TODO_comfyjase_29/01/2025: Formatting based on how easy to read this is in the test explorer
                             testResult.ErrorMessage = string.Join(",", failedTestErrorMessages);
@@ -226,15 +224,17 @@ namespace VS2022.DoctestTestAdapter
                             bool testSkipped = DoctestTestAdapterConstants.SkipDecorators.Any(s => testName.Contains(s));
                             if (testSkipped)
                             {
+                                TEMPDEBUG = "Skipped";
                                 testResult.Outcome = TestOutcome.Skipped;
                             }
                             else
                             {
+                                TEMPDEBUG = "Passed";
                                 testResult.Outcome = TestOutcome.Passed;
                             }
                         }
 
-                        Logger.Instance.WriteLine("Recording result for test " + test.DisplayName);
+                        Logger.Instance.WriteLine("Recording result " + TEMPDEBUG + " for test " + test.DisplayName);
                         _frameworkHandle.RecordResult(testResult);
                     }
                 }
