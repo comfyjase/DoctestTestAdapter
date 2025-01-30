@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
+using System.Linq;
 using System.Text.RegularExpressions;
 using VS.Common.DoctestTestAdapter;
 using VS2022.DoctestTestAdapter.Settings;
@@ -16,7 +17,7 @@ namespace VS2022.DoctestTestAdapter
         private static readonly string EmptyNamespaceString = "Empty Namespace";
         private static readonly string EmptyClassString = "Empty Class";
 
-        public static TestCase CreateTestCase(string _testOwner, string _namespace, string _className, string _testName, string _sourceFilePath, int _lineNumber)
+        public static TestCase CreateTestCase(string _testOwner, string _namespace, string _className, string _testName, string _sourceFilePath, int _lineNumber, bool _shouldBeSkipped)
         {
             Logger.Instance.WriteLine("Begin");
 
@@ -27,6 +28,14 @@ namespace VS2022.DoctestTestAdapter
             testCase.DisplayName = _testName;
             testCase.CodeFilePath = _sourceFilePath;
             testCase.LineNumber = _lineNumber;
+            testCase.LocalExtensionData = _shouldBeSkipped;
+
+            Debug.Assert(testCase.LocalExtensionData is bool, "testCase.LocalExtensionData isn't a bool during discovery?");
+
+            if (_shouldBeSkipped)
+            {
+                Logger.Instance.WriteLine("Test " + _testName + " should be skipped.");
+            }
 
             Logger.Instance.WriteLine("End");
 
@@ -78,7 +87,7 @@ namespace VS2022.DoctestTestAdapter
 
             string openBracketStartString = "(\"";
             int startIndex = _line.IndexOf(openBracketStartString) + openBracketStartString.Length;
-            int endIndex = _line.LastIndexOf("\")");
+            int endIndex = _line.LastIndexOf("\"");
 
             string subString = GetSubstring(_line, startIndex, endIndex);
             if (!string.IsNullOrEmpty(subString))
@@ -112,7 +121,7 @@ namespace VS2022.DoctestTestAdapter
 
             string openBracketStartString = "(\"";
             int startIndex = _line.IndexOf(openBracketStartString) + openBracketStartString.Length;
-            int endIndex = _line.LastIndexOf("\")");
+            int endIndex = _line.LastIndexOf("\"");
 
             string subString = GetSubstring(_line, startIndex, endIndex);
             if (!string.IsNullOrEmpty(subString))
@@ -204,12 +213,14 @@ namespace VS2022.DoctestTestAdapter
                                 //string testOwner = GetTestProjectName(_discoveryContext.RunSettings, sourceFile);
                                 string testOwner = sourceFile;
                                 string testName = GetTestNameSubstring(line);
+                                bool markedWithDoctestSkip = DoctestTestAdapterConstants.SkipTestKeywords.Any(s => line.Contains(s));
                                 TestCase testCase = CreateTestCase(testOwner,
                                     testFileNamespace, 
                                     testClassName, 
                                     testName, 
                                     sourceFile, 
-                                    currentLineNumber);
+                                    currentLineNumber,
+                                    markedWithDoctestSkip);
                                 tests.Add(testCase);
                             }
 

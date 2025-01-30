@@ -26,7 +26,6 @@ namespace VS2022.DoctestTestAdapter
 
         // Doctest strings
         public const string TestResultErrorKeyword = "ERROR: ";
-        public static readonly List<string> SkipDecorators = new List<string>() { "[Skip]", "[SKIP]" };
-        public static readonly string SkipDecoratorsAsCommandArgument = string.Join(",", string.Join(",", SkipDecorators).Split(',').Select(x => string.Format("*{0}*", x)).ToList());
+        public static readonly List<string> SkipTestKeywords = new List<string>() { "doctest::skip()", "doctest::skip(true)" };
     }
 }

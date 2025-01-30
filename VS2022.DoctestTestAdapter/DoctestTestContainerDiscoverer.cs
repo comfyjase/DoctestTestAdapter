@@ -48,10 +48,14 @@ namespace VS2022.DoctestTestAdapter
             }
 
             serviceProvider = _serviceProvider;
-            solution = serviceProvider.GetService(typeof(SVsSolution)) as IVsSolution;
-            if (solution != null)
+            object service = serviceProvider.GetService(typeof(SVsSolution));
+            if (service != null)
             {
-                solution.GetSolutionInfo(out solutionDirectory, out string solutionName, out string solutionDirectory2);
+                solution = service as IVsSolution;
+                if (solution != null)
+                {
+                    solution.GetSolutionInfo(out solutionDirectory, out string solutionName, out string solutionDirectory2);
+                }
             }
             //Debug.Assert(!String.IsNullOrEmpty(solutionDirectory), "Couldn't find solutionDirectory?");
 
@@ -76,14 +80,18 @@ namespace VS2022.DoctestTestAdapter
 
             if (solution == null)
             {
-                solution = serviceProvider.GetService(typeof(SVsSolution)) as IVsSolution;
-                if (solution != null)
+                object service = serviceProvider.GetService(typeof(SVsSolution));
+                if (service != null)
                 {
-                    solution.GetSolutionInfo(out solutionDirectory, out string solutionName, out string solutionDirectory2);
-                    Debug.Assert(!string.IsNullOrEmpty(solutionDirectory));
+                    solution = service as IVsSolution;
+                    if (solution != null)
+                    {
+                        solution.GetSolutionInfo(out solutionDirectory, out string solutionName, out string solutionDirectory2);
+                        Debug.Assert(!string.IsNullOrEmpty(solutionDirectory));
 
-                    IEnumerable<string> files = FindTestFiles();
-                    UpdateFileListener(files, true);
+                        IEnumerable<string> files = FindTestFiles();
+                        UpdateFileListener(files, true);
+                    }
                 }
             }
         }
@@ -279,6 +287,7 @@ namespace VS2022.DoctestTestAdapter
             try
             {
                 Debug.Assert(solution != null);
+                solution.GetSolutionInfo(out solutionDirectory, out string solutionName, out string solutionDirectory2);
                 Debug.Assert(!string.IsNullOrWhiteSpace(solutionDirectory));
 
                 bool isProjectFile = _path.Contains(solutionDirectory);

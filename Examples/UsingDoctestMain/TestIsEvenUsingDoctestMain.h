@@ -9,21 +9,21 @@ namespace TestUsingDoctestMain
 		return (number % 2 == 0);
 	}
 
-	TEST_CASE("[UsingDoctestMain] - Testing IsEven Always Pass")
+	TEST_CASE("[UsingDoctestMain] Testing IsEven Always Pass")
 	{
 		CHECK(IsEven(2));
 		CHECK(IsEven(4));
 		CHECK(IsEven(6));
 	}
 
-	TEST_CASE("[UsingDoctestMain] - Testing IsEven Always Fail")
+	TEST_CASE("[UsingDoctestMain] Testing IsEven Always Fail")
 	{
 		CHECK(IsEven(1));
 		CHECK(IsEven(3));
 		CHECK(IsEven(5));
 	}
 
-	TEST_CASE("[Skip][UsingDoctestMain] - Testing IsEven Always Skipped")
+	TEST_CASE("[UsingDoctestMain] Testing IsEven Always Skipped" * doctest::skip())
 	{
 		CHECK(IsEven(2));
 		CHECK(IsEven(4));

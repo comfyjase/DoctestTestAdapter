@@ -95,15 +95,11 @@ namespace VS2022.DoctestTestAdapter
                 // Should be something like: "[TestDecorator] Test 1, [TestDecorator] Test 2"
                 string commaSeparatedListOfTestCaseNames = string.Join(",", testCaseNames);
 
-                // Sorted into doctest specific argument formatting: "*[TestDecorator] Test 1*,*[TestDecorator] Test 2*"
-                string doctestTestCaseCommandArgument = "--dt--test-case=" + string.Join(",", commaSeparatedListOfTestCaseNames.Split(',').Select(x => string.Format("*{0}*", x)).ToList());
+                // Sorted into doctest specific argument formatting: "*"[TestDecorator] Test 1"*,*"[TestDecorator] Test 2"*"
+                string doctestTestCaseCommandArgument = "--test-case=" + string.Join(",", commaSeparatedListOfTestCaseNames.Split(',').Select(x => string.Format("*\"{0}\"*", x)).ToList());
 
-                // Extra arguments to add
-                // This only seems to work when it's written without the --dt, not sure why but I'm rolling with it
-                string excludeTestCasesArgument = "--test-case-exclude=" + DoctestTestAdapterConstants.SkipDecoratorsAsCommandArgument;
-
-                // Full doctest arguments: --test-case="*[TestDecorator] Test 1*,*[TestDecorator] Test 2*" --test-case-exclude=*[Skip]*,*[SKIP]*
-                string doctestArguments = doctestTestCaseCommandArgument + " " + excludeTestCasesArgument;
+                // Full doctest arguments: --test-case="*"[TestDecorator] Test 1"*,*"[TestDecorator] Test 2"*"
+                string doctestArguments = doctestTestCaseCommandArgument;
 
                 testExecutable.StartInfo.Arguments = doctestArguments;
 
@@ -200,6 +196,13 @@ namespace VS2022.DoctestTestAdapter
 
                 if (mappedOutputExists)
                 {
+                    // This below looks a little confusing I know... just some C# linq fun
+                    // failedTestFullErrorMessages will just read any test output lines that have the "ERROR: " string in it.
+                    // E.g. Path\To\TestFile.h(21): ERROR: CHECK( SomethingGoesWrongHere() ) is NOT correct!
+                    //
+                    // failedTestErrorMessages is the sorted list of error messages, so it takes the full output line and just gets the specific error message:
+                    // E.g. CHECK( SomethingGoesWrongHere() ) is NOT correct!
+                    // This is done to populate the TestExplorer Error Message column with easier to read information that's more useful to explain WHY the test failed.
                     List<string> failedTestFullErrorMessages = testOutput.Where(s => s.Contains(DoctestTestAdapterConstants.TestResultErrorKeyword)).ToList();
                     List<string> failedTestErrorMessages = failedTestFullErrorMessages.Select(s =>
                         s.Substring(s.IndexOf(DoctestTestAdapterConstants.TestResultErrorKeyword) + DoctestTestAdapterConstants.TestResultErrorKeyword.Length, s.Length - (s.IndexOf(DoctestTestAdapterConstants.TestResultErrorKeyword) + DoctestTestAdapterConstants.TestResultErrorKeyword.Length)))
@@ -208,33 +211,34 @@ namespace VS2022.DoctestTestAdapter
                     foreach (TestCase test in mappedTests.Value)
                     {
                         string testName = test.DisplayName;
-                        bool testFailed = testOutput.Any(s => s.Contains(testName));
-
-                        string TEMPDEBUG = "";
+                        Debug.Assert(test.LocalExtensionData is bool, "test.LocalExtensionData isn't a bool?");
+                        bool testSkipped = (test.LocalExtensionData is bool ? (bool)test.LocalExtensionData : false);
+                        string testResultString = "";
                         TestResult testResult = new TestResult(test);
-                        if (testFailed)
+
+                        if (testSkipped)
                         {
-                            TEMPDEBUG = "Failed";
-                            testResult.Outcome = TestOutcome.Failed;
-                            //TODO_comfyjase_29/01/2025: Formatting based on how easy to read this is in the test explorer
-                            testResult.ErrorMessage = string.Join(",", failedTestErrorMessages);
+                            testResultString = "Skipped";
+                            testResult.Outcome = TestOutcome.Skipped;
                         }
                         else
                         {
-                            bool testSkipped = DoctestTestAdapterConstants.SkipDecorators.Any(s => testName.Contains(s));
-                            if (testSkipped)
+                            bool testFailed = testOutput.Any(s => s.Contains(testName));
+                            if (testFailed)
                             {
-                                TEMPDEBUG = "Skipped";
-                                testResult.Outcome = TestOutcome.Skipped;
+                                testResultString = "Failed";
+                                testResult.Outcome = TestOutcome.Failed;
+                                //TODO_comfyjase_29/01/2025: Formatting based on how easy to read this is in the test explorer
+                                testResult.ErrorMessage = string.Join(",", failedTestErrorMessages);
                             }
                             else
                             {
-                                TEMPDEBUG = "Passed";
+                                testResultString = "Passed";
                                 testResult.Outcome = TestOutcome.Passed;
                             }
                         }
 
-                        Logger.Instance.WriteLine("Recording result " + TEMPDEBUG + " for test " + test.DisplayName);
+                        Logger.Instance.WriteLine("Recording result " + testResultString + " for test " + test.DisplayName);
                         _frameworkHandle.RecordResult(testResult);
                     }
                 }
