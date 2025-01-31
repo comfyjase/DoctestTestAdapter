@@ -41,6 +41,15 @@ namespace VS2022.DoctestTestAdapter
             return testCase;
         }
 
+        public static T GetTestPropertyValue<T>(TestCase _test, TestProperty _testProperty)
+        {
+            Debug.Assert(_test != null);
+            Debug.Assert(_testProperty != null);
+            object testPropertyObject = _test.GetPropertyValue(_testProperty);
+            Debug.Assert(testPropertyObject != null);
+            return (T)testPropertyObject;
+        }
+
         private static string GetSubstring(string _line, int startIndex, int endIndex)
         {
             Debug.Assert(startIndex > 0, "startIndex should be above 0");

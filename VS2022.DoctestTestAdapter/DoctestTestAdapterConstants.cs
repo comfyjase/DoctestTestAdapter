@@ -1,9 +1,6 @@
 ﻿using Microsoft.VisualStudio.TestPlatform.ObjectModel;
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Resources;
-using static System.Windows.Forms.DataFormats;
 
 namespace VS2022.DoctestTestAdapter
 {
@@ -26,13 +23,25 @@ namespace VS2022.DoctestTestAdapter
         public const string HFileExtension      = ".h";
         public const string HPPFileExtension    = ".hpp";
 
-        // Test Trait Strings
+        // Custom Test Properties
+        // If the test case should be skipped.
         private const string ShouldBeSkippedTestPropertyId = "TestCase.ShouldBeSkipped";
         public static readonly TestProperty ShouldBeSkippedTestProperty = TestProperty.Register(
             ShouldBeSkippedTestPropertyId, 
             "ShouldBeSkipped",
             typeof(bool), 
             TestPropertyAttributes.Hidden, 
+            typeof(TestCase));
+
+        // Dictionary of executables available in the current solution.
+        // Key: Output file path (e.g. Path\To\game.exe or Path\To\library.dll)
+        // Value: Exeuctable to run for test explorer: (e.g. for Path\To\library.dll, it should run Path\To\game.exe because this loads Path\To\library.dll)
+        private const string ExecutablesTestPropertyId = "TestCase.Executables";
+        public static readonly TestProperty ExecutablesTestProperty = TestProperty.Register(
+            ExecutablesTestPropertyId,
+            "Executables",
+            typeof(Dictionary<string, List<string>>),
+            TestPropertyAttributes.Hidden,
             typeof(TestCase));
 
         // Doctest strings

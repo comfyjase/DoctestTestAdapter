@@ -211,12 +211,7 @@ namespace VS2022.DoctestTestAdapter
                     foreach (TestCase test in mappedTests.Value)
                     {
                         string testName = test.DisplayName;
-
-                        bool testSkipped = false;
-                        object shouldBeSkippedTestPropertyObject = test.GetPropertyValue(DoctestTestAdapterConstants.ShouldBeSkippedTestProperty);
-                        Debug.Assert(shouldBeSkippedTestPropertyObject != null);
-                        testSkipped = (bool)shouldBeSkippedTestPropertyObject;
-
+                        bool testSkipped = DoctestTestAdapterUtilities.GetTestPropertyValue<bool>(test, DoctestTestAdapterConstants.ShouldBeSkippedTestProperty);
                         string testResultString = "";
                         TestResult testResult = new TestResult(test);
 
@@ -232,7 +227,6 @@ namespace VS2022.DoctestTestAdapter
                             {
                                 testResultString = "Failed";
                                 testResult.Outcome = TestOutcome.Failed;
-                                //TODO_comfyjase_29/01/2025: Formatting based on how easy to read this is in the test explorer
                                 testResult.ErrorMessage = string.Join("", failedTestErrorMessages);
                             }
                             else
