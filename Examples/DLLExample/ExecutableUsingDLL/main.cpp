@@ -13,7 +13,7 @@ int main(int argc, char** argv)
 {
 	LoadLibrary(L"DLL.dll");
 
-	doctest::Context context(argc, argv);
+	doctest::Context context;
 	
 	context.applyCommandLine(argc, argv);
 
