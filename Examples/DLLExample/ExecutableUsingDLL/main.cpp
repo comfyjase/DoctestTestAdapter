@@ -14,6 +14,9 @@ int main(int argc, char** argv)
 	LoadLibrary(L"DLL.dll");
 
 	doctest::Context context(argc, argv);
+	
+	context.applyCommandLine(argc, argv);
+
 	int doctestResult = context.run();
 
 	if (context.shouldExit())	// important - query flags (and --exit) rely on the user doing this
