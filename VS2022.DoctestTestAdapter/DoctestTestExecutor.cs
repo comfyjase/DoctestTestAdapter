@@ -46,16 +46,16 @@ namespace VS2022.DoctestTestAdapter
 
                 _frameworkHandle.RecordStart(test);
 
-                string executableFilePath = DoctestTestAdapterUtilities.GetTestFileExecutableFilePath(doctestSettings, test.CodeFilePath, out string commandArguments);
+                string executableFilePath = DoctestTestAdapterUtilities.GetTestFileExecutableFilePath(doctestSettings, test.CodeFilePath);
 
-                //TODO_comfyjase_29/01/2025: Find a way to link dll -> related exe file, in the meantime, mark it as skipped
-                if (Path.GetExtension(executableFilePath).Equals(DoctestTestAdapterConstants.DLLFileExtension, StringComparison.OrdinalIgnoreCase))
-                {
-                    TestResult testResult = new TestResult(test);
-                    testResult.Outcome = TestOutcome.Skipped;
-                    _frameworkHandle.RecordResult(testResult);
-                    continue;
-                }    
+                ////TODO_comfyjase_29/01/2025: Find a way to link dll -> related exe file, in the meantime, mark it as skipped
+                //if (Path.GetExtension(executableFilePath).Equals(DoctestTestAdapterConstants.DLLFileExtension, StringComparison.OrdinalIgnoreCase))
+                //{
+                //    TestResult testResult = new TestResult(test);
+                //    testResult.Outcome = TestOutcome.Skipped;
+                //    _frameworkHandle.RecordResult(testResult);
+                //    continue;
+                //}    
 
                 if (mappedExecutableTests.TryGetValue(executableFilePath, out List<TestCase> testFiles))
                 {

@@ -1,6 +1,7 @@
 ﻿using Microsoft.VisualStudio.TestPlatform.ObjectModel;
 using Microsoft.VisualStudio.TestPlatform.ObjectModel.Adapter;
 using Microsoft.VisualStudio.TestPlatform.ObjectModel.Logging;
+using Microsoft.VisualStudio.TestPlatform.Utilities;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -139,34 +140,94 @@ namespace VS2022.DoctestTestAdapter
         //TODO_comfyjase_02/02/2025: Update this function to use the new txt file to query executable information.
         // For DLLs just use the first executable that dumpbin provides.
         // Otherwise, if the user wants to use a specific executable that isn't the first dependency, they will have to provide a filepath in the settings per config?
-        public static string GetTestFileExecutableFilePath(DoctestSettingsProvider _doctestSettings, string _filePath, out string _commandArguments)
+        public static string GetTestFileExecutableFilePath(DoctestSettingsProvider _doctestSettings, string _filePath)
         {
-            string testExecutableToUse = string.Empty;
-            _commandArguments = string.Empty;
+            string testExecutableFilePath = string.Empty;
 
-            if (_doctestSettings != null)
+            string[] allDiscoveredExecutablesFilePaths = File.ReadAllLines(DoctestTestAdapterConstants.DiscoveredExecutablesInformationFilePath);
+
+            Dictionary<string, List<string>> executableDependencies = new Dictionary<string, List<string>>();
+
+            // Work out what dependencies are needed first.
+            foreach (string executableFilePath in allDiscoveredExecutablesFilePaths)
             {
-                Logger.Instance.WriteLine("1) Doctest test adapter run settings");
-
-                Debug.Assert(_doctestSettings.OutputFileData.Count > 0, "Run settings file should have at least one OutputFile entry.");
-
-                foreach (DoctestSettingsOutputFileData outputFileData in _doctestSettings.OutputFileData)
+                if (Path.GetExtension(executableFilePath).Equals(DoctestTestAdapterConstants.ExeFileExtension, StringComparison.OrdinalIgnoreCase))
                 {
-                    string searchString = outputFileData.ExecutableFilePath;
-                    string commandArguments = outputFileData.CommandArguments;
+                    // Find out what dependencies this exe has...
+                    Process dumpBinProcess = new Process();
+                    dumpBinProcess.EnableRaisingEvents = true;
+                    dumpBinProcess.StartInfo.CreateNoWindow = true;
+                    dumpBinProcess.StartInfo.UseShellExecute = false;
+                    dumpBinProcess.StartInfo.RedirectStandardOutput = true;
+                    dumpBinProcess.StartInfo.FileName = @"dumpbin.exe";
+                    dumpBinProcess.StartInfo.Arguments = "/dependents " + executableFilePath;
 
-                    string regexPattern = @"\b" + Regex.Escape(Path.GetFileNameWithoutExtension(searchString)) + @"\b";
-                    if (Regex.Match(_filePath, regexPattern, RegexOptions.IgnoreCase).Success)
+                    List<string> dumpBinProcessOutput = new List<string>();
+                    dumpBinProcess.OutputDataReceived += (object _sender, DataReceivedEventArgs _e) =>
                     {
-                        Logger.Instance.WriteLine("3) Associating test file " + Path.GetFileName(_filePath) + " with executable " + Path.GetFileName(searchString) + " using command arguments: " + commandArguments);
-                        _commandArguments = commandArguments;
-                        return (testExecutableToUse = searchString);
-                    }
+                        if (_e.Data != null && _e.Data.Count() > 0)
+                        {
+                            Logger.Instance.WriteLine(_e.Data);
+                            dumpBinProcessOutput.Add(_e.Data);
+                        }
+                    };
+
+                    Logger.Instance.WriteLine("About to start dumpbin process and check dependencies for: " + Path.GetFileName(executableFilePath));
+                    Debug.Assert(dumpBinProcess.Start());
+
+                    dumpBinProcess.WaitForExit();
+
+                    Logger.Instance.WriteLine("dumpbin process finished checking dependences for: " + Path.GetFileName(executableFilePath));
+
+                    List<string> dependencies = allDiscoveredExecutablesFilePaths.Where(s => dumpBinProcessOutput.Contains(Path.GetFileName(s))).ToList();
+                    Debug.Assert(dependencies.Count > 0);
+
+                    Logger.Instance.WriteLine(Path.GetFileName(executableFilePath) + " dependencies: " + "\n" + dependencies.ToString());
+
+                    executableDependencies.Add(executableFilePath, dependencies);
                 }
             }
 
-            Debug.Assert(false, "Failed to find executable for test file: " + _filePath + " is there a suitable executable listed in the <OutputFiles> list in .runsettings?");
-            return testExecutableToUse;
+            // Now check which executable file path to use for the test run...
+            foreach (string discoveredExecutableFilePath in allDiscoveredExecutablesFilePaths)
+            {
+                string regexPattern = @"\b" + Regex.Escape(Path.GetFileNameWithoutExtension(discoveredExecutableFilePath)) + @"\b";
+                if (Regex.Match(_filePath, regexPattern, RegexOptions.IgnoreCase).Success)
+                {
+                    Logger.Instance.WriteLine("Associating test file " + Path.GetFileName(_filePath) + " with executable " + Path.GetFileName(discoveredExecutableFilePath));
+                    testExecutableFilePath = discoveredExecutableFilePath;
+
+                    // If it's a DLL, get the first executable which depends on it.
+                    if (Path.GetExtension(testExecutableFilePath).Equals(DoctestTestAdapterConstants.DLLFileExtension, StringComparison.OrdinalIgnoreCase))
+                    {
+                        Debug.Assert(false);
+
+                        Logger.Instance.WriteLine("DLL: " + Path.GetFileName(testExecutableFilePath) + " need to find out which .exe to run tests from this project.");
+
+                        foreach (KeyValuePair<string, List<string>> mappedDependencies in executableDependencies)
+                        {
+                            string executableFilePath = mappedDependencies.Key;
+                            List<string> dependencies = mappedDependencies.Value;
+
+                            // Searching dependencies for this .dll file we have.
+                            bool doesExecutableDependOnThisDLL = dependencies.Any(s => s.Contains(Path.GetFileName(testExecutableFilePath)));
+                            if (doesExecutableDependOnThisDLL)
+                            {
+                                Logger.Instance.WriteLine("Executable: " + Path.GetFileName(executableFilePath) + " depends on DLL: " + Path.GetFileName(testExecutableFilePath) + " so using that for any test runs for file: " + Path.GetFileName(_filePath));
+
+                                // Swap from using a .dll -> .exe file so the test has something to run on
+                                testExecutableFilePath = mappedDependencies.Key;
+                                break;
+                            }
+                        }
+                    }
+
+                    break;
+                }
+            }
+
+            Debug.Assert(!Path.GetExtension(testExecutableFilePath).Equals(DoctestTestAdapterConstants.DLLFileExtension, StringComparison.OrdinalIgnoreCase));
+            return testExecutableFilePath;
         }
 
         public static List<TestCase> GetTests(IEnumerable<string> _sources, IDiscoveryContext _discoveryContext, IMessageLogger _logger, ITestCaseDiscoverySink _discoverySink)
@@ -176,8 +237,7 @@ namespace VS2022.DoctestTestAdapter
             string currentDirectory = Directory.GetCurrentDirectory();
             Logger.Instance.WriteLine("Searching current directory: " + currentDirectory);
 
-            string discoveredExecutablesInformationFilePath = currentDirectory + "\\DoctestTestAdapter\\DiscoveredExecutables.txt";
-            VS.Common.DoctestTestAdapter.IO.File discoveredExecutableInformationFile = new VS.Common.DoctestTestAdapter.IO.File(discoveredExecutablesInformationFilePath);
+            VS.Common.DoctestTestAdapter.IO.File discoveredExecutableInformationFile = new VS.Common.DoctestTestAdapter.IO.File(DoctestTestAdapterConstants.DiscoveredExecutablesInformationFilePath);
 
             foreach (string sourceFile in _sources)
             {

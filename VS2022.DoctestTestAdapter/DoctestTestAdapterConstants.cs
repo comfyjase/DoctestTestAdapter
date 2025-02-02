@@ -1,6 +1,7 @@
 ﻿using Microsoft.VisualStudio.TestPlatform.ObjectModel;
 using System;
 using System.Collections.Generic;
+using System.IO;
 
 namespace VS2022.DoctestTestAdapter
 {
@@ -16,6 +17,8 @@ namespace VS2022.DoctestTestAdapter
         public const string ProjectFilePathNodeName     = "ProjectFilePath";
         public const string ExecutableFilePathNodeName  = "ExecutableFilePath";
         public const string CommandArgumentsNodeName    = "CommandArguments";
+
+        public static readonly string DiscoveredExecutablesInformationFilePath = Directory.GetCurrentDirectory() + "\\DoctestTestAdapter\\DiscoveredExecutables.txt";
 
         // Supported file types
         public const string ExeFileExtension    = ".exe";
