@@ -2,7 +2,7 @@
 {
     public interface IFile
     {
-        void Write(string _text);
+        void WriteLine(string _text);
         string[] ReadAllLines();
     }
 }

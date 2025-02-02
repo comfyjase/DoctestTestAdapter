@@ -19,8 +19,6 @@ namespace VS2022.DoctestTestAdapter
 
         public static TestCase CreateTestCase(string _testOwner, string _namespace, string _className, string _testName, string _sourceFilePath, int _lineNumber, bool _shouldBeSkipped)
         {
-            Logger.Instance.WriteLine("Begin");
-
             string[] parts = new string[] { _namespace, _className, _testName };
             string fullyQualifiedName = string.Join("::", parts);
 
@@ -35,8 +33,6 @@ namespace VS2022.DoctestTestAdapter
             {
                 Logger.Instance.WriteLine("Test " + _testName + " should be skipped.");
             }
-
-            Logger.Instance.WriteLine("End");
 
             return testCase;
         }
@@ -140,6 +136,9 @@ namespace VS2022.DoctestTestAdapter
             return testName;
         }
 
+        //TODO_comfyjase_02/02/2025: Update this function to use the new txt file to query executable information.
+        // For DLLs just use the first executable that dumpbin provides.
+        // Otherwise, if the user wants to use a specific executable that isn't the first dependency, they will have to provide a filepath in the settings per config?
         public static string GetTestFileExecutableFilePath(DoctestSettingsProvider _doctestSettings, string _filePath, out string _commandArguments)
         {
             string testExecutableToUse = string.Empty;
@@ -172,12 +171,13 @@ namespace VS2022.DoctestTestAdapter
 
         public static List<TestCase> GetTests(IEnumerable<string> _sources, IDiscoveryContext _discoveryContext, IMessageLogger _logger, ITestCaseDiscoverySink _discoverySink)
         {
-            Logger.Instance.WriteLine("Begin");
-
             List<TestCase> tests = new List<TestCase>();
 
             string currentDirectory = Directory.GetCurrentDirectory();
             Logger.Instance.WriteLine("Searching current directory: " + currentDirectory);
+
+            string discoveredExecutablesInformationFilePath = currentDirectory + "\\DoctestTestAdapter\\DiscoveredExecutables.txt";
+            VS.Common.DoctestTestAdapter.IO.File discoveredExecutableInformationFile = new VS.Common.DoctestTestAdapter.IO.File(discoveredExecutablesInformationFilePath);
 
             foreach (string sourceFile in _sources)
             {
@@ -191,6 +191,13 @@ namespace VS2022.DoctestTestAdapter
                     {
                         //TODO_comfyjase_25/01/2025: Check if you need to store these executables in order to run the unit tests during RunTests...
                         // Might need to use them as for creating a new Process to actually run the tests?
+
+                        string[] existingExecuteableInformation = discoveredExecutableInformationFile.ReadAllLines();
+                        bool executableInformationIsAlreadyInFile = existingExecuteableInformation.Any(s => s.Equals(sourceFile, StringComparison.OrdinalIgnoreCase));
+                        if (!executableInformationIsAlreadyInFile)
+                        {
+                            discoveredExecutableInformationFile.WriteLine(sourceFile);
+                        }
                     }
                     // .h/.hpp files
                     else
@@ -242,10 +249,7 @@ namespace VS2022.DoctestTestAdapter
                 }
             }
 
-            
-
             Logger.Instance.WriteLine("Found " + tests.Count + " TestCases");
-            Logger.Instance.WriteLine("End");
 
             return tests;
         }

@@ -285,8 +285,6 @@ namespace VS2022.DoctestTestAdapter
 
         private bool IsTestFile(string _path)
         {
-            Logger.Instance.WriteLine("Begin");
-
             try
             {
                 Debug.Assert(solution != null);
@@ -303,10 +301,8 @@ namespace VS2022.DoctestTestAdapter
 
                 if (isTestFile)
                 {
-                    Logger.Instance.WriteLine("Found potential test file: " + _path, 1);
+                    Logger.Instance.WriteLine("Found potential test file: " + _path);
                 }
-
-                Logger.Instance.WriteLine("End");
 
                 return isTestFile;
             }
@@ -315,7 +311,6 @@ namespace VS2022.DoctestTestAdapter
                 Logger.Instance.WriteLine("IO error when detecting a test file during Test Container Discovery" + e.Message);
             }
 
-            Logger.Instance.WriteLine("End");
             return false;
         }
 

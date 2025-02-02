@@ -94,7 +94,7 @@ namespace VS.Common.DoctestTestAdapter.IO
             System.IO.File.WriteAllText(fullPath, string.Empty);
         }
 
-        public void Write(string _text)
+        public void WriteLine(string _text)
         {
             Trace.WriteLine("Process: " + Process.GetCurrentProcess().ProcessName + " Id: " + Process.GetCurrentProcess().Id + " wants to write to file: " + FileName);
             

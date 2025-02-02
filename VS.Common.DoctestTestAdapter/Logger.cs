@@ -26,7 +26,7 @@ namespace VS.Common.DoctestTestAdapter
         {
             //TODO_comfyjase_02/02/2025: Would be really useful to have a timestamped log file.
             //logFilePath = Directory.GetCurrentDirectory() + "\\Logs\\DoctestTestAdapter_" + GetCurrentTimestampForDebugFilename() + ".log";
-            logFilePath = Directory.GetCurrentDirectory() + "\\Logs\\DoctestTestAdapter.log";
+            logFilePath = Directory.GetCurrentDirectory() + "\\DoctestTestAdapter\\Logs\\DoctestTestAdapter.log";
             logFile = new VS.Common.DoctestTestAdapter.IO.File(logFilePath);
 
             WriteLine("New logger created! Directory: " + Path.GetDirectoryName(logFilePath) + " File: " + logFilePath);
@@ -72,7 +72,7 @@ namespace VS.Common.DoctestTestAdapter
         private void WriteLineToLogFile(string _line)
         {
             Debug.Assert(logFile != null);
-            logFile.Write(_line);
+            logFile.WriteLine(_line);
         }
 
         /// <summary>
@@ -116,8 +116,8 @@ namespace VS.Common.DoctestTestAdapter
         public void Dispose()
         {
             Debug.Assert(logFile != null);
-            logFile.Write("DoctestTestAdapter Log End");
-            logFile.Write("==========================");
+            logFile.WriteLine("DoctestTestAdapter Log End");
+            logFile.WriteLine("==========================");
         }
     }
 }

@@ -1,0 +1,4 @@
+C:\SideProjects\Repositories\DoctestTestAdapter\Examples\bin\x64\Debug\DLL\DLL.dll
+C:\SideProjects\Repositories\DoctestTestAdapter\Examples\bin\x64\Debug\ExecutableUsingDLL\ExecutableUsingDLL.exe
+C:\SideProjects\Repositories\DoctestTestAdapter\Examples\bin\x64\Debug\UsingDoctestMain\UsingDoctestMain.exe
+C:\SideProjects\Repositories\DoctestTestAdapter\Examples\bin\x64\Debug\UsingCustomMain\UsingCustomMain.exe
