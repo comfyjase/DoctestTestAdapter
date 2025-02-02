@@ -40,6 +40,9 @@ namespace VS2022.DoctestTestAdapter
         public DoctestTestContainerDiscoverer(
             [Import(typeof(SVsServiceProvider))] System.IServiceProvider _serviceProvider)
         {
+            //TODO_comfyjase_02/02/2025: Remove this if you get timestamped log files working correctly...
+            Logger.Instance.Clear();
+
             Logger.Instance.WriteLine("Constructor called");
 
             if (VSUtilities.ShouldAttachDebugger())

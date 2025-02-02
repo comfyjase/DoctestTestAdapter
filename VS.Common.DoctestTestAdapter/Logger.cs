@@ -17,70 +17,28 @@ namespace VS.Common.DoctestTestAdapter
             }
         }
 
-        //// "C:\\Path\\To\\Debug\\Folder\\";
-        //private static string logDirectory = "";
-        
-        // "C:\\Path\\To\\Debug\\Folder\\[Date-Time].log";
+        // "C:\\Path\\To\\Debug\\Folder\\DoctestAdapter.log";
         private static string logFilePath = "";
 
         private VS.Common.DoctestTestAdapter.IO.File logFile = null;
 
         private Logger()
         {
+            //TODO_comfyjase_02/02/2025: Would be really useful to have a timestamped log file.
+            //logFilePath = Directory.GetCurrentDirectory() + "\\Logs\\DoctestTestAdapter_" + GetCurrentTimestampForDebugFilename() + ".log";
             logFilePath = Directory.GetCurrentDirectory() + "\\Logs\\DoctestTestAdapter.log";
             logFile = new VS.Common.DoctestTestAdapter.IO.File(logFilePath);
-            //SetupLogDirectory();
-            //SetupLogFile();
-            WriteLine("New logger created, using file: " + logFilePath);
+
+            WriteLine("New logger created! Directory: " + Path.GetDirectoryName(logFilePath) + " File: " + logFilePath);
+            WriteLine("DoctestTestAdapter Log Start");
+            WriteLine("============================");
         }
 
-        //private void SetupLogDirectory()
-        //{
-        //    // There doesn't appear to be a way to query the associated project name during discovery time from here.
-        //    // E.g. C++DoctestProjectA
-        //    // I could store a projectName static variable in this class and then set it when first iterating through source files.
-        //    // But that feels very hacky and not very generic/good.
-        //    // Instead, I'm just creating a unique ID for the logs to be stored under - not as ideal as trying to get the calling project name but it works!
-        //    Guid guid = Guid.NewGuid();
-        //    string uniqueIDStr = guid.ToString("n");
-        //    string currentDirectory = Directory.GetCurrentDirectory();
-        //    string vsixLocation = currentDirectory;
-        //    logDirectory = vsixLocation + "\\Logs\\DoctestTestAdapter\\" + uniqueIDStr + "\\";
-        //    if (!Directory.Exists(logDirectory))
-        //    {
-        //        Directory.CreateDirectory(logDirectory);
-        //    }
-        //    WriteLineToOutput("[DoctestTestAdapter] Log directory: " + logDirectory);
-        //}
-
-        //private void SetupLogFile()
-        //{
-        //    logFilePath = logDirectory + GetCurrentTimestampForDebugFilename() + ".log";
-
-        //    if (!File.Exists(logFilePath))
-        //    {
-        //        // Create the log file.
-        //        using (StreamWriter sw = File.CreateText(logFilePath))
-        //        {
-        //            WriteLineToOutput("[DoctestTestAdapter] Created log file: " + logFilePath);
-
-        //            DirectoryInfo parentDirectoryInfo = Directory.GetParent(logFilePath);
-        //            if(parentDirectoryInfo != null)
-        //            {
-        //                sw.WriteLine(GetCurrentTimestampForLogs() + " [DoctestTestAdapter] " + parentDirectoryInfo.Name);
-        //            }
-        //            sw.WriteLine(GetCurrentTimestampForLogs() + " [DoctestTestAdapter] " + "DoctestTestAdapter Log Start");
-        //            sw.WriteLine(GetCurrentTimestampForLogs() + " [DoctestTestAdapter] " + "============================");
-        //        }
-        //    }
-        //    else
-        //    {
-        //        WriteLineToOutput("[DoctestTestAdapter] Log file " + logFilePath + " already exists, clearing file");
-
-        //        // Clear the contents of the file.
-        //        File.WriteAllText(logFilePath, string.Empty);
-        //    }
-        //}
+        public void Clear()
+        {
+            Debug.Assert(logFile != null);
+            logFile.Clear();
+        }
 
         /// <summary>
         /// This is separate from the function below because we need to respect the Windows filenaming rules.
@@ -109,18 +67,12 @@ namespace VS.Common.DoctestTestAdapter
         private void WriteLineToOutput(string _line)
         {
             Trace.WriteLine(_line);
-            Console.WriteLine(_line);
         }
 
         private void WriteLineToLogFile(string _line)
         {
-            if (File.Exists(logFilePath))
-            {
-                using (StreamWriter sw = File.AppendText(logFilePath))
-                {
-                    sw.WriteLine(_line);
-                }
-            }
+            Debug.Assert(logFile != null);
+            logFile.Write(_line);
         }
 
         /// <summary>
@@ -163,16 +115,9 @@ namespace VS.Common.DoctestTestAdapter
 
         public void Dispose()
         {
-            if (File.Exists(logFilePath))
-            {
-                using (StreamWriter sw = File.AppendText(logFilePath))
-                {
-                    WriteLineToOutput("[DoctestTestAdapter] Created log file: " + logFilePath);
-
-                    sw.WriteLine("[DoctestTestAdapter] " + GetCurrentTimestampForLogs() + " DoctestTestAdapter Log End");
-                    sw.WriteLine("[DoctestTestAdapter] " + GetCurrentTimestampForLogs() + " ==========================");
-                }
-            }
+            Debug.Assert(logFile != null);
+            logFile.Write("DoctestTestAdapter Log End");
+            logFile.Write("==========================");
         }
     }
 }
