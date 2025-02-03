@@ -267,25 +267,25 @@ namespace VS2022.DoctestTestAdapter
 
                         string textToWrite = 
                         (
-                            "<ExecutableFile FilePath=\"" + sourceFile + "\">\n"
-                            + "\t<Dependencies>" + "\n"
+                            "\t<ExecutableFile FilePath=\"" + sourceFile + "\">\n"
+                            + "\t\t<Dependencies>" + "\n"
                         );
 
                         foreach (string dependency in dependences)
                         {
                             textToWrite +=
                             (
-                                "\t\t<Dependency FileName=\"" + dependency + "\"/>" + "\n"
+                                "\t\t\t<Dependency FileName=\"" + dependency + "\"/>" + "\n"
                             );
                         }
 
                         textToWrite +=
                         (
-                            "\t</Dependencies>" + "\n"
-                            + "</ExecutableFile>"
+                            "\t\t</Dependencies>" + "\n"
+                            + "\t</ExecutableFile>"
                         );
 
-                        //discoveredExecutableInformationFile.WriteLine(textToWrite);
+                        discoveredExecutableInformationFile.WriteLine(textToWrite);
                     }
                     // .h/.hpp files
                     else

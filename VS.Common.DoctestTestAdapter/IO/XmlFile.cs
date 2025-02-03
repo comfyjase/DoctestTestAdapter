@@ -45,5 +45,10 @@ namespace VS.Common.DoctestTestAdapter.IO
                 xmlDocument.Save(fullPath);
             }
         }
+
+        public void Write(string _text)
+        {
+
+        }
     }
 }
