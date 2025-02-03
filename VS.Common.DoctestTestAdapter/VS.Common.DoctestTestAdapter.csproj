@@ -43,6 +43,7 @@
   <ItemGroup>
     <Compile Include="IO\File.cs" />
     <Compile Include="IO\IFile.cs" />
+    <Compile Include="IO\XmlFile.cs" />
     <Compile Include="Listeners\ISolutionEventsListener.cs" />
     <Compile Include="Listeners\ITestFileAddRemoveListener.cs" />
     <Compile Include="Listeners\ITestFilesUpdateListener.cs" />

@@ -18,7 +18,8 @@ namespace VS2022.DoctestTestAdapter
         public const string ExecutableFilePathNodeName  = "ExecutableFilePath";
         public const string CommandArgumentsNodeName    = "CommandArguments";
 
-        public static readonly string DiscoveredExecutablesInformationFilePath = Directory.GetCurrentDirectory() + "\\DoctestTestAdapter\\DiscoveredExecutables.txt";
+        public const string XmlFileExtension = ".xml";
+        public static readonly string DiscoveredExecutablesInformationFilePath = Directory.GetCurrentDirectory() + "\\DoctestTestAdapter\\DiscoveredExecutables" + XmlFileExtension;
 
         // Supported file types
         public const string ExeFileExtension    = ".exe";

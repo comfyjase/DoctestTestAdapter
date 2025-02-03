@@ -143,21 +143,22 @@ namespace VS2022.DoctestTestAdapter
         {
             string testExecutableFilePath = string.Empty;
 
-            string[] allDiscoveredExecutablesFilePaths = File.ReadAllLines(DoctestTestAdapterConstants.DiscoveredExecutablesInformationFilePath);
+            string[] allDiscoveredExecutablesInformation = File.ReadAllLines(DoctestTestAdapterConstants.DiscoveredExecutablesInformationFilePath);
 
             Dictionary<string, List<string>> executableDependencies = new Dictionary<string, List<string>>();
 
             // Work out what dependencies are needed first.
-            foreach (string executableFilePath in allDiscoveredExecutablesFilePaths)
+            foreach (string line in allDiscoveredExecutablesInformation)
             {
-                if (Path.GetExtension(executableFilePath).Equals(DoctestTestAdapterConstants.ExeFileExtension, StringComparison.OrdinalIgnoreCase))
+                bool isExecutableFilePathLine = line.Contains("");
+                //if (Path.GetExtension(executableFilePath).Equals(DoctestTestAdapterConstants.ExeFileExtension, StringComparison.OrdinalIgnoreCase))
                 {
                     
                 }
             }
 
             // Now check which executable file path to use for the test run...
-            foreach (string discoveredExecutableFilePath in allDiscoveredExecutablesFilePaths)
+            foreach (string discoveredExecutableFilePath in allDiscoveredExecutablesInformation)
             {
                 string regexPattern = @"\b" + Regex.Escape(Path.GetFileNameWithoutExtension(discoveredExecutableFilePath)) + @"\b";
                 if (Regex.Match(_filePath, regexPattern, RegexOptions.IgnoreCase).Success)
@@ -233,11 +234,6 @@ namespace VS2022.DoctestTestAdapter
 
         }
 
-        private static void WriteToDiscoveredExecutablesFile()
-        {
-
-        }
-
         public static List<TestCase> GetTests(IEnumerable<string> _sources, IDiscoveryContext _discoveryContext, IMessageLogger _logger, ITestCaseDiscoverySink _discoverySink)
         {
             List<TestCase> tests = new List<TestCase>();
@@ -245,7 +241,7 @@ namespace VS2022.DoctestTestAdapter
             string currentDirectory = Directory.GetCurrentDirectory();
             Logger.Instance.WriteLine("Searching current directory: " + currentDirectory);
 
-            VS.Common.DoctestTestAdapter.IO.File discoveredExecutableInformationFile = new VS.Common.DoctestTestAdapter.IO.File(DoctestTestAdapterConstants.DiscoveredExecutablesInformationFilePath);
+            VS.Common.DoctestTestAdapter.IO.XmlFile discoveredExecutableInformationFile = new VS.Common.DoctestTestAdapter.IO.XmlFile(DoctestTestAdapterConstants.DiscoveredExecutablesInformationFilePath);
 
             foreach (string sourceFile in _sources)
             {
@@ -269,8 +265,27 @@ namespace VS2022.DoctestTestAdapter
 
                         List<string> dependences = GetExecutableDependencies(sourceFile);
 
-                        //TODO_comfyjase_03/02/2025: Write to the info file...
-                        //discoveredExecutableInformationFile.WriteLine("File: ")
+                        string textToWrite = 
+                        (
+                            "<ExecutableFile FilePath=\"" + sourceFile + "\">\n"
+                            + "\t<Dependencies>" + "\n"
+                        );
+
+                        foreach (string dependency in dependences)
+                        {
+                            textToWrite +=
+                            (
+                                "\t\t<Dependency FileName=\"" + dependency + "\"/>" + "\n"
+                            );
+                        }
+
+                        textToWrite +=
+                        (
+                            "\t</Dependencies>" + "\n"
+                            + "</ExecutableFile>"
+                        );
+
+                        //discoveredExecutableInformationFile.WriteLine(textToWrite);
                     }
                     // .h/.hpp files
                     else

@@ -7,7 +7,7 @@ namespace VS.Common.DoctestTestAdapter.IO
 {
     public class File : IFile
     {
-        private string fullPath = string.Empty;
+        protected string fullPath = string.Empty;
         public string FullPath
         {
             get { return fullPath; }
@@ -21,16 +21,32 @@ namespace VS.Common.DoctestTestAdapter.IO
             get { return Path.GetExtension(fullPath); }
         }
 
-        private Mutex mutex = null;
-        private bool mutexExists = false;
-        private bool mutexUnauthorized = false;
-        private bool mutexCreated = false;
+        protected Mutex mutex = null;
+        protected bool mutexExists = false;
+        protected bool mutexUnauthorized = false;
+        protected bool mutexCreated = false;
 
         public File(string _fullPath)
         {
             fullPath = _fullPath;
             Debug.Assert(!string.IsNullOrEmpty(fullPath));
 
+            bool initializedMutex = InitializeMutex();
+            Debug.Assert(initializedMutex);
+
+            Trace.WriteLine("Process: " + System.Diagnostics.Process.GetCurrentProcess().ProcessName + " Id: " + System.Diagnostics.Process.GetCurrentProcess().Id);
+
+            InitializeDirectory();
+            InitializeFile();
+        }
+
+        ~File()
+        {
+            mutex.Dispose();
+        }
+
+        protected bool InitializeMutex()
+        {
             try
             {
                 mutex = Mutex.OpenExisting(fullPath.Replace("\\", ""));
@@ -61,19 +77,25 @@ namespace VS.Common.DoctestTestAdapter.IO
                 catch (UnauthorizedAccessException ex)
                 {
                     Trace.WriteLine("Unauthorized access: " + ex.Message);
-                    return;
+                    return false;
                 }
             }
 
-            Trace.WriteLine("Process: " + System.Diagnostics.Process.GetCurrentProcess().ProcessName + " Id: " + System.Diagnostics.Process.GetCurrentProcess().Id);
+            return true;
+        }
 
+        protected void InitializeDirectory()
+        {
             // Create parent directory if it doesn't already exist.
             string folder = Path.GetDirectoryName(fullPath);
             if (!Directory.Exists(folder))
             {
                 Directory.CreateDirectory(folder);
             }
+        }
 
+        virtual protected void InitializeFile()
+        {
             // Create file if it doesn't already exist.
             if (!System.IO.File.Exists(fullPath))
             {
@@ -82,11 +104,6 @@ namespace VS.Common.DoctestTestAdapter.IO
                     Trace.WriteLine("Successfully created file: " + fullPath);
                 }
             }
-        }
-
-        ~File()
-        {
-            mutex.Dispose();
         }
 
         public void Clear()
