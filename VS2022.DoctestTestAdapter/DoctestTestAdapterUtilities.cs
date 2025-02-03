@@ -7,7 +7,9 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Text.RegularExpressions;
+using System.Xml;
 using VS.Common.DoctestTestAdapter;
+using VS.Common.DoctestTestAdapter.IO;
 using VS2022.DoctestTestAdapter.Settings;
 
 namespace VS2022.DoctestTestAdapter
@@ -143,37 +145,73 @@ namespace VS2022.DoctestTestAdapter
         {
             string testExecutableFilePath = string.Empty;
 
-            string[] allDiscoveredExecutablesInformation = File.ReadAllLines(DoctestTestAdapterConstants.DiscoveredExecutablesInformationFilePath);
+            Dictionary<string, List<string>> allMappedExecutableDependencies = new Dictionary<string, List<string>>();
+            XmlFile discoveredExecutablesInformationFile = new XmlFile(DoctestTestAdapterConstants.DiscoveredExecutablesInformationFilePath);
+            XmlDocument discoveredExecutablesXmlDocument = discoveredExecutablesInformationFile.XmlDocument;
+            XmlNodeList node = discoveredExecutablesXmlDocument.SelectNodes("//DiscoveredExecutables/ExecutableFile");
 
-            Dictionary<string, List<string>> executableDependencies = new Dictionary<string, List<string>>();
-
-            // Work out what dependencies are needed first.
-            foreach (string line in allDiscoveredExecutablesInformation)
+            // ExecutableFile namespace
+            // E.g.
+            // <ExecutableFile>
+            //      ...
+            // </ExecutableFile>
+            foreach (XmlNode childNode in node)
             {
-                bool isExecutableFilePathLine = line.Contains("");
-                //if (Path.GetExtension(executableFilePath).Equals(DoctestTestAdapterConstants.ExeFileExtension, StringComparison.OrdinalIgnoreCase))
+                XmlAttribute filePathAttribute = childNode.Attributes["FilePath"];
+                if (filePathAttribute != null && !string.IsNullOrWhiteSpace(filePathAttribute.Value))
                 {
-                    
+                    string discoveredExecutableFilePath = filePathAttribute.Value;
+
+                    // Dependencies namespace
+                    // E.g.
+                    // <Dependencies>
+                    //      ...
+                    // </Dependencies>
+                    XmlNodeList dependencyNodes = childNode["Dependencies"].ChildNodes;
+                    Debug.Assert(dependencyNodes.Count > 0);
+
+                    foreach (XmlNode dependencyNode in dependencyNodes)
+                    {
+                        XmlAttribute fileNameAttribute = dependencyNode.Attributes["FileName"];
+                        if (fileNameAttribute != null && !string.IsNullOrWhiteSpace(fileNameAttribute.Value))
+                        {
+                            string discoveredDependencyFileName = fileNameAttribute.Value;
+                            Logger.Instance.WriteLine("Executable: " + Path.GetFileName(discoveredExecutableFilePath) + " depends on " + discoveredDependencyFileName);
+
+                            if (allMappedExecutableDependencies.TryGetValue(discoveredExecutableFilePath, out List<string> dependencies))
+                            {
+                                dependencies.Add(discoveredDependencyFileName);
+                                allMappedExecutableDependencies[discoveredExecutableFilePath] = dependencies;
+                            }
+                            else
+                            {
+                                List<string> newDependenciesList = new List<string>() { discoveredDependencyFileName };
+                                allMappedExecutableDependencies.Add(discoveredExecutableFilePath, newDependenciesList);
+                            }
+                        }
+                    }
                 }
             }
 
+            Debug.Assert(allMappedExecutableDependencies.Count > 0);
+
             // Now check which executable file path to use for the test run...
-            foreach (string discoveredExecutableFilePath in allDiscoveredExecutablesInformation)
+            foreach (KeyValuePair<string, List<string>> mappedExecutableDependencies in allMappedExecutableDependencies)
             {
-                string regexPattern = @"\b" + Regex.Escape(Path.GetFileNameWithoutExtension(discoveredExecutableFilePath)) + @"\b";
+                string regexPattern = @"\b" + Regex.Escape(Path.GetFileNameWithoutExtension(mappedExecutableDependencies.Key)) + @"\b";
                 if (Regex.Match(_filePath, regexPattern, RegexOptions.IgnoreCase).Success)
                 {
-                    Logger.Instance.WriteLine("Associating test file " + Path.GetFileName(_filePath) + " with executable " + Path.GetFileName(discoveredExecutableFilePath));
-                    testExecutableFilePath = discoveredExecutableFilePath;
+                    Logger.Instance.WriteLine("Associating test file " + Path.GetFileName(_filePath) + " with executable " + Path.GetFileName(mappedExecutableDependencies.Key));
+                    testExecutableFilePath = mappedExecutableDependencies.Key;
 
                     // If it's a DLL, get the first executable which depends on it.
                     if (Path.GetExtension(testExecutableFilePath).Equals(DoctestTestAdapterConstants.DLLFileExtension, StringComparison.OrdinalIgnoreCase))
                     {
-                        Debug.Assert(false);
+                        //Debug.Assert(false);
 
                         Logger.Instance.WriteLine("DLL: " + Path.GetFileName(testExecutableFilePath) + " need to find out which .exe to run tests from this project.");
 
-                        foreach (KeyValuePair<string, List<string>> mappedDependencies in executableDependencies)
+                        foreach (KeyValuePair<string, List<string>> mappedDependencies in allMappedExecutableDependencies)
                         {
                             string executableFilePath = mappedDependencies.Key;
                             List<string> dependencies = mappedDependencies.Value;
@@ -290,7 +328,7 @@ namespace VS2022.DoctestTestAdapter
                     else
                     {
                         // If the file contains the TEST_CASE macro, for now just consider it a valid test case.
-                        string[] allLines = File.ReadAllLines(sourceFile);
+                        string[] allLines = System.IO.File.ReadAllLines(sourceFile);
                         int currentLineNumber = 1;
                         string testFileNamespace = EmptyNamespaceString;
                         string testClassName = EmptyClassString;
