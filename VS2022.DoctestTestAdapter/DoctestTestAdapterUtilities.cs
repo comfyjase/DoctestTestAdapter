@@ -138,9 +138,7 @@ namespace VS2022.DoctestTestAdapter
             return testName;
         }
 
-        //TODO_comfyjase_02/02/2025: Update this function to use the new txt file to query executable information.
-        // For DLLs just use the first executable that dumpbin provides.
-        // Otherwise, if the user wants to use a specific executable that isn't the first dependency, they will have to provide a filepath in the settings per config?
+        //TODO_comfyjase_03/02/2025: Nice to have, way to write in the .runsettings file which exe the dll tests use.
         public static string GetTestFileExecutableFilePath(DoctestSettingsProvider _doctestSettings, string _filePath)
         {
             string testExecutableFilePath = string.Empty;
@@ -290,9 +288,6 @@ namespace VS2022.DoctestTestAdapter
                     if (Path.GetExtension(sourceFile).Equals(DoctestTestAdapterConstants.ExeFileExtension, System.StringComparison.OrdinalIgnoreCase)
                         || Path.GetExtension(sourceFile).Equals(DoctestTestAdapterConstants.DLLFileExtension, System.StringComparison.OrdinalIgnoreCase))
                     {
-                        //TODO_comfyjase_25/01/2025: Check if you need to store these executables in order to run the unit tests during RunTests...
-                        // Might need to use them as for creating a new Process to actually run the tests?
-
                         string[] existingExecuteableInformation = discoveredExecutableInformationFile.ReadAllLines();
                         bool executableInformationIsAlreadyInFile = existingExecuteableInformation.Any(s => s.Contains(sourceFile));
                         if (executableInformationIsAlreadyInFile)
