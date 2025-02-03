@@ -14,9 +14,9 @@ namespace TestDLL
 
     TEST_CASE("[DLL] Testing IsEven Always Fail")
     {
-        CHECK(IsEven(1));
-        CHECK(IsEven(3));
-        CHECK(IsEven(5));
+        CHECK(IsEven(7));
+        CHECK(IsEven(9));
+        CHECK(IsEven(11));
     }
 
     TEST_CASE("[DLL] Testing IsEven Always Skipped" * doctest::skip())

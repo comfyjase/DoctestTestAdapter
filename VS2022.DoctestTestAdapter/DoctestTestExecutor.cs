@@ -190,20 +190,25 @@ namespace VS2022.DoctestTestAdapter
 
                 if (mappedOutputExists)
                 {
-                    // This below looks a little confusing I know... just some C# linq fun
+                    
                     // failedTestFullErrorMessages will just read any test output lines that have the "ERROR: " string in it.
+                    // Regardless of which test case caused the error.
                     // E.g. Path\To\TestFile.h(21): ERROR: CHECK( SomethingGoesWrongHere() ) is NOT correct!
-                    //
-                    // failedTestErrorMessages is the sorted list of error messages, so it takes the full output line and just gets the specific error message:
-                    // E.g. CHECK( SomethingGoesWrongHere() ) is NOT correct!
-                    // This is done to populate the TestExplorer Error Message column with easier to read information that's more useful to explain WHY the test failed.
                     List<string> failedTestFullErrorMessages = testOutput.Where(s => s.Contains(DoctestTestAdapterConstants.TestResultErrorKeyword)).ToList();
-                    List<string> failedTestErrorMessages = failedTestFullErrorMessages.Select(s =>
-                        s.Substring(s.IndexOf(DoctestTestAdapterConstants.TestResultErrorKeyword) + DoctestTestAdapterConstants.TestResultErrorKeyword.Length, s.Length - (s.IndexOf(DoctestTestAdapterConstants.TestResultErrorKeyword) + DoctestTestAdapterConstants.TestResultErrorKeyword.Length)))
-                        .ToList();
 
                     foreach (TestCase test in mappedTests.Value)
                     {
+                        // testCaseErrorMessages just contains error messages relevant for the current test case.
+                        //
+                        // This below looks a little confusing I know... just some C# linq fun
+                        // failedTestErrorMessages is the sorted list of error messages, so it takes the full output line and just gets the specific error message:
+                        // E.g. CHECK( SomethingGoesWrongHere() ) is NOT correct!
+                        // This is done to populate the TestExplorer Error Message column with easier to read information that's more useful to explain WHY the test failed.
+                        List<string> testCaseErrorMessages = failedTestFullErrorMessages.Where(s => s.Contains(test.CodeFilePath)).ToList();
+                        List<string> failedTestErrorMessages = testCaseErrorMessages.Select(s =>
+                            s.Substring(s.IndexOf(DoctestTestAdapterConstants.TestResultErrorKeyword) + DoctestTestAdapterConstants.TestResultErrorKeyword.Length, s.Length - (s.IndexOf(DoctestTestAdapterConstants.TestResultErrorKeyword) + DoctestTestAdapterConstants.TestResultErrorKeyword.Length)))
+                            .ToList();
+
                         string testName = test.DisplayName;
                         bool testSkipped = DoctestTestAdapterUtilities.GetTestPropertyValue<bool>(test, DoctestTestAdapterConstants.ShouldBeSkippedTestProperty);
                         string testResultString = "";
