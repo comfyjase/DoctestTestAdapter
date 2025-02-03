@@ -1,7 +1,6 @@
 ﻿using Microsoft.VisualStudio.TestPlatform.ObjectModel;
 using Microsoft.VisualStudio.TestPlatform.ObjectModel.Adapter;
 using Microsoft.VisualStudio.TestPlatform.ObjectModel.Logging;
-using Microsoft.VisualStudio.TestPlatform.Utilities;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -153,38 +152,7 @@ namespace VS2022.DoctestTestAdapter
             {
                 if (Path.GetExtension(executableFilePath).Equals(DoctestTestAdapterConstants.ExeFileExtension, StringComparison.OrdinalIgnoreCase))
                 {
-                    // Find out what dependencies this exe has...
-                    Process dumpBinProcess = new Process();
-                    dumpBinProcess.EnableRaisingEvents = true;
-                    dumpBinProcess.StartInfo.CreateNoWindow = true;
-                    dumpBinProcess.StartInfo.UseShellExecute = false;
-                    dumpBinProcess.StartInfo.RedirectStandardOutput = true;
-                    dumpBinProcess.StartInfo.FileName = @"dumpbin.exe";
-                    dumpBinProcess.StartInfo.Arguments = "/dependents " + executableFilePath;
-
-                    List<string> dumpBinProcessOutput = new List<string>();
-                    dumpBinProcess.OutputDataReceived += (object _sender, DataReceivedEventArgs _e) =>
-                    {
-                        if (_e.Data != null && _e.Data.Count() > 0)
-                        {
-                            Logger.Instance.WriteLine(_e.Data);
-                            dumpBinProcessOutput.Add(_e.Data);
-                        }
-                    };
-
-                    Logger.Instance.WriteLine("About to start dumpbin process and check dependencies for: " + Path.GetFileName(executableFilePath));
-                    Debug.Assert(dumpBinProcess.Start());
-
-                    dumpBinProcess.WaitForExit();
-
-                    Logger.Instance.WriteLine("dumpbin process finished checking dependences for: " + Path.GetFileName(executableFilePath));
-
-                    List<string> dependencies = allDiscoveredExecutablesFilePaths.Where(s => dumpBinProcessOutput.Contains(Path.GetFileName(s))).ToList();
-                    Debug.Assert(dependencies.Count > 0);
-
-                    Logger.Instance.WriteLine(Path.GetFileName(executableFilePath) + " dependencies: " + "\n" + dependencies.ToString());
-
-                    executableDependencies.Add(executableFilePath, dependencies);
+                    
                 }
             }
 
@@ -238,6 +206,7 @@ namespace VS2022.DoctestTestAdapter
             Logger.Instance.WriteLine("Searching current directory: " + currentDirectory);
 
             VS.Common.DoctestTestAdapter.IO.File discoveredExecutableInformationFile = new VS.Common.DoctestTestAdapter.IO.File(DoctestTestAdapterConstants.DiscoveredExecutablesInformationFilePath);
+            //discoveredExecutableInformationFile.Clear();
 
             foreach (string sourceFile in _sources)
             {
@@ -253,11 +222,43 @@ namespace VS2022.DoctestTestAdapter
                         // Might need to use them as for creating a new Process to actually run the tests?
 
                         string[] existingExecuteableInformation = discoveredExecutableInformationFile.ReadAllLines();
-                        bool executableInformationIsAlreadyInFile = existingExecuteableInformation.Any(s => s.Equals(sourceFile, StringComparison.OrdinalIgnoreCase));
-                        if (!executableInformationIsAlreadyInFile)
+                        bool executableInformationIsAlreadyInFile = existingExecuteableInformation.Any(s => s.Contains(sourceFile));
+                        if (executableInformationIsAlreadyInFile)
                         {
-                            discoveredExecutableInformationFile.WriteLine(sourceFile);
+                            continue;
                         }
+
+                        // Find out what dependencies this exe has...
+                        System.Diagnostics.Process dumpBinProcess = new System.Diagnostics.Process();
+                        dumpBinProcess.EnableRaisingEvents = true;
+                        dumpBinProcess.StartInfo.CreateNoWindow = true;
+                        dumpBinProcess.StartInfo.UseShellExecute = false;
+                        dumpBinProcess.StartInfo.RedirectStandardOutput = true;
+                        dumpBinProcess.StartInfo.FileName = @"dumpbin.exe";
+                        dumpBinProcess.StartInfo.Arguments = "/dependents " + sourceFile;
+
+                        Logger.Instance.WriteLine("About to start dumpbin process and check dependencies for: " + Path.GetFileName(sourceFile));
+                        Debug.Assert(dumpBinProcess.Start());
+
+                        string output = dumpBinProcess.StandardOutput.ReadToEnd();
+                        Console.WriteLine(output);
+
+                        dumpBinProcess.WaitForExit();
+
+                        string startIndexString = "Image has the following dependencies:";
+                        string endIndexString = "Summary";
+                        int startIndex = output.IndexOf(startIndexString) + startIndexString.Length;
+                        int endIndex = output.IndexOf(endIndexString);
+                        string outputSubstring = output.Substring(startIndex, endIndex - startIndex); // 
+
+                        Logger.Instance.WriteLine("dumpbin process finished checking dependences for: " + Path.GetFileName(sourceFile));
+
+                        List<string> dependencies = outputSubstring.Split('\n').Where(s => s.Contains(DoctestTestAdapterConstants.DLLFileExtension)).Select(s => s.Trim().Replace(" ", "")).ToList();
+
+                        Logger.Instance.WriteLine(Path.GetFileName(sourceFile) + " dependencies: " + "\n" + string.Join("\n", dependencies));
+
+                        discoveredExecutableInformationFile.WriteLine("File: " + sourceFile + " Dependents: " + string.Join("\n", dependencies));
+                        //executableDependencies.Add(executableFilePath, dependencies);
                     }
                     // .h/.hpp files
                     else
