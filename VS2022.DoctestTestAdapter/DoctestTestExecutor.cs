@@ -44,8 +44,6 @@ namespace VS2022.DoctestTestAdapter
                     return;
                 }
 
-                _frameworkHandle.RecordStart(test);
-
                 string executableFilePath = DoctestTestAdapterUtilities.GetTestFileExecutableFilePath(doctestSettings, test.CodeFilePath);
 
                 if (mappedExecutableTests.TryGetValue(executableFilePath, out List<TestCase> testFiles))
@@ -70,7 +68,8 @@ namespace VS2022.DoctestTestAdapter
                     return;
                 }
 
-                List<string> testCaseNames = testSetup.Value.Select(t => t.DisplayName).ToList();
+                List<TestCase> testCases = testSetup.Value;
+                List<string> testCaseNames = testCases.Select(t => t.DisplayName).ToList();
 
                 System.Diagnostics.Process testExecutable = new System.Diagnostics.Process();
                 processList.Add(testExecutable);
@@ -121,6 +120,11 @@ namespace VS2022.DoctestTestAdapter
 
                 Logger.Instance.WriteLine("About to start executable " + testExecutable.StartInfo.FileName + " with command arguments: " + testExecutable.StartInfo.Arguments);
 
+                foreach (TestCase testCase in testCases)
+                {
+                    _frameworkHandle.RecordStart(testCase);
+                }
+
                 // Start the executable now to run the doctests unit tests
                 bool executableStartedSuccessfully = testExecutable.Start();
                 Debug.Assert(executableStartedSuccessfully, "Failed to start " + testExecutable.StartInfo.FileName + " test executable");
@@ -128,11 +132,10 @@ namespace VS2022.DoctestTestAdapter
                 testExecutable.BeginOutputReadLine();
             }
 
-            // TEMP TEST...
+            //TODO_comfyjase_03/02/2025: Check if you still need this.
             while (waitingForTestResults)
             {
                 System.Threading.Thread.Sleep(100);
-                //Thread.Sleep(checksInterval);
             }
 
             Logger.Instance.WriteLine("End");

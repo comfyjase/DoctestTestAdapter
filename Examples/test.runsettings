@@ -6,7 +6,7 @@
     <ResultsDirectory>.\TestResults</ResultsDirectory>
 	
     <!-- Timeout in milliseconds. A valid value should be greater than 0. -->
-    <TestSessionTimeout>20000</TestSessionTimeout>
+    <TestSessionTimeout>10000</TestSessionTimeout>
   </RunConfiguration>
   
   <!-- Doctest Test Adapter specific settings here. -->
