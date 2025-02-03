@@ -198,6 +198,46 @@ namespace VS2022.DoctestTestAdapter
             return testExecutableFilePath;
         }
 
+        private static List<string> GetExecutableDependencies(string _sourceFile)
+        {
+            // Find out what dependencies this exe has...
+            System.Diagnostics.Process dumpBinProcess = new System.Diagnostics.Process();
+            dumpBinProcess.EnableRaisingEvents = true;
+            dumpBinProcess.StartInfo.CreateNoWindow = true;
+            dumpBinProcess.StartInfo.UseShellExecute = false;
+            dumpBinProcess.StartInfo.RedirectStandardOutput = true;
+            dumpBinProcess.StartInfo.FileName = @"dumpbin.exe";
+            dumpBinProcess.StartInfo.Arguments = "/dependents " + _sourceFile;
+
+            Logger.Instance.WriteLine("About to start dumpbin process and check dependencies for: " + Path.GetFileName(_sourceFile));
+            Debug.Assert(dumpBinProcess.Start());
+
+            string output = dumpBinProcess.StandardOutput.ReadToEnd();
+            Console.WriteLine(output);
+
+            dumpBinProcess.WaitForExit();
+
+            string startIndexString = "Image has the following dependencies:";
+            string endIndexString = "Summary";
+            int startIndex = output.IndexOf(startIndexString) + startIndexString.Length;
+            int endIndex = output.IndexOf(endIndexString);
+            string outputSubstring = output.Substring(startIndex, endIndex - startIndex); // 
+
+            Logger.Instance.WriteLine("dumpbin process finished checking dependences for: " + Path.GetFileName(_sourceFile));
+
+            List<string> dependencies = outputSubstring.Split('\n').Where(s => s.Contains(DoctestTestAdapterConstants.DLLFileExtension)).Select(s => s.Trim().Replace(" ", "")).ToList();
+
+            Logger.Instance.WriteLine(Path.GetFileName(_sourceFile) + " dependencies: " + "\n" + string.Join("\n", dependencies));
+
+            return dependencies;
+
+        }
+
+        private static void WriteToDiscoveredExecutablesFile()
+        {
+
+        }
+
         public static List<TestCase> GetTests(IEnumerable<string> _sources, IDiscoveryContext _discoveryContext, IMessageLogger _logger, ITestCaseDiscoverySink _discoverySink)
         {
             List<TestCase> tests = new List<TestCase>();
@@ -227,37 +267,10 @@ namespace VS2022.DoctestTestAdapter
                             continue;
                         }
 
-                        // Find out what dependencies this exe has...
-                        System.Diagnostics.Process dumpBinProcess = new System.Diagnostics.Process();
-                        dumpBinProcess.EnableRaisingEvents = true;
-                        dumpBinProcess.StartInfo.CreateNoWindow = true;
-                        dumpBinProcess.StartInfo.UseShellExecute = false;
-                        dumpBinProcess.StartInfo.RedirectStandardOutput = true;
-                        dumpBinProcess.StartInfo.FileName = @"dumpbin.exe";
-                        dumpBinProcess.StartInfo.Arguments = "/dependents " + sourceFile;
+                        List<string> dependences = GetExecutableDependencies(sourceFile);
 
-                        Logger.Instance.WriteLine("About to start dumpbin process and check dependencies for: " + Path.GetFileName(sourceFile));
-                        Debug.Assert(dumpBinProcess.Start());
-
-                        string output = dumpBinProcess.StandardOutput.ReadToEnd();
-                        Console.WriteLine(output);
-
-                        dumpBinProcess.WaitForExit();
-
-                        string startIndexString = "Image has the following dependencies:";
-                        string endIndexString = "Summary";
-                        int startIndex = output.IndexOf(startIndexString) + startIndexString.Length;
-                        int endIndex = output.IndexOf(endIndexString);
-                        string outputSubstring = output.Substring(startIndex, endIndex - startIndex); // 
-
-                        Logger.Instance.WriteLine("dumpbin process finished checking dependences for: " + Path.GetFileName(sourceFile));
-
-                        List<string> dependencies = outputSubstring.Split('\n').Where(s => s.Contains(DoctestTestAdapterConstants.DLLFileExtension)).Select(s => s.Trim().Replace(" ", "")).ToList();
-                        
-                        Logger.Instance.WriteLine(Path.GetFileName(sourceFile) + " dependencies: " + "\n" + string.Join("\n", dependencies));
-
-                        discoveredExecutableInformationFile.WriteLine("File: " + sourceFile + " Dependents: " + string.Join("\n", dependencies));
-                        //executableDependencies.Add(executableFilePath, dependencies);
+                        //TODO_comfyjase_03/02/2025: Write to the info file...
+                        //discoveredExecutableInformationFile.WriteLine("File: ")
                     }
                     // .h/.hpp files
                     else
