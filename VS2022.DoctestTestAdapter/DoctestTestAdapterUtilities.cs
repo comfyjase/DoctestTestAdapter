@@ -231,7 +231,6 @@ namespace VS2022.DoctestTestAdapter
             Logger.Instance.WriteLine(Path.GetFileName(_sourceFile) + " dependencies: " + "\n" + string.Join("\n", dependencies));
 
             return dependencies;
-
         }
 
         public static List<TestCase> GetTests(IEnumerable<string> _sources, IDiscoveryContext _discoveryContext, IMessageLogger _logger, ITestCaseDiscoverySink _discoverySink)
@@ -267,7 +266,7 @@ namespace VS2022.DoctestTestAdapter
 
                         string textToWrite = 
                         (
-                            "\t<ExecutableFile FilePath=\"" + sourceFile + "\">\n"
+                            "\n\t<ExecutableFile FilePath=\"" + sourceFile + "\">\n"
                             + "\t\t<Dependencies>" + "\n"
                         );
 
@@ -285,7 +284,7 @@ namespace VS2022.DoctestTestAdapter
                             + "\t</ExecutableFile>"
                         );
 
-                        discoveredExecutableInformationFile.WriteLine(textToWrite);
+                        discoveredExecutableInformationFile.BatchWrite(textToWrite);
                     }
                     // .h/.hpp files
                     else

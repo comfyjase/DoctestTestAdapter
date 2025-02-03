@@ -4,8 +4,10 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Xml;
+using static System.Net.Mime.MediaTypeNames;
 
 namespace VS.Common.DoctestTestAdapter.IO
 {
@@ -46,9 +48,40 @@ namespace VS.Common.DoctestTestAdapter.IO
             }
         }
 
-        public void Write(string _text)
+        public void BatchWrite(string _text)
         {
+            Trace.WriteLine("Process: " + Process.GetCurrentProcess().ProcessName + " Id: " + Process.GetCurrentProcess().Id + " wants to write to file: " + FileName);
 
+            // Is there any lock currently active for this file? If so, wait until the lock is released...
+            try
+            {
+                Trace.WriteLine("Process: " + Process.GetCurrentProcess().ProcessName + " Id: " + Process.GetCurrentProcess().Id + " waiting on mutex to release lock...");
+                mutex.WaitOne();
+            }
+            // If all else fails and the mutex hasn't been released for some reason.
+            // Assume file may be corrupted at this point and just clear it.
+            catch (AbandonedMutexException)
+            {
+                Clear();
+            }
+
+            // Thread/Process can now write to this file.
+            try
+            {
+                Trace.WriteLine("Process: " + Process.GetCurrentProcess().ProcessName + " Id: " + Process.GetCurrentProcess().Id + " can now write to file: " + FileName);
+
+                string xmlAllText = System.IO.File.ReadAllText(fullPath);
+                string insertAfterThisString = "<DiscoveredExecutables>";
+                int index = xmlAllText.IndexOf(insertAfterThisString) + insertAfterThisString.Length;
+                xmlAllText = xmlAllText.Insert(index, _text);
+                System.IO.File.WriteAllText(fullPath, xmlAllText);
+            }
+            // Once done, make sure to release mutex for another thread/process to be able to write.
+            finally
+            {
+                Trace.WriteLine("Process: " + Process.GetCurrentProcess().ProcessName + " Id: " + Process.GetCurrentProcess().Id + " finished writing to file: " + FileName);
+                mutex.ReleaseMutex();
+            }
         }
     }
 }
