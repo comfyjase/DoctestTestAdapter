@@ -206,7 +206,6 @@ namespace VS2022.DoctestTestAdapter
             Logger.Instance.WriteLine("Searching current directory: " + currentDirectory);
 
             VS.Common.DoctestTestAdapter.IO.File discoveredExecutableInformationFile = new VS.Common.DoctestTestAdapter.IO.File(DoctestTestAdapterConstants.DiscoveredExecutablesInformationFilePath);
-            //discoveredExecutableInformationFile.Clear();
 
             foreach (string sourceFile in _sources)
             {
@@ -254,7 +253,7 @@ namespace VS2022.DoctestTestAdapter
                         Logger.Instance.WriteLine("dumpbin process finished checking dependences for: " + Path.GetFileName(sourceFile));
 
                         List<string> dependencies = outputSubstring.Split('\n').Where(s => s.Contains(DoctestTestAdapterConstants.DLLFileExtension)).Select(s => s.Trim().Replace(" ", "")).ToList();
-
+                        
                         Logger.Instance.WriteLine(Path.GetFileName(sourceFile) + " dependencies: " + "\n" + string.Join("\n", dependencies));
 
                         discoveredExecutableInformationFile.WriteLine("File: " + sourceFile + " Dependents: " + string.Join("\n", dependencies));

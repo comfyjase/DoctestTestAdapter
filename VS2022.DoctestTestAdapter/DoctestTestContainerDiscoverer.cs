@@ -43,6 +43,11 @@ namespace VS2022.DoctestTestAdapter
             //TODO_comfyjase_02/02/2025: Remove this if you get timestamped log files working correctly...
             Logger.Instance.Clear();
 
+            //TODO_comfyjase_03/02/2025: Not sure where the best place for this is...
+            // Make sure to add doctest test adapter specific tags to this file...
+            VS.Common.DoctestTestAdapter.IO.File discoveredExecutableInformationFile = new VS.Common.DoctestTestAdapter.IO.File(DoctestTestAdapterConstants.DiscoveredExecutablesInformationFilePath);
+            discoveredExecutableInformationFile.Clear();
+
             Logger.Instance.WriteLine("Constructor called");
 
             if (VSUtilities.ShouldAttachDebugger())
