@@ -334,6 +334,8 @@ namespace VS2022.DoctestTestAdapter
 
                         foreach (string line in allLines)
                         {
+                            //TODO_comfyjase_04/02/2025: Update these checks to use Regex?
+                            // Same as you do for the test exectuable regex pattern...
                             if (line.Contains("namespace"))
                             {
                                 testFileNamespace = GetNamespaceSubstring(line);

@@ -18,7 +18,7 @@ namespace VS.Common.DoctestTestAdapter
         }
 
         //TODO_comfyjase_03/02/2025: VSIX/TestAdapter specific setting to enable/disable logging.
-        private static bool loggingEnabled = true;
+        private static bool loggingEnabled = false;
 
         // "C:\\Path\\To\\Debug\\Folder\\DoctestAdapter.log";
         private static string logFilePath = "";
