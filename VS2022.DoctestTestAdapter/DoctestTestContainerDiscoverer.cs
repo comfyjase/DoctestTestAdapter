@@ -41,7 +41,7 @@ namespace VS2022.DoctestTestAdapter
             [Import(typeof(SVsServiceProvider))] System.IServiceProvider _serviceProvider)
         {
             //TODO_comfyjase_02/02/2025: Remove this if you get timestamped log files working correctly...
-            Logger.Instance.Clear();
+            //Logger.Instance.Clear();
 
             Logger.Instance.WriteLine("Constructor called");
 
@@ -285,19 +285,27 @@ namespace VS2022.DoctestTestAdapter
 
         private bool IsTestFile(string _path)
         {
+            // Can immediately filter out folders...
+            if (!Path.HasExtension(_path))
+            {
+                return false;
+            }
+
             try
             {
                 Debug.Assert(solution != null);
                 solution.GetSolutionInfo(out solutionDirectory, out string solutionName, out string solutionDirectory2);
-                Debug.Assert(!string.IsNullOrWhiteSpace(solutionDirectory));
+                Debug.Assert(!string.IsNullOrWhiteSpace(solutionDirectory)); 
 
                 bool isProjectFile = _path.Contains(solutionDirectory);
                 bool isDLLFile = (Path.GetExtension(_path).Equals(DoctestTestAdapterConstants.DLLFileExtension, StringComparison.OrdinalIgnoreCase));
                 bool isExeFile = (Path.GetExtension(_path).Equals(DoctestTestAdapterConstants.ExeFileExtension, StringComparison.OrdinalIgnoreCase));
                 bool isHFile = (Path.GetExtension(_path).Equals(DoctestTestAdapterConstants.HFileExtension, StringComparison.OrdinalIgnoreCase));
                 bool isHPPFile = (Path.GetExtension(_path).Equals(DoctestTestAdapterConstants.HPPFileExtension, StringComparison.OrdinalIgnoreCase));
+                bool containsDoctestTestCaseKeyword = File.ReadAllLines(_path).Any(s => s.Contains("TEST_CASE(\""));
+                bool isCodeFile = (containsDoctestTestCaseKeyword && (isHFile || isHPPFile));
 
-                bool isTestFile = (isProjectFile && (isDLLFile || isExeFile || isHFile || isHPPFile));
+                bool isTestFile = (isProjectFile && (isDLLFile || isExeFile || isCodeFile));
 
                 if (isTestFile)
                 {
@@ -308,7 +316,7 @@ namespace VS2022.DoctestTestAdapter
             }
             catch (IOException e)
             {
-                Logger.Instance.WriteLine("IO error when detecting a test file during Test Container Discovery" + e.Message);
+                Logger.Instance.WriteLine("IO error when detecting a test file during Test Container Discovery " + e.Message);
             }
 
             return false;

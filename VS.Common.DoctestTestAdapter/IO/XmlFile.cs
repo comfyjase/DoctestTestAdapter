@@ -1,13 +1,8 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
-using System.Linq;
-using System.Text;
 using System.Threading;
-using System.Threading.Tasks;
 using System.Xml;
-using static System.Net.Mime.MediaTypeNames;
 
 namespace VS.Common.DoctestTestAdapter.IO
 {
@@ -51,36 +46,67 @@ namespace VS.Common.DoctestTestAdapter.IO
         public void BatchWrite(string _text)
         {
             Trace.WriteLine("Process: " + Process.GetCurrentProcess().ProcessName + " Id: " + Process.GetCurrentProcess().Id + " wants to write to file: " + FileName);
+            
+            Action<Mutex> writeToFile = (Mutex _mutex) =>
+            {
+                try
+                {
+                    Trace.WriteLine("Process: " + Process.GetCurrentProcess().ProcessName + " Id: " + Process.GetCurrentProcess().Id + " waiting on mutex to release lock...");
+                    _mutex.WaitOne();
+                }
+                // If all else fails and the mutex hasn't been released for some reason.
+                // Assume file may be corrupted at this point and just clear it.
+                catch (AbandonedMutexException)
+                {
+                    Trace.WriteLine("Process: " + Process.GetCurrentProcess().ProcessName + " Id: " + Process.GetCurrentProcess().Id + " clearing file because of AbandonedMutexException");
+                    Clear();
+                }
 
-            // Is there any lock currently active for this file? If so, wait until the lock is released...
+                // Thread/Process can now write to this file.
+                try
+                {
+                    Trace.WriteLine("Process: " + Process.GetCurrentProcess().ProcessName + " Id: " + Process.GetCurrentProcess().Id + " can now write to file: " + FileName);
+
+                    string xmlAllText = System.IO.File.ReadAllText(fullPath);
+                    string insertAfterThisString = "<DiscoveredExecutables>";
+                    int index = xmlAllText.IndexOf(insertAfterThisString) + insertAfterThisString.Length;
+                    xmlAllText = xmlAllText.Insert(index, _text);
+                    System.IO.File.WriteAllText(fullPath, xmlAllText);
+                }
+                // Once done, make sure to release mutex for another thread/process to be able to write.
+                catch (Exception ex)
+                {
+                    Trace.WriteLine("Exception: " + ex.Message);
+                }
+            };
+
+            bool mutexAlreadyExists = false;
+
             try
             {
-                Trace.WriteLine("Process: " + Process.GetCurrentProcess().ProcessName + " Id: " + Process.GetCurrentProcess().Id + " waiting on mutex to release lock...");
-                mutex.WaitOne();
+                using (Mutex mutex = Mutex.OpenExisting(fullPath.Replace("\\", "")))
+                {
+                    mutexAlreadyExists = true;
+                    writeToFile(mutex);
+
+                    Trace.WriteLine("Process: " + Process.GetCurrentProcess().ProcessName + " Id: " + Process.GetCurrentProcess().Id + " releasing mutex for " + Path.GetFileName(fullPath));
+                    mutex.ReleaseMutex();
+                }
             }
-            // If all else fails and the mutex hasn't been released for some reason.
-            // Assume file may be corrupted at this point and just clear it.
-            catch (AbandonedMutexException)
+            catch(WaitHandleCannotBeOpenedException ex)
             {
-                Clear();
+                mutexAlreadyExists = false;
             }
 
-            // Thread/Process can now write to this file.
-            try
+            if (!mutexAlreadyExists)
             {
-                Trace.WriteLine("Process: " + Process.GetCurrentProcess().ProcessName + " Id: " + Process.GetCurrentProcess().Id + " can now write to file: " + FileName);
+                using (Mutex mutex = new Mutex(false, fullPath.Replace("\\", ""), out bool mutexCreated))
+                {
+                    writeToFile(mutex);
 
-                string xmlAllText = System.IO.File.ReadAllText(fullPath);
-                string insertAfterThisString = "<DiscoveredExecutables>";
-                int index = xmlAllText.IndexOf(insertAfterThisString) + insertAfterThisString.Length;
-                xmlAllText = xmlAllText.Insert(index, _text);
-                System.IO.File.WriteAllText(fullPath, xmlAllText);
-            }
-            // Once done, make sure to release mutex for another thread/process to be able to write.
-            finally
-            {
-                Trace.WriteLine("Process: " + Process.GetCurrentProcess().ProcessName + " Id: " + Process.GetCurrentProcess().Id + " finished writing to file: " + FileName);
-                mutex.ReleaseMutex();
+                    Trace.WriteLine("Process: " + Process.GetCurrentProcess().ProcessName + " Id: " + Process.GetCurrentProcess().Id + " releasing mutex for " + Path.GetFileName(fullPath));
+                    mutex.ReleaseMutex();
+                }
             }
         }
     }

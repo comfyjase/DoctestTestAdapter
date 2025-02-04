@@ -7,7 +7,6 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using VS.Common.DoctestTestAdapter;
-using VS2022.DoctestTestAdapter.Settings;
 
 namespace VS2022.DoctestTestAdapter
 {
@@ -36,7 +35,7 @@ namespace VS2022.DoctestTestAdapter
             mappedTestOutputs.Clear();
             mappedExitHandlers.Clear();
 
-            DoctestSettingsProvider doctestSettings = _runContext.RunSettings.GetSettings(DoctestTestAdapterConstants.SettingsName) as DoctestSettingsProvider;
+            //DoctestSettingsProvider doctestSettings = _runContext.RunSettings.GetSettings(DoctestTestAdapterConstants.SettingsName) as DoctestSettingsProvider;
             foreach (TestCase test in _tests)
             {
                 if (cancelled)
@@ -44,7 +43,7 @@ namespace VS2022.DoctestTestAdapter
                     return;
                 }
 
-                string executableFilePath = DoctestTestAdapterUtilities.GetTestFileExecutableFilePath(doctestSettings, test.CodeFilePath);
+                string executableFilePath = DoctestTestAdapterUtilities.GetTestFileExecutableFilePath(/*doctestSettings, */test.CodeFilePath);
 
                 if (mappedExecutableTests.TryGetValue(executableFilePath, out List<TestCase> testFiles))
                 {

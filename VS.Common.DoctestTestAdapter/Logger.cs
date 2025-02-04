@@ -17,6 +17,9 @@ namespace VS.Common.DoctestTestAdapter
             }
         }
 
+        //TODO_comfyjase_03/02/2025: VSIX/TestAdapter specific setting to enable/disable logging.
+        private static bool loggingEnabled = true;
+
         // "C:\\Path\\To\\Debug\\Folder\\DoctestAdapter.log";
         private static string logFilePath = "";
 
@@ -93,6 +96,11 @@ namespace VS.Common.DoctestTestAdapter
         /// <param name="_sourceLineNumber"></param>
         public void WriteLine(string _line, int _indentLevel = 0, [CallerMemberName] string _memberName = "", [CallerFilePath] string _sourceFilePath = "", [CallerLineNumber] int _sourceLineNumber = 0)
         {
+            if (!loggingEnabled)
+            {
+                return;
+            }
+
             string indents = "";
             for (int i = 0; i < _indentLevel; i++)
             {
@@ -116,8 +124,12 @@ namespace VS.Common.DoctestTestAdapter
         public void Dispose()
         {
             Debug.Assert(logFile != null);
-            logFile.WriteLine("DoctestTestAdapter Log End");
-            logFile.WriteLine("==========================");
+
+            if (loggingEnabled)
+            {
+                logFile.WriteLine("DoctestTestAdapter Log End");
+                logFile.WriteLine("==========================");
+            }
         }
     }
 }

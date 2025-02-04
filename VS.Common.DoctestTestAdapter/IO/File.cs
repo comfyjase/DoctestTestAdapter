@@ -21,67 +21,15 @@ namespace VS.Common.DoctestTestAdapter.IO
             get { return Path.GetExtension(fullPath); }
         }
 
-        protected Mutex mutex = null;
-        protected bool mutexExists = false;
-        protected bool mutexUnauthorized = false;
-        protected bool mutexCreated = false;
-
         public File(string _fullPath)
         {
             fullPath = _fullPath;
             Debug.Assert(!string.IsNullOrEmpty(fullPath));
 
-            bool initializedMutex = InitializeMutex();
-            Debug.Assert(initializedMutex);
-
             Trace.WriteLine("Process: " + System.Diagnostics.Process.GetCurrentProcess().ProcessName + " Id: " + System.Diagnostics.Process.GetCurrentProcess().Id);
 
             InitializeDirectory();
             InitializeFile();
-        }
-
-        ~File()
-        {
-            mutex.Dispose();
-        }
-
-        protected bool InitializeMutex()
-        {
-            try
-            {
-                mutex = Mutex.OpenExisting(fullPath.Replace("\\", ""));
-                mutexExists = true;
-            }
-            catch (WaitHandleCannotBeOpenedException)
-            {
-                Trace.WriteLine("WaitHandleCannotBeOpenedException is okay, just means the mutex does not exist yet - will attempt to create a new one.");
-                mutexExists = false;
-            }
-            catch (UnauthorizedAccessException ex)
-            {
-                Trace.WriteLine("Unauthorized access: {0}", ex.Message);
-                mutexUnauthorized = true;
-            }
-
-            if (!mutexExists)
-            {
-                mutex = new Mutex(false, fullPath.Replace("\\", ""), out mutexCreated);
-                Debug.Assert(mutexCreated);
-            }
-            else if (mutexUnauthorized)
-            {
-                try
-                {
-                    Trace.WriteLine("Should you change permission?");
-                }
-                catch (UnauthorizedAccessException ex)
-                {
-                    Trace.WriteLine("Unauthorized access: " + ex.Message);
-                    return false;
-                }
-            }
-
-            return true;
         }
 
         protected void InitializeDirectory()
@@ -108,41 +56,73 @@ namespace VS.Common.DoctestTestAdapter.IO
 
         public void Clear()
         {
+            Trace.WriteLine("Process: " + Process.GetCurrentProcess().ProcessName + " Id: " + Process.GetCurrentProcess().Id + " clearing file: " + FileName);
             System.IO.File.WriteAllText(fullPath, string.Empty);
         }
 
         public void WriteLine(string _text)
         {
             Trace.WriteLine("Process: " + Process.GetCurrentProcess().ProcessName + " Id: " + Process.GetCurrentProcess().Id + " wants to write to file: " + FileName);
-            
-            // Is there any lock currently active for this file? If so, wait until the lock is released...
-            try
-            {
-                Trace.WriteLine("Process: " + Process.GetCurrentProcess().ProcessName + " Id: " + Process.GetCurrentProcess().Id + " waiting on mutex to release lock...");
-                mutex.WaitOne();
-            }
-            // If all else fails and the mutex hasn't been released for some reason.
-            // Assume file may be corrupted at this point and just clear it.
-            catch (AbandonedMutexException)
-            {
-                Clear();
-            }
 
-            // Thread/Process can now write to this file.
-            try
+            Action<Mutex> writeToFile = (Mutex _mutex) =>
             {
-                Trace.WriteLine("Process: " + Process.GetCurrentProcess().ProcessName + " Id: " + Process.GetCurrentProcess().Id + " can now write to file: " + FileName);
-
-                using (StreamWriter sw = new StreamWriter(fullPath, true))
+                try
                 {
-                    sw.WriteLine(_text);
+                    Trace.WriteLine("Process: " + Process.GetCurrentProcess().ProcessName + " Id: " + Process.GetCurrentProcess().Id + " waiting on mutex to release lock...");
+                    _mutex.WaitOne();
+                }
+                // If all else fails and the mutex hasn't been released for some reason.
+                // Assume file may be corrupted at this point and just clear it.
+                catch (AbandonedMutexException ex)
+                {
+                    Trace.WriteLine("Process: " + Process.GetCurrentProcess().ProcessName + " Id: " + Process.GetCurrentProcess().Id + " clearing file because of AbandonedMutexException");
+                    Clear();
+                }
+
+                // Thread/Process can now write to this file.
+                try
+                {
+                    Trace.WriteLine("Process: " + Process.GetCurrentProcess().ProcessName + " Id: " + Process.GetCurrentProcess().Id + " can now write to file: " + FileName);
+
+                    using (StreamWriter sw = System.IO.File.AppendText(fullPath))
+                    {
+                        sw.WriteLine(_text);
+                    }
+                }
+                // Once done, make sure to release mutex for another thread/process to be able to write.
+                catch (Exception ex)
+                {
+                    Trace.WriteLine("Exception: " + ex.Message);
+                }
+            };
+
+            bool mutexAlreadyExists = false;
+
+            try
+            {
+                using (Mutex mutex = Mutex.OpenExisting(fullPath.Replace("\\", "")))
+                {
+                    mutexAlreadyExists = true;
+                    writeToFile(mutex);
+
+                    Trace.WriteLine("Process: " + Process.GetCurrentProcess().ProcessName + " Id: " + Process.GetCurrentProcess().Id + " releasing mutex for " + Path.GetFileName(fullPath));
+                    mutex.ReleaseMutex();
                 }
             }
-            // Once done, make sure to release mutex for another thread/process to be able to write.
-            finally
+            catch (WaitHandleCannotBeOpenedException ex)
             {
-                Trace.WriteLine("Process: " + Process.GetCurrentProcess().ProcessName + " Id: " + Process.GetCurrentProcess().Id + " finished writing to file: " + FileName);
-                mutex.ReleaseMutex();
+                mutexAlreadyExists = false;
+            }
+
+            if (!mutexAlreadyExists)
+            {
+                using (Mutex mutex = new Mutex(false, fullPath.Replace("\\", ""), out bool mutexCreated))
+                {
+                    writeToFile(mutex);
+
+                    Trace.WriteLine("Process: " + Process.GetCurrentProcess().ProcessName + " Id: " + Process.GetCurrentProcess().Id + " releasing mutex for " + Path.GetFileName(fullPath));
+                    mutex.ReleaseMutex();
+                }
             }
         }
 

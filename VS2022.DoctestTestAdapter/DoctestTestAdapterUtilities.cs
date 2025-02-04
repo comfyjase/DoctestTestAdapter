@@ -10,7 +10,6 @@ using System.Text.RegularExpressions;
 using System.Xml;
 using VS.Common.DoctestTestAdapter;
 using VS.Common.DoctestTestAdapter.IO;
-using VS2022.DoctestTestAdapter.Settings;
 
 namespace VS2022.DoctestTestAdapter
 {
@@ -139,7 +138,7 @@ namespace VS2022.DoctestTestAdapter
         }
 
         //TODO_comfyjase_03/02/2025: Nice to have, way to write in the .runsettings file which exe the dll tests use.
-        public static string GetTestFileExecutableFilePath(DoctestSettingsProvider _doctestSettings, string _filePath)
+        public static string GetTestFileExecutableFilePath(/*DoctestSettingsProvider _doctestSettings, */string _filePath)
         {
             string testExecutableFilePath = string.Empty;
 
@@ -196,6 +195,9 @@ namespace VS2022.DoctestTestAdapter
             // Now check which executable file path to use for the test run...
             foreach (KeyValuePair<string, List<string>> mappedExecutableDependencies in allMappedExecutableDependencies)
             {
+                //TODO_comfyjase_03/02/2025: This will just match whichever the first executable shows up.
+                // Might be nice to have the option of choosing which configuration unit tests would run in?
+                // E.g. Debug by default, but user could choose Release or a combination (flags) via custom DoctestTestAdapter .runsettings or something?
                 string regexPattern = @"\b" + Regex.Escape(Path.GetFileNameWithoutExtension(mappedExecutableDependencies.Key)) + @"\b";
                 if (Regex.Match(_filePath, regexPattern, RegexOptions.IgnoreCase).Success)
                 {
@@ -276,8 +278,6 @@ namespace VS2022.DoctestTestAdapter
             string currentDirectory = Directory.GetCurrentDirectory();
             Logger.Instance.WriteLine("Searching current directory: " + currentDirectory);
 
-            VS.Common.DoctestTestAdapter.IO.XmlFile discoveredExecutableInformationFile = new VS.Common.DoctestTestAdapter.IO.XmlFile(DoctestTestAdapterConstants.DiscoveredExecutablesInformationFilePath);
-
             foreach (string sourceFile in _sources)
             {
                 if (sourceFile.Contains(currentDirectory))
@@ -288,6 +288,8 @@ namespace VS2022.DoctestTestAdapter
                     if (Path.GetExtension(sourceFile).Equals(DoctestTestAdapterConstants.ExeFileExtension, System.StringComparison.OrdinalIgnoreCase)
                         || Path.GetExtension(sourceFile).Equals(DoctestTestAdapterConstants.DLLFileExtension, System.StringComparison.OrdinalIgnoreCase))
                     {
+                        VS.Common.DoctestTestAdapter.IO.XmlFile discoveredExecutableInformationFile = new VS.Common.DoctestTestAdapter.IO.XmlFile(DoctestTestAdapterConstants.DiscoveredExecutablesInformationFilePath);
+
                         string[] existingExecuteableInformation = discoveredExecutableInformationFile.ReadAllLines();
                         bool executableInformationIsAlreadyInFile = existingExecuteableInformation.Any(s => s.Contains(sourceFile));
                         if (executableInformationIsAlreadyInFile)
@@ -316,6 +318,8 @@ namespace VS2022.DoctestTestAdapter
                             "\t\t</Dependencies>" + "\n"
                             + "\t</ExecutableFile>"
                         );
+
+                        Logger.Instance.WriteLine("About to write executable " + Path.GetFileName(sourceFile) + " information to " + Path.GetFileName(DoctestTestAdapterConstants.DiscoveredExecutablesInformationFilePath));
 
                         discoveredExecutableInformationFile.BatchWrite(textToWrite);
                     }
