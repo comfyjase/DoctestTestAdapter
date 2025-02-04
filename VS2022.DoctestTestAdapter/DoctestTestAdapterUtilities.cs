@@ -294,6 +294,8 @@ namespace VS2022.DoctestTestAdapter
                         bool executableInformationIsAlreadyInFile = existingExecuteableInformation.Any(s => s.Contains(sourceFile));
                         if (executableInformationIsAlreadyInFile)
                         {
+                            // TODO: Log here and test godot...
+                            // Should be picking up the console exe still
                             continue;
                         }
 
@@ -336,17 +338,26 @@ namespace VS2022.DoctestTestAdapter
                         {
                             //TODO_comfyjase_04/02/2025: Update these checks to use Regex?
                             // Same as you do for the test exectuable regex pattern...
-                            if (line.Contains("namespace"))
+                            
+                            int numberOfSpacesInLine = line.Count(Char.IsWhiteSpace);
+
+                            // Regex for some specific keywords.
+                            string regexPattern = @"\bnamespace\b";
+                            if (Regex.Match(line, regexPattern, RegexOptions.IgnoreCase).Success && numberOfSpacesInLine < 3)
                             {
                                 testFileNamespace = GetNamespaceSubstring(line);
                             }
-                            else if (line.Contains("TEST_SUITE"))
-                            {
-                                testFileNamespace = GetTestSuiteNameSubstring(line);
-                            }
-                            else if (line.Contains("class"))
+
+                            regexPattern = @"\bclass\b";
+                            if (Regex.Match(line, regexPattern, RegexOptions.IgnoreCase).Success && numberOfSpacesInLine < 6)
                             {
                                 testClassName = GetClassNameSubstring(line);
+                            }
+
+                            // Contains is good enough for these I think...
+                            if (line.Contains("TEST_SUITE(\""))
+                            {
+                                testFileNamespace = GetTestSuiteNameSubstring(line);
                             }
                             else if (line.Contains("TEST_CASE(\""))
                             {

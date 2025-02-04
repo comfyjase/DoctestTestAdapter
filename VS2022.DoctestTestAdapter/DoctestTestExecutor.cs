@@ -90,6 +90,10 @@ namespace VS2022.DoctestTestAdapter
                 // Full doctest arguments: --test-case="*"[TestDecorator] Test 1"*,*"[TestDecorator] Test 2"*"
                 string doctestArguments = doctestTestCaseCommandArgument;
 
+                //TODO_comfyjase_04/02/2025: Find a way to either provide command arguments in run settings
+                // Or custom option to enable godot support? Then do godot specific stuff here...
+                //string doctestArguments = "--test " + doctestTestCaseCommandArgument;
+
                 testExecutable.StartInfo.Arguments = doctestArguments;
 
                 EventHandler testExecutableExitEventHandler = (_sender, _e) => OnTestExecutableFinished(_sender, _e, _runContext, _frameworkHandle, testExecutable);
