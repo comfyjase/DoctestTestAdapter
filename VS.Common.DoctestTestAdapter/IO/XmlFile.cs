@@ -93,7 +93,7 @@ namespace VS.Common.DoctestTestAdapter.IO
                     mutex.ReleaseMutex();
                 }
             }
-            catch(WaitHandleCannotBeOpenedException ex)
+            catch(WaitHandleCannotBeOpenedException)
             {
                 mutexAlreadyExists = false;
             }

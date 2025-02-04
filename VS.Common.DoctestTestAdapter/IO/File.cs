@@ -73,7 +73,7 @@ namespace VS.Common.DoctestTestAdapter.IO
                 }
                 // If all else fails and the mutex hasn't been released for some reason.
                 // Assume file may be corrupted at this point and just clear it.
-                catch (AbandonedMutexException ex)
+                catch (AbandonedMutexException)
                 {
                     Trace.WriteLine("Process: " + Process.GetCurrentProcess().ProcessName + " Id: " + Process.GetCurrentProcess().Id + " clearing file because of AbandonedMutexException");
                     Clear();
@@ -109,7 +109,7 @@ namespace VS.Common.DoctestTestAdapter.IO
                     mutex.ReleaseMutex();
                 }
             }
-            catch (WaitHandleCannotBeOpenedException ex)
+            catch (WaitHandleCannotBeOpenedException)
             {
                 mutexAlreadyExists = false;
             }
