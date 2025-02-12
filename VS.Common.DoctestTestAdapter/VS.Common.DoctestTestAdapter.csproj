@@ -41,6 +41,7 @@
     <None Include="App.config" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Constants.cs" />
     <Compile Include="IO\File.cs" />
     <Compile Include="IO\IFile.cs" />
     <Compile Include="IO\XmlFile.cs" />
@@ -53,6 +54,14 @@
     <Compile Include="Listeners\TestFileAddRemoveListener.cs" />
     <Compile Include="EventArgs\TestFileChangedEventArgs.cs" />
     <Compile Include="Listeners\TestFilesUpdateListener.cs" />
+    <Compile Include="Options\BaseOptionsPage.cs">
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="Options\GeneralOptionsPage.cs">
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="Options\ITestAdapterOptions.cs" />
+    <Compile Include="Options\TestAdapterOptions.cs" />
     <Compile Include="VSUtilities.cs" />
   </ItemGroup>
   <ItemGroup>

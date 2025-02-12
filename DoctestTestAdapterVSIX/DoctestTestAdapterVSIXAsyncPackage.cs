@@ -11,6 +11,8 @@ using System.Globalization;
 using System.Runtime.InteropServices;
 using System.Threading;
 using System.Threading.Tasks;
+using VS.Common.DoctestTestAdapter;
+using VS.Common.DoctestTestAdapter.Options;
 using Task = System.Threading.Tasks.Task;
 
 namespace DoctestTestAdapterVSIX
@@ -35,12 +37,15 @@ namespace DoctestTestAdapterVSIX
     [PackageRegistration(UseManagedResourcesOnly = true, AllowsBackgroundLoading = true)]
     [Guid(DoctestTestAdapterVSIXAsyncPackage.PackageGuidString)]
     [SuppressMessage("StyleCop.CSharp.DocumentationRules", "SA1650:ElementDocumentationMustBeSpelledCorrectly", Justification = "pkgdef, VS and vsixmanifest are valid VS terms")]
+    [ProvideOptionPage(typeof(GeneralOptionsPage), VS.Common.DoctestTestAdapter.Constants.Options.ToolsOptionName, VS.Common.DoctestTestAdapter.Constants.Options.GeneralCategoryName, 0, 0, true)]
     public sealed class DoctestTestAdapterVSIXAsyncPackage : AsyncPackage
     {
         /// <summary>
         /// DoctestTestAdapterVSIXAsyncPackage GUID string.
         /// </summary>
-        public const string PackageGuidString = "85f33bf4-cafd-4e49-839b-b2a8ac36c733";
+        public const string PackageGuidString = "d952b4df-4d2a-4549-a5d3-5467ad8762c2";
+
+        private ITestAdapterOptions testAdapterOptions = null;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="DoctestTestAdapterVSIXAsyncPackage"/> class.
@@ -67,6 +72,18 @@ namespace DoctestTestAdapterVSIX
             // When initialized asynchronously, the current thread may be a background thread at this point.
             // Do any initialization that requires the UI thread after switching to the UI thread.
             await this.JoinableTaskFactory.SwitchToMainThreadAsync(cancellationToken);
+
+            InitializeOptions();
+
+            Logger.Instance.WriteLine("DoctestTestAdapterVSIXAsyncPackage InitializeAsync was called");
+        }
+
+        private void InitializeOptions()
+        {
+            GeneralOptionsPage generalOptionsPage = (GeneralOptionsPage)GetDialogPage(typeof(GeneralOptionsPage));
+            Debug.Assert(generalOptionsPage != null);
+
+            testAdapterOptions = new TestAdapterOptions(generalOptionsPage);
         }
 
         #endregion

@@ -2,6 +2,7 @@
 using System.Diagnostics;
 using System.IO;
 using System.Runtime.CompilerServices;
+using VS.Common.DoctestTestAdapter.Options;
 
 namespace VS.Common.DoctestTestAdapter
 {
@@ -17,13 +18,11 @@ namespace VS.Common.DoctestTestAdapter
             }
         }
 
-        //TODO_comfyjase_03/02/2025: VSIX/TestAdapter specific setting to enable/disable logging.
-        private static bool loggingEnabled = false;
-
         // "C:\\Path\\To\\Debug\\Folder\\DoctestAdapter.log";
         private static string logFilePath = "";
 
         private VS.Common.DoctestTestAdapter.IO.File logFile = null;
+        private ITestAdapterOptions testAdapterOptions = null;
 
         private Logger()
         {
@@ -35,6 +34,12 @@ namespace VS.Common.DoctestTestAdapter
             WriteLine("New logger created! Directory: " + Path.GetDirectoryName(logFilePath) + " File: " + logFilePath);
             WriteLine("DoctestTestAdapter Log Start");
             WriteLine("============================");
+        }
+
+        public void CacheTestAdapterOptions(ITestAdapterOptions _testAdapterOptions)
+        {
+            testAdapterOptions = _testAdapterOptions;
+            WriteLine("Cached test adapter options!");
         }
 
         public void Clear()
@@ -96,7 +101,14 @@ namespace VS.Common.DoctestTestAdapter
         /// <param name="_sourceLineNumber"></param>
         public void WriteLine(string _line, int _indentLevel = 0, [CallerMemberName] string _memberName = "", [CallerFilePath] string _sourceFilePath = "", [CallerLineNumber] int _sourceLineNumber = 0)
         {
-            if (!loggingEnabled)
+            bool enableLogging = true;
+
+            if (testAdapterOptions != null)
+            {
+                enableLogging = testAdapterOptions.EnableLogging;
+            }
+
+            if (!enableLogging)
             {
                 return;
             }
@@ -125,11 +137,20 @@ namespace VS.Common.DoctestTestAdapter
         {
             Debug.Assert(logFile != null);
 
-            if (loggingEnabled)
+            bool enableLogging = true;
+
+            if (testAdapterOptions != null)
             {
-                logFile.WriteLine("DoctestTestAdapter Log End");
-                logFile.WriteLine("==========================");
+                enableLogging = testAdapterOptions.EnableLogging;
             }
+
+            if (!enableLogging)
+            {
+                return;
+            }
+
+            logFile.WriteLine("DoctestTestAdapter Log End");
+            logFile.WriteLine("==========================");
         }
     }
 }
