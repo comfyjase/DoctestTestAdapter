@@ -13,10 +13,6 @@ namespace VS2022.DoctestTestAdapter
 
         // Settings strings
         public const string SettingsName                = "DoctestTestAdapter";
-        public const string OutputFileNodeName          = "OutputFile";
-        public const string ProjectFilePathNodeName     = "ProjectFilePath";
-        public const string ExecutableFilePathNodeName  = "ExecutableFilePath";
-        public const string CommandArgumentsNodeName    = "CommandArguments";
 
         public const string XmlFileExtension = ".xml";
         public static readonly string DiscoveredExecutablesInformationFilePath = Directory.GetCurrentDirectory() + "\\DoctestTestAdapter\\DiscoveredExecutables" + XmlFileExtension;

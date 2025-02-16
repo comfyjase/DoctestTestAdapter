@@ -12,7 +12,9 @@ using System.Runtime.InteropServices;
 using System.Threading;
 using System.Threading.Tasks;
 using VS.Common.DoctestTestAdapter;
+using VS.Common.DoctestTestAdapter.IO;
 using VS.Common.DoctestTestAdapter.Options;
+using VS.Common.DoctestTestAdapter.Packages;
 using Task = System.Threading.Tasks.Task;
 
 namespace DoctestTestAdapterVSIX
@@ -35,16 +37,11 @@ namespace DoctestTestAdapterVSIX
     /// </para>
     /// </remarks>
     [PackageRegistration(UseManagedResourcesOnly = true, AllowsBackgroundLoading = true)]
-    [Guid(DoctestTestAdapterVSIXAsyncPackage.PackageGuidString)]
+    [Guid(VS.Common.DoctestTestAdapter.Constants.Package.GuidString)]
     [SuppressMessage("StyleCop.CSharp.DocumentationRules", "SA1650:ElementDocumentationMustBeSpelledCorrectly", Justification = "pkgdef, VS and vsixmanifest are valid VS terms")]
     [ProvideOptionPage(typeof(GeneralOptionsPage), VS.Common.DoctestTestAdapter.Constants.Options.ToolsOptionName, VS.Common.DoctestTestAdapter.Constants.Options.GeneralCategoryName, 0, 0, true)]
-    public sealed class DoctestTestAdapterVSIXAsyncPackage : AsyncPackage
+    public sealed class DoctestTestAdapterVSIXAsyncPackage : AsyncPackage, ITestAdapterPackage
     {
-        /// <summary>
-        /// DoctestTestAdapterVSIXAsyncPackage GUID string.
-        /// </summary>
-        public const string PackageGuidString = "d952b4df-4d2a-4549-a5d3-5467ad8762c2";
-
         private ITestAdapterOptions testAdapterOptions = null;
 
         /// <summary>
@@ -84,7 +81,15 @@ namespace DoctestTestAdapterVSIX
             Debug.Assert(generalOptionsPage != null);
 
             testAdapterOptions = new TestAdapterOptions(generalOptionsPage);
+
+            Logger.Instance.CacheTestAdapterOptions(testAdapterOptions);
         }
+
+        public ITestAdapterOptions TestAdapterOptions
+        {
+            get { return testAdapterOptions; }
+        }
+
 
         #endregion
     }

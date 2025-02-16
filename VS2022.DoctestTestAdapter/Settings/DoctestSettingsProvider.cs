@@ -22,23 +22,23 @@ namespace VS2022.DoctestTestAdapter.Settings
 
             while (reader.Read())
             {
-                if (reader.Name.Equals(DoctestTestAdapterConstants.OutputFileNodeName, StringComparison.OrdinalIgnoreCase))
-                {
-                    string projectFilePathAttribute = reader.GetAttribute(DoctestTestAdapterConstants.ProjectFilePathNodeName);
-                    string filePathAttribute = reader.GetAttribute(DoctestTestAdapterConstants.ExecutableFilePathNodeName);
-                    string commandArgumentsAttribute = reader.GetAttribute(DoctestTestAdapterConstants.CommandArgumentsNodeName);
+                //if (reader.Name.Equals(DoctestTestAdapterConstants.OutputFileNodeName, StringComparison.OrdinalIgnoreCase))
+                //{
+                    //string projectFilePathAttribute = reader.GetAttribute(DoctestTestAdapterConstants.ProjectFilePathNodeName);
+                    //string filePathAttribute = reader.GetAttribute(DoctestTestAdapterConstants.ExecutableFilePathNodeName);
+                    //string commandArgumentsAttribute = reader.GetAttribute(DoctestTestAdapterConstants.CommandArgumentsNodeName);
 
-                    // Note, not providing a check for command arguments because these should be optional.
-                    if (!string.IsNullOrEmpty(filePathAttribute))
-                    {
-                        DoctestSettingsOutputFileData fileData = new DoctestSettingsOutputFileData(projectFilePathAttribute, filePathAttribute, commandArgumentsAttribute);
+                    //// Note, not providing a check for command arguments because these should be optional.
+                    //if (!string.IsNullOrEmpty(filePathAttribute))
+                    //{
+                        //DoctestSettingsOutputFileData fileData = new DoctestSettingsOutputFileData(projectFilePathAttribute, filePathAttribute, commandArgumentsAttribute);
 
-                        if (!outputFileData.Contains(fileData))
-                        {
-                            outputFileData.Add(fileData);
-                        }
-                    }
-                }
+                        //if (!outputFileData.Contains(fileData))
+                        //{
+                            //outputFileData.Add(fileData);
+                        //}
+                    //}
+                //}
             }
         }
     }

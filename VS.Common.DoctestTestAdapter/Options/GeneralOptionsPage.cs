@@ -15,5 +15,27 @@ namespace VS.Common.DoctestTestAdapter.Options
             get { return enableLogging; }
             set { SetValue(ref enableLogging, value); }
         }
+
+        private string commandArguments = string.Empty;
+
+        [Category(Constants.Options.GeneralCategoryName)]
+        [DisplayName(Constants.Options.CommandArgumentsOptionName)]
+        [Description(Constants.Options.CommandArgumentsOptionDescription)]
+        public string CommandArguments
+        {
+            get { return commandArguments; }
+            set { SetValue(ref commandArguments, value); }
+        }
+
+        private string testExecutablePath = string.Empty;
+
+        [Category(Constants.Options.GeneralCategoryName)]
+        [DisplayName(Constants.Options.TestExecutableFilePathOptionName)]
+        [Description(Constants.Options.TestExecutableFilePathOptionDescription)]
+        public string TestExecutablePath
+        {
+            get { return testExecutablePath; }
+            set { SetValue(ref testExecutablePath, value); }
+        }
     }
 }

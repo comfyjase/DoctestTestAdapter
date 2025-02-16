@@ -7,6 +7,8 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using VS.Common.DoctestTestAdapter;
+using VS.Common.DoctestTestAdapter.Options;
+using VS.Common.DoctestTestAdapter.Packages;
 
 namespace VS2022.DoctestTestAdapter
 {
@@ -35,25 +37,45 @@ namespace VS2022.DoctestTestAdapter
             mappedTestOutputs.Clear();
             mappedExitHandlers.Clear();
 
+            //ITestAdapterPackage testAdapterPackage = VSUtilities.GetTestAdapterPackage();
+            //Debug.Assert(testAdapterPackage != null);
+
+            //ITestAdapterOptions testAdapterOptions = testAdapterPackage.TestAdapterOptions;
+            //Debug.Assert(testAdapterOptions != null);
+
+            //string userDefinedTestExecutableFilePath = testAdapterOptions.TestExecutableFilePath;
+            //bool hasUserDefinedTestExecutableFilePath = !string.IsNullOrEmpty(userDefinedTestExecutableFilePath);
+
+            string userDefinedTestExecutableFilePath = DoctestTestAdapterUtilities.GetOptionValue<string>(VS.Common.DoctestTestAdapter.Constants.XmlNodeNames.GeneralOptions,
+                                                                VS.Common.DoctestTestAdapter.Constants.XmlNodeNames.TestExecutableFilePath);
+            bool hasUserDefinedTestExecutableFilePath = !string.IsNullOrEmpty(userDefinedTestExecutableFilePath);
+
             //DoctestSettingsProvider doctestSettings = _runContext.RunSettings.GetSettings(DoctestTestAdapterConstants.SettingsName) as DoctestSettingsProvider;
-            foreach (TestCase test in _tests)
+            if (hasUserDefinedTestExecutableFilePath)
             {
-                if (cancelled)
+                mappedExecutableTests.Add(userDefinedTestExecutableFilePath, _tests.ToList());
+            }
+            else
+            {
+                foreach (TestCase test in _tests)
                 {
-                    return;
-                }
+                    if (cancelled)
+                    {
+                        return;
+                    }
 
-                string executableFilePath = DoctestTestAdapterUtilities.GetTestFileExecutableFilePath(/*doctestSettings, */test.CodeFilePath);
+                    string executableFilePath = DoctestTestAdapterUtilities.GetTestFileExecutableFilePath(/*doctestSettings, */test.CodeFilePath);
 
-                if (mappedExecutableTests.TryGetValue(executableFilePath, out List<TestCase> testFiles))
-                {
-                    testFiles.Add(test);
-                    mappedExecutableTests[executableFilePath] = testFiles;
-                }
-                else
-                {
-                    List<TestCase> newTestCaseList = new List<TestCase>{ test };
-                    mappedExecutableTests.Add(executableFilePath, newTestCaseList);
+                    if (mappedExecutableTests.TryGetValue(executableFilePath, out List<TestCase> testFiles))
+                    {
+                        testFiles.Add(test);
+                        mappedExecutableTests[executableFilePath] = testFiles;
+                    }
+                    else
+                    {
+                        List<TestCase> newTestCaseList = new List<TestCase> { test };
+                        mappedExecutableTests.Add(executableFilePath, newTestCaseList);
+                    }
                 }
             }
 
@@ -90,11 +112,14 @@ namespace VS2022.DoctestTestAdapter
                 // Full doctest arguments: --test-case="*"[TestDecorator] Test 1"*,*"[TestDecorator] Test 2"*"
                 string doctestArguments = doctestTestCaseCommandArgument;
 
-                //TODO_comfyjase_04/02/2025: Find a way to either provide command arguments in run settings
-                // Or custom option to enable godot support? Then do godot specific stuff here...
-                //string doctestArguments = "--test " + doctestTestCaseCommandArgument;
+                // Whatever the user has filled in the Tools -> Options -> Test Adapter for Doctest -> General -> Command Arguments option.
+                //string userDefinedArguments = testAdapterOptions.CommandArguments;
+                string userDefinedArguments = string.Empty;
 
-                testExecutable.StartInfo.Arguments = doctestArguments;
+                // Combined user defined arguments (if any) and doctest arguments for running the unit tests.
+                string fullCommandArguments = string.IsNullOrEmpty(userDefinedArguments) ? (doctestArguments) : (userDefinedArguments + " " + doctestArguments);
+
+                testExecutable.StartInfo.Arguments = fullCommandArguments;
 
                 EventHandler testExecutableExitEventHandler = (_sender, _e) => OnTestExecutableFinished(_sender, _e, _runContext, _frameworkHandle, testExecutable);
                 testExecutable.Exited += testExecutableExitEventHandler;

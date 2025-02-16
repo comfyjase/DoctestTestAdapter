@@ -62,6 +62,7 @@
     </Compile>
     <Compile Include="Options\ITestAdapterOptions.cs" />
     <Compile Include="Options\TestAdapterOptions.cs" />
+    <Compile Include="Packages\ITestAdapterPackage.cs" />
     <Compile Include="VSUtilities.cs" />
   </ItemGroup>
   <ItemGroup>

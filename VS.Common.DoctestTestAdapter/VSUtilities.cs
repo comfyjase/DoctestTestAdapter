@@ -2,6 +2,10 @@
 using Microsoft.VisualStudio;
 using System;
 using System.Collections.Generic;
+using VS.Common.DoctestTestAdapter.Packages;
+using Microsoft.VisualStudio.Shell;
+using static Microsoft.VisualStudio.VSConstants;
+using System.Diagnostics;
 
 namespace VS.Common.DoctestTestAdapter
 {
@@ -139,6 +143,25 @@ namespace VS.Common.DoctestTestAdapter
 
                 return strRet;
             }
+        }
+
+        public static ITestAdapterPackage GetTestAdapterPackage()
+        {
+            //TODO_comfyjase_12/02/2025: Comment back in once the thread exception has been fixed to fix compiler warning VSTHRD010.
+            //ThreadHelper.ThrowIfNotOnUIThread();
+
+            ITestAdapterPackage testAdapterPackage = null;
+
+            IVsShell vsShell = (IVsShell)ServiceProvider.GlobalProvider.GetService(typeof(SVsShell));
+            Debug.Assert(vsShell != null);
+
+            if (vsShell.IsPackageLoaded(VS.Common.DoctestTestAdapter.Constants.Package.Guid, out IVsPackage myPossiblePackage) == Microsoft.VisualStudio.VSConstants.S_OK)
+            {
+                testAdapterPackage = (ITestAdapterPackage)myPossiblePackage;
+                Debug.Assert(testAdapterPackage != null);
+            }
+
+            return testAdapterPackage;
         }
     }
 }

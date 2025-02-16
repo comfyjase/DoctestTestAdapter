@@ -137,6 +137,76 @@ namespace VS2022.DoctestTestAdapter
             return testName;
         }
 
+        public static T GetOptionValue<T>(string _optionCategoryNodeName, string _optionNodeName)
+        {
+            object value = null;
+            
+            XmlFile optionsFile = new XmlFile(VS.Common.DoctestTestAdapter.Constants.Options.FilePath);
+            XmlDocument optionsXmlDocument = optionsFile.XmlDocument;
+            XmlNode optionNode = optionsXmlDocument.SelectSingleNode("//" + VS.Common.DoctestTestAdapter.Constants.XmlNodeNames.Root + "/" + VS.Common.DoctestTestAdapter.Constants.XmlNodeNames.Options + "/" + _optionCategoryNodeName + "/" + _optionNodeName);
+
+            if (optionNode != null)
+            {
+                Logger.Instance.WriteLine("Found option " + optionNode.Name + " from category " + _optionCategoryNodeName);
+
+                XmlAttribute optionValueAttribute = optionNode.Attributes["Value"];
+                if (optionValueAttribute != null)
+                {
+                    Logger.Instance.WriteLine("Category: " + _optionCategoryNodeName + " Option: " + optionNode.Name + " Value: " + optionValueAttribute.Value);
+                }
+            }
+
+            /*
+             * <General>
+             *  <EnableLogging Value=False/>
+             *  <CommandArguments Value=""/>
+             *  <TestExecutableFilePath Value=""/>
+             * </General>
+             */
+
+            //T optionValue = (T)optionNodes[optionNodeName].Attributes["Value"];
+
+            //foreach (XmlNode optionNode in optionNodes)
+            //{
+            //    Logger.Instance.WriteLine("Checking option node: " + optionNode.Name);
+
+            //    XmlNodeList childrenOptionNodes = optionNode.ChildNodes;
+            //    XmlNode option optionNode.SelectSingleNode("/" + _optionNodeName);
+            //    //foreach (XmlNode childOptionNode in childrenOptionNodes)
+            //    //{
+            //    //    Logger.Instance.WriteLine("Checking child option node: " + childOptionNode.Name);
+
+            //    //    if (childOptionNode.Name == optionNodeName)
+            //    //    {
+            //    //        Logger.Instance.WriteLine("Found option " + optionNodeName);
+
+            //    //        XmlAttribute valueAttribute = childOptionNode.Attributes["Value"];
+            //    //        if (valueAttribute != null)
+            //    //        {
+            //    //            Logger.Instance.WriteLine("Found " + optionNodeName + " attribute Value");
+            //    //            string attributeValue = valueAttribute.Value;
+            //    //            //T optionValue = (T)attributeValue;
+            //    //        }
+            //    //    }
+            //    //}
+
+            //    //if (optionNode.Name == optionNodeName)
+            //    //{
+
+
+            //    //    XmlAttribute valueAttribute = optionNode.Attributes["Value"];
+            //    //    if (valueAttribute != null)
+            //    //    {
+            //    //        Logger.Instance.WriteLine("Found " + optionNodeName + " attribute Value");
+            //    //        string attributeValue = valueAttribute.Value;
+            //    //        T optionValue = (T)attributeValue;
+            //    //    }
+            //    //}
+            //}
+
+            return (T)value;
+        }
+
         //TODO_comfyjase_03/02/2025: Nice to have, way to write in the .runsettings file which exe the dll tests use.
         public static string GetTestFileExecutableFilePath(/*DoctestSettingsProvider _doctestSettings, */string _filePath)
         {
@@ -145,7 +215,9 @@ namespace VS2022.DoctestTestAdapter
             Dictionary<string, List<string>> allMappedExecutableDependencies = new Dictionary<string, List<string>>();
             XmlFile discoveredExecutablesInformationFile = new XmlFile(DoctestTestAdapterConstants.DiscoveredExecutablesInformationFilePath);
             XmlDocument discoveredExecutablesXmlDocument = discoveredExecutablesInformationFile.XmlDocument;
-            XmlNodeList node = discoveredExecutablesXmlDocument.SelectNodes("//DiscoveredExecutables/ExecutableFile");
+            XmlNodeList node = discoveredExecutablesXmlDocument.SelectNodes("//" + VS.Common.DoctestTestAdapter.Constants.XmlNodeNames.Root + "/" + VS.Common.DoctestTestAdapter.Constants.XmlNodeNames.ExecutableFile);
+
+            //TODO_comfyjase_16/02/2025: Convert the below child/attribute nodes into constant strings...
 
             // ExecutableFile namespace
             // E.g.
@@ -323,7 +395,7 @@ namespace VS2022.DoctestTestAdapter
 
                         Logger.Instance.WriteLine("About to write executable " + Path.GetFileName(sourceFile) + " information to " + Path.GetFileName(DoctestTestAdapterConstants.DiscoveredExecutablesInformationFilePath));
 
-                        discoveredExecutableInformationFile.BatchWrite(textToWrite);
+                        discoveredExecutableInformationFile.InsertAfter("<" + VS.Common.DoctestTestAdapter.Constants.XmlNodeNames.Root + ">", textToWrite);
                     }
                     // .h/.hpp files
                     else
