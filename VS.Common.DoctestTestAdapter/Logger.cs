@@ -26,14 +26,19 @@ namespace VS.Common.DoctestTestAdapter
 
         private Logger()
         {
+            logFilePath = Directory.GetCurrentDirectory() + "\\DoctestTestAdapter\\Logs\\DoctestTestAdapter.log";
+            bool logFileNewlyCreated = !File.Exists(logFilePath); 
+
             //TODO_comfyjase_02/02/2025: Would be really useful to have a timestamped log file.
             //logFilePath = Directory.GetCurrentDirectory() + "\\Logs\\DoctestTestAdapter_" + GetCurrentTimestampForDebugFilename() + ".log";
-            logFilePath = Directory.GetCurrentDirectory() + "\\DoctestTestAdapter\\Logs\\DoctestTestAdapter.log";
             logFile = new VS.Common.DoctestTestAdapter.IO.File(logFilePath);
 
-            WriteLine("New logger created! Directory: " + Path.GetDirectoryName(logFilePath) + " File: " + logFilePath);
-            WriteLine("DoctestTestAdapter Log Start");
-            WriteLine("============================");
+            if (logFileNewlyCreated)
+            {
+                WriteLine("New logger created! Directory: " + Path.GetDirectoryName(logFilePath) + " File: " + logFilePath);
+                WriteLine("DoctestTestAdapter Log Start");
+                WriteLine("============================");
+            }
         }
 
         public void CacheTestAdapterOptions(ITestAdapterOptions _testAdapterOptions)

@@ -1,4 +1,5 @@
-﻿using Microsoft.VisualStudio;
+﻿using EnvDTE;
+using Microsoft.VisualStudio;
 using Microsoft.VisualStudio.OLE.Interop;
 using Microsoft.VisualStudio.Shell;
 using Microsoft.VisualStudio.Shell.Interop;
@@ -43,6 +44,7 @@ namespace DoctestTestAdapterVSIX
     public sealed class DoctestTestAdapterVSIXAsyncPackage : AsyncPackage, ITestAdapterPackage
     {
         private ITestAdapterOptions testAdapterOptions = null;
+        private string solutionDirectory = string.Empty;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="DoctestTestAdapterVSIXAsyncPackage"/> class.
@@ -77,11 +79,19 @@ namespace DoctestTestAdapterVSIX
 
         private void InitializeOptions()
         {
+            //TODO_comfyjase_17/02/2025: Comment back in once the thread exception has been fixed to fix compiler warning VSTHRD010.
+            //ThreadHelper.ThrowIfNotOnUIThread();
+
             GeneralOptionsPage generalOptionsPage = (GeneralOptionsPage)GetDialogPage(typeof(GeneralOptionsPage));
             Debug.Assert(generalOptionsPage != null);
 
-            testAdapterOptions = new TestAdapterOptions(generalOptionsPage);
+            IVsSolution solution = (IVsSolution)GetService(typeof(SVsSolution));
+            Debug.Assert(solution != null);
 
+            solution.GetSolutionInfo(out solutionDirectory, out string solutionName, out string solutionDirectory2);
+            Debug.Assert(!string.IsNullOrEmpty(solutionDirectory));
+            
+            testAdapterOptions = new TestAdapterOptions(solutionDirectory, generalOptionsPage);
             Logger.Instance.CacheTestAdapterOptions(testAdapterOptions);
         }
 

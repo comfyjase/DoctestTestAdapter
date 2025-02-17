@@ -29,8 +29,8 @@ namespace VS.Common.DoctestTestAdapter
 
         public class Options
         {
-            public const string XmlFileExtension = ".xml";
-            public static readonly string FilePath = Directory.GetCurrentDirectory() + "\\DoctestTestAdapter\\Options" + XmlFileExtension;
+            //public const string XmlFileExtension = ".xml";
+            //public static readonly string FilePath = Directory.GetCurrentDirectory() + "\\DoctestTestAdapter\\Options" + XmlFileExtension;
 
             // Name of the options for this test adapter in the tools option window
             public const string ToolsOptionName = "Test Adapter for Doctest";

@@ -5,8 +5,6 @@ namespace VS.Common.DoctestTestAdapter.Options
 {
     public class GeneralOptionsPage : BaseOptionsPage
     {
-        private bool enableLogging = false;
-
         [Category(Constants.Options.GeneralCategoryName)]
         [DisplayName(Constants.Options.LoggingOptionName)]
         [Description(Constants.Options.LoggingOptionDescription)]
@@ -15,8 +13,7 @@ namespace VS.Common.DoctestTestAdapter.Options
             get { return enableLogging; }
             set { SetValue(ref enableLogging, value); }
         }
-
-        private string commandArguments = string.Empty;
+        private bool enableLogging = false;
 
         [Category(Constants.Options.GeneralCategoryName)]
         [DisplayName(Constants.Options.CommandArgumentsOptionName)]
@@ -26,8 +23,7 @@ namespace VS.Common.DoctestTestAdapter.Options
             get { return commandArguments; }
             set { SetValue(ref commandArguments, value); }
         }
-
-        private string testExecutablePath = string.Empty;
+        private string commandArguments = string.Empty;
 
         [Category(Constants.Options.GeneralCategoryName)]
         [DisplayName(Constants.Options.TestExecutableFilePathOptionName)]
@@ -37,5 +33,6 @@ namespace VS.Common.DoctestTestAdapter.Options
             get { return testExecutablePath; }
             set { SetValue(ref testExecutablePath, value); }
         }
+        private string testExecutablePath = string.Empty;
     }
 }

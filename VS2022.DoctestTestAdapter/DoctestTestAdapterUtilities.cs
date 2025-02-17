@@ -137,11 +137,12 @@ namespace VS2022.DoctestTestAdapter
             return testName;
         }
 
-        public static T GetOptionValue<T>(string _optionCategoryNodeName, string _optionNodeName)
+        public static T GetOptionValue<T>(string optionsFilePath, string _optionCategoryNodeName, string _optionNodeName)
         {
             object value = null;
-            
-            XmlFile optionsFile = new XmlFile(VS.Common.DoctestTestAdapter.Constants.Options.FilePath);
+
+            //XmlFile optionsFile = new XmlFile(VS.Common.DoctestTestAdapter.Constants.Options.FilePath);
+            XmlFile optionsFile = new XmlFile(optionsFilePath);
             XmlDocument optionsXmlDocument = optionsFile.XmlDocument;
             XmlNode optionNode = optionsXmlDocument.SelectSingleNode("//" + VS.Common.DoctestTestAdapter.Constants.XmlNodeNames.Root + "/" + VS.Common.DoctestTestAdapter.Constants.XmlNodeNames.Options + "/" + _optionCategoryNodeName + "/" + _optionNodeName);
 
@@ -153,6 +154,7 @@ namespace VS2022.DoctestTestAdapter
                 if (optionValueAttribute != null)
                 {
                     Logger.Instance.WriteLine("Category: " + _optionCategoryNodeName + " Option: " + optionNode.Name + " Value: " + optionValueAttribute.Value);
+                    value = optionValueAttribute.Value;
                 }
             }
 
@@ -164,51 +166,11 @@ namespace VS2022.DoctestTestAdapter
              * </General>
              */
 
-            //T optionValue = (T)optionNodes[optionNodeName].Attributes["Value"];
-
-            //foreach (XmlNode optionNode in optionNodes)
-            //{
-            //    Logger.Instance.WriteLine("Checking option node: " + optionNode.Name);
-
-            //    XmlNodeList childrenOptionNodes = optionNode.ChildNodes;
-            //    XmlNode option optionNode.SelectSingleNode("/" + _optionNodeName);
-            //    //foreach (XmlNode childOptionNode in childrenOptionNodes)
-            //    //{
-            //    //    Logger.Instance.WriteLine("Checking child option node: " + childOptionNode.Name);
-
-            //    //    if (childOptionNode.Name == optionNodeName)
-            //    //    {
-            //    //        Logger.Instance.WriteLine("Found option " + optionNodeName);
-
-            //    //        XmlAttribute valueAttribute = childOptionNode.Attributes["Value"];
-            //    //        if (valueAttribute != null)
-            //    //        {
-            //    //            Logger.Instance.WriteLine("Found " + optionNodeName + " attribute Value");
-            //    //            string attributeValue = valueAttribute.Value;
-            //    //            //T optionValue = (T)attributeValue;
-            //    //        }
-            //    //    }
-            //    //}
-
-            //    //if (optionNode.Name == optionNodeName)
-            //    //{
-
-
-            //    //    XmlAttribute valueAttribute = optionNode.Attributes["Value"];
-            //    //    if (valueAttribute != null)
-            //    //    {
-            //    //        Logger.Instance.WriteLine("Found " + optionNodeName + " attribute Value");
-            //    //        string attributeValue = valueAttribute.Value;
-            //    //        T optionValue = (T)attributeValue;
-            //    //    }
-            //    //}
-            //}
-
             return (T)value;
         }
 
         //TODO_comfyjase_03/02/2025: Nice to have, way to write in the .runsettings file which exe the dll tests use.
-        public static string GetTestFileExecutableFilePath(/*DoctestSettingsProvider _doctestSettings, */string _filePath)
+        public static string GetTestExecutableFilePath(/*DoctestSettingsProvider _doctestSettings, */string _filePath)
         {
             string testExecutableFilePath = string.Empty;
 
@@ -347,113 +309,107 @@ namespace VS2022.DoctestTestAdapter
         {
             List<TestCase> tests = new List<TestCase>();
 
-            string currentDirectory = Directory.GetCurrentDirectory();
-            Logger.Instance.WriteLine("Searching current directory: " + currentDirectory);
-
             foreach (string sourceFile in _sources)
             {
-                if (sourceFile.Contains(currentDirectory))
+                Logger.Instance.WriteLine("Searching file: " + sourceFile, 1);
+
+                // Executable files
+                if (Path.GetExtension(sourceFile).Equals(DoctestTestAdapterConstants.ExeFileExtension, System.StringComparison.OrdinalIgnoreCase)
+                    || Path.GetExtension(sourceFile).Equals(DoctestTestAdapterConstants.DLLFileExtension, System.StringComparison.OrdinalIgnoreCase))
                 {
-                    Logger.Instance.WriteLine("Searching file: " + sourceFile, 1);
+                    VS.Common.DoctestTestAdapter.IO.XmlFile discoveredExecutableInformationFile = new VS.Common.DoctestTestAdapter.IO.XmlFile(DoctestTestAdapterConstants.DiscoveredExecutablesInformationFilePath);
 
-                    // Executable files
-                    if (Path.GetExtension(sourceFile).Equals(DoctestTestAdapterConstants.ExeFileExtension, System.StringComparison.OrdinalIgnoreCase)
-                        || Path.GetExtension(sourceFile).Equals(DoctestTestAdapterConstants.DLLFileExtension, System.StringComparison.OrdinalIgnoreCase))
+                    string[] existingExecuteableInformation = discoveredExecutableInformationFile.ReadAllLines();
+                    bool executableInformationIsAlreadyInFile = existingExecuteableInformation.Any(s => s.Contains(sourceFile));
+                    if (executableInformationIsAlreadyInFile)
                     {
-                        VS.Common.DoctestTestAdapter.IO.XmlFile discoveredExecutableInformationFile = new VS.Common.DoctestTestAdapter.IO.XmlFile(DoctestTestAdapterConstants.DiscoveredExecutablesInformationFilePath);
+                        // TODO: Log here and test godot...
+                        // Should be picking up the console exe still
+                        continue;
+                    }
 
-                        string[] existingExecuteableInformation = discoveredExecutableInformationFile.ReadAllLines();
-                        bool executableInformationIsAlreadyInFile = existingExecuteableInformation.Any(s => s.Contains(sourceFile));
-                        if (executableInformationIsAlreadyInFile)
-                        {
-                            // TODO: Log here and test godot...
-                            // Should be picking up the console exe still
-                            continue;
-                        }
+                    List<string> dependences = GetExecutableDependencies(sourceFile);
 
-                        List<string> dependences = GetExecutableDependencies(sourceFile);
+                    string textToWrite = 
+                    (
+                        "\n\t<ExecutableFile FilePath=\"" + sourceFile + "\">\n"
+                        + "\t\t<Dependencies>" + "\n"
+                    );
 
-                        string textToWrite = 
-                        (
-                            "\n\t<ExecutableFile FilePath=\"" + sourceFile + "\">\n"
-                            + "\t\t<Dependencies>" + "\n"
-                        );
-
-                        foreach (string dependency in dependences)
-                        {
-                            textToWrite +=
-                            (
-                                "\t\t\t<Dependency FileName=\"" + dependency + "\"/>" + "\n"
-                            );
-                        }
-
+                    foreach (string dependency in dependences)
+                    {
                         textToWrite +=
                         (
-                            "\t\t</Dependencies>" + "\n"
-                            + "\t</ExecutableFile>"
+                            "\t\t\t<Dependency FileName=\"" + dependency + "\"/>" + "\n"
                         );
-
-                        Logger.Instance.WriteLine("About to write executable " + Path.GetFileName(sourceFile) + " information to " + Path.GetFileName(DoctestTestAdapterConstants.DiscoveredExecutablesInformationFilePath));
-
-                        discoveredExecutableInformationFile.InsertAfter("<" + VS.Common.DoctestTestAdapter.Constants.XmlNodeNames.Root + ">", textToWrite);
                     }
-                    // .h/.hpp files
-                    else
+
+                    textToWrite +=
+                    (
+                        "\t\t</Dependencies>" + "\n"
+                        + "\t</ExecutableFile>"
+                    );
+
+                    Logger.Instance.WriteLine("About to write executable " + Path.GetFileName(sourceFile) + " information to " + Path.GetFileName(DoctestTestAdapterConstants.DiscoveredExecutablesInformationFilePath));
+
+                    discoveredExecutableInformationFile.InsertAfter("<" + VS.Common.DoctestTestAdapter.Constants.XmlNodeNames.Root + ">", textToWrite);
+                }
+                // .h/.hpp files
+                else
+                {
+                    // If the file contains the TEST_CASE macro, for now just consider it a valid test case.
+                    string[] allLines = System.IO.File.ReadAllLines(sourceFile);
+                    int currentLineNumber = 1;
+                    string testFileNamespace = EmptyNamespaceString;
+                    string testClassName = EmptyClassString;
+
+                    foreach (string line in allLines)
                     {
-                        // If the file contains the TEST_CASE macro, for now just consider it a valid test case.
-                        string[] allLines = System.IO.File.ReadAllLines(sourceFile);
-                        int currentLineNumber = 1;
-                        string testFileNamespace = EmptyNamespaceString;
-                        string testClassName = EmptyClassString;
-
-                        foreach (string line in allLines)
-                        {
-                            //TODO_comfyjase_04/02/2025: Update these checks to use Regex?
-                            // Same as you do for the test exectuable regex pattern...
+                        //TODO_comfyjase_04/02/2025: Update these checks to use Regex?
+                        // Same as you do for the test exectuable regex pattern...
                             
-                            int numberOfSpacesInLine = line.Count(Char.IsWhiteSpace);
+                        int numberOfSpacesInLine = line.Count(Char.IsWhiteSpace);
 
-                            // Regex for some specific keywords.
-                            string regexPattern = @"\bnamespace\b";
-                            if (Regex.Match(line, regexPattern, RegexOptions.IgnoreCase).Success && numberOfSpacesInLine < 3)
-                            {
-                                testFileNamespace = GetNamespaceSubstring(line);
-                            }
-
-                            regexPattern = @"\bclass\b";
-                            if (Regex.Match(line, regexPattern, RegexOptions.IgnoreCase).Success && numberOfSpacesInLine < 6)
-                            {
-                                testClassName = GetClassNameSubstring(line);
-                            }
-
-                            // Contains is good enough for these I think...
-                            if (line.Contains("TEST_SUITE(\""))
-                            {
-                                testFileNamespace = GetTestSuiteNameSubstring(line);
-                            }
-                            else if (line.Contains("TEST_CASE(\""))
-                            {
-                                //TODO_comfyjase_28/01/2025: Find out if there is a way to update the test owner to point to the project instead of the individual header files.
-                                //string testOwner = GetTestProjectName(_discoveryContext.RunSettings, sourceFile);
-                                string testOwner = sourceFile;
-                                string testName = GetTestNameSubstring(line);
-                                
-                                //TODO_comfyjase_30/01/2025: This assumes '* doctest::skip()' is on the same line as the name of the test...
-                                // Would be nice to implement logic to be able to cope with '* doctest::skip()' being on a new line too
-                                bool markedWithDoctestSkip = DoctestTestAdapterConstants.SkipTestKeywords.Any(s => line.Contains(s));
-                                
-                                TestCase testCase = CreateTestCase(testOwner,
-                                    testFileNamespace, 
-                                    testClassName, 
-                                    testName, 
-                                    sourceFile, 
-                                    currentLineNumber,
-                                    markedWithDoctestSkip);
-                                tests.Add(testCase);
-                            }
-
-                            ++currentLineNumber;
+                        // Regex for some specific keywords.
+                        string regexPattern = @"\bnamespace\b";
+                        if (Regex.Match(line, regexPattern, RegexOptions.IgnoreCase).Success && numberOfSpacesInLine < 3)
+                        {
+                            testFileNamespace = GetNamespaceSubstring(line);
                         }
+
+                        regexPattern = @"\bclass\b";
+                        if (Regex.Match(line, regexPattern, RegexOptions.IgnoreCase).Success && numberOfSpacesInLine < 6)
+                        {
+                            testClassName = GetClassNameSubstring(line);
+                        }
+
+                        // Contains is good enough for these I think...
+                        if (line.Contains("TEST_SUITE(\""))
+                        {
+                            testFileNamespace = GetTestSuiteNameSubstring(line);
+                        }
+                        else if (line.Contains("TEST_CASE(\""))
+                        {
+                            //TODO_comfyjase_28/01/2025: Find out if there is a way to update the test owner to point to the project instead of the individual header files.
+                            //string testOwner = GetTestProjectName(_discoveryContext.RunSettings, sourceFile);
+                            string testOwner = sourceFile;
+                            string testName = GetTestNameSubstring(line);
+                                
+                            //TODO_comfyjase_30/01/2025: This assumes '* doctest::skip()' is on the same line as the name of the test...
+                            // Would be nice to implement logic to be able to cope with '* doctest::skip()' being on a new line too
+                            bool markedWithDoctestSkip = DoctestTestAdapterConstants.SkipTestKeywords.Any(s => line.Contains(s));
+                                
+                            TestCase testCase = CreateTestCase(testOwner,
+                                testFileNamespace, 
+                                testClassName, 
+                                testName, 
+                                sourceFile, 
+                                currentLineNumber,
+                                markedWithDoctestSkip);
+                            tests.Add(testCase);
+                        }
+
+                        ++currentLineNumber;
                     }                    
                 }
             }

@@ -37,26 +37,22 @@ namespace VS2022.DoctestTestAdapter
             mappedTestOutputs.Clear();
             mappedExitHandlers.Clear();
 
-            //ITestAdapterPackage testAdapterPackage = VSUtilities.GetTestAdapterPackage();
-            //Debug.Assert(testAdapterPackage != null);
-
-            //ITestAdapterOptions testAdapterOptions = testAdapterPackage.TestAdapterOptions;
-            //Debug.Assert(testAdapterOptions != null);
-
-            //string userDefinedTestExecutableFilePath = testAdapterOptions.TestExecutableFilePath;
-            //bool hasUserDefinedTestExecutableFilePath = !string.IsNullOrEmpty(userDefinedTestExecutableFilePath);
-
-            string userDefinedTestExecutableFilePath = DoctestTestAdapterUtilities.GetOptionValue<string>(VS.Common.DoctestTestAdapter.Constants.XmlNodeNames.GeneralOptions,
+            string optionsFilePath = _runContext.SolutionDirectory + "\\DoctestTestAdapter\\Options.xml";
+            string userDefinedTestExecutableFilePath = DoctestTestAdapterUtilities.GetOptionValue<string>(optionsFilePath,
+                                                                VS.Common.DoctestTestAdapter.Constants.XmlNodeNames.GeneralOptions,
                                                                 VS.Common.DoctestTestAdapter.Constants.XmlNodeNames.TestExecutableFilePath);
             bool hasUserDefinedTestExecutableFilePath = !string.IsNullOrEmpty(userDefinedTestExecutableFilePath);
 
-            //DoctestSettingsProvider doctestSettings = _runContext.RunSettings.GetSettings(DoctestTestAdapterConstants.SettingsName) as DoctestSettingsProvider;
             if (hasUserDefinedTestExecutableFilePath)
             {
+                Logger.Instance.WriteLine("User has provided test executable: " + userDefinedTestExecutableFilePath + " so using that to run " + _tests.Count() + " tests.");
+
                 mappedExecutableTests.Add(userDefinedTestExecutableFilePath, _tests.ToList());
             }
             else
             {
+                Logger.Instance.WriteLine("No user defined test executable path provided, working out what executables to use from the source files and discovered executables.");
+
                 foreach (TestCase test in _tests)
                 {
                     if (cancelled)
@@ -64,7 +60,7 @@ namespace VS2022.DoctestTestAdapter
                         return;
                     }
 
-                    string executableFilePath = DoctestTestAdapterUtilities.GetTestFileExecutableFilePath(/*doctestSettings, */test.CodeFilePath);
+                    string executableFilePath = DoctestTestAdapterUtilities.GetTestExecutableFilePath(/*doctestSettings, */test.CodeFilePath);
 
                     if (mappedExecutableTests.TryGetValue(executableFilePath, out List<TestCase> testFiles))
                     {
@@ -113,8 +109,9 @@ namespace VS2022.DoctestTestAdapter
                 string doctestArguments = doctestTestCaseCommandArgument;
 
                 // Whatever the user has filled in the Tools -> Options -> Test Adapter for Doctest -> General -> Command Arguments option.
-                //string userDefinedArguments = testAdapterOptions.CommandArguments;
-                string userDefinedArguments = string.Empty;
+                string userDefinedArguments = DoctestTestAdapterUtilities.GetOptionValue<string>(optionsFilePath,
+                                                                VS.Common.DoctestTestAdapter.Constants.XmlNodeNames.GeneralOptions,
+                                                                VS.Common.DoctestTestAdapter.Constants.XmlNodeNames.CommandArguments);
 
                 // Combined user defined arguments (if any) and doctest arguments for running the unit tests.
                 string fullCommandArguments = string.IsNullOrEmpty(userDefinedArguments) ? (doctestArguments) : (userDefinedArguments + " " + doctestArguments);
@@ -218,7 +215,6 @@ namespace VS2022.DoctestTestAdapter
 
                 if (mappedOutputExists)
                 {
-                    
                     // failedTestFullErrorMessages will just read any test output lines that have the "ERROR: " string in it.
                     // Regardless of which test case caused the error.
                     // E.g. Path\To\TestFile.h(21): ERROR: CHECK( SomethingGoesWrongHere() ) is NOT correct!

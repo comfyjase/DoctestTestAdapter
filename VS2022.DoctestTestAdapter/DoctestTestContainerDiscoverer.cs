@@ -286,13 +286,9 @@ namespace VS2022.DoctestTestAdapter
         private bool IsTestFile(string _path)
         {
             // Can immediately filter out folders.
-            if (!Path.HasExtension(_path))
-            {
-                return false;
-            }
-
-            // Can also immediately filter out the doctest header itself.
-            if (Path.GetFileName(_path).Equals("doctest.h", StringComparison.OrdinalIgnoreCase))
+            if (!Path.HasExtension(_path) 
+                || Path.GetFileName(_path).Equals("doctest.h", StringComparison.OrdinalIgnoreCase)
+                || !File.Exists(_path))
             {
                 return false;
             }

@@ -10,6 +10,8 @@ namespace VS.Common.DoctestTestAdapter.Options
 {
     public class TestAdapterOptions : ITestAdapterOptions
     {
+        private string solutionDirectory = string.Empty;
+
         // General options
         private GeneralOptionsPage generalOptionsPage = null;
         private bool enableLogging = false;
@@ -18,21 +20,26 @@ namespace VS.Common.DoctestTestAdapter.Options
 
         private XmlFile optionsFile = null;
 
-        public TestAdapterOptions() : this(null)
+        public TestAdapterOptions() : this(null, null)
         { }
 
         //TODO_comfyjase_08/02/2025: Add any other option pages here...
-        public TestAdapterOptions(GeneralOptionsPage _generalOptionsPage)
+        public TestAdapterOptions(string _solutionDirectory, GeneralOptionsPage _generalOptionsPage)
         {
+            solutionDirectory = _solutionDirectory;
+
             generalOptionsPage = _generalOptionsPage;
             Debug.Assert(generalOptionsPage != null);
 
-            optionsFile = new XmlFile(VS.Common.DoctestTestAdapter.Constants.Options.FilePath);
+            //public static readonly string FilePath = Directory.GetCurrentDirectory() + "\\DoctestTestAdapter\\Options" + XmlFileExtension;
+            optionsFile = new XmlFile(solutionDirectory + "\\DoctestTestAdapter\\Options.xml");
 
             generalOptionsPage.PropertyChanged += GeneralOptionsPage_PropertyChanged;
 
             // Update after all option pages are stored.
             Update();
+
+            generalOptionsPage.SaveSettingsToStorage();
         }
 
         private void GeneralOptionsPage_PropertyChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e)
@@ -54,8 +61,6 @@ namespace VS.Common.DoctestTestAdapter.Options
             enableLogging = generalOptionsPage.EnableLogging;
             commandArguments = generalOptionsPage.CommandArguments;
             testExecutableFilePath = generalOptionsPage.TestExecutablePath;
-
-            generalOptionsPage.SaveSettingsToStorage();
 
             textToWriteToOptionsFile +=
             (   
