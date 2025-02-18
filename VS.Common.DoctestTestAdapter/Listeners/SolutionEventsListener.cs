@@ -96,7 +96,7 @@ namespace VS.Common.DoctestTestAdapter
 
         public int OnAfterOpenSolution(object _pUnkReserved, int _fNewSolution)
         {
-            SolutionOpened?.Invoke(this, EventArgs.Empty);
+            SolutionOpened?.Invoke(this, System.EventArgs.Empty);
             return VSConstants.S_OK;
         }
 

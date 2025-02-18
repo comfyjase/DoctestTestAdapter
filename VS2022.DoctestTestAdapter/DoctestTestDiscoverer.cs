@@ -7,10 +7,10 @@ using VS.Common.DoctestTestAdapter;
 namespace VS2022.DoctestTestAdapter
 {
     [DefaultExecutorUri(DoctestTestAdapterConstants.ExecutorUriString)]
-    [FileExtension(DoctestTestAdapterConstants.DLLFileExtension)]
-    [FileExtension(DoctestTestAdapterConstants.ExeFileExtension)]
-    [FileExtension(DoctestTestAdapterConstants.HFileExtension)]
-    [FileExtension(DoctestTestAdapterConstants.HPPFileExtension)]
+    [FileExtension(VS.Common.DoctestTestAdapter.Constants.TestAdapter.DLLFileExtension)]
+    [FileExtension(VS.Common.DoctestTestAdapter.Constants.TestAdapter.ExeFileExtension)]
+    [FileExtension(VS.Common.DoctestTestAdapter.Constants.TestAdapter.HFileExtension)]
+    [FileExtension(VS.Common.DoctestTestAdapter.Constants.TestAdapter.HPPFileExtension)]
     public class DoctestTestDiscoverer : ITestDiscoverer
     {
         public void DiscoverTests(IEnumerable<string> _sources, IDiscoveryContext _discoveryContext, IMessageLogger _logger, ITestCaseDiscoverySink _discoverySink)

@@ -1,10 +1,44 @@
-﻿using System;
+﻿using Microsoft.VisualStudio.TestPlatform.ObjectModel;
+using System;
+using System.Collections.Generic;
 using System.IO;
 
 namespace VS.Common.DoctestTestAdapter
 {
     public class Constants
     {
+        // Process.StartInfo.Arguments mentions Win7 onwards has a length limit of 32699
+        public const int MaxCommandArgumentLength = 32699;
+
+        public class TestAdapter
+        {
+            // Settings strings
+            public const string SettingsName = "DoctestTestAdapter";
+
+            public const string XmlFileExtension = ".xml";
+            public static readonly string DiscoveredExecutablesInformationFilePath = Directory.GetCurrentDirectory() + "\\DoctestTestAdapter\\DiscoveredExecutables" + XmlFileExtension;
+
+            // Supported file types
+            public const string ExeFileExtension = ".exe";
+            public const string DLLFileExtension = ".dll";
+            public const string HFileExtension = ".h";
+            public const string HPPFileExtension = ".hpp";
+
+            // Custom Test Properties
+            // If the test case should be skipped.
+            private const string ShouldBeSkippedTestPropertyId = "TestCase.ShouldBeSkipped";
+            public static readonly TestProperty ShouldBeSkippedTestProperty = TestProperty.Register(
+                ShouldBeSkippedTestPropertyId,
+                "ShouldBeSkipped",
+                typeof(bool),
+                TestPropertyAttributes.Hidden,
+                typeof(TestCase));
+
+            // Doctest strings
+            public const string TestResultErrorKeyword = "ERROR: ";
+            public static readonly List<string> SkipTestKeywords = new List<string>() { "doctest::skip()", "doctest::skip(true)" };
+        }
+
         public class Package
         {
             public const string GuidString = "d952b4df-4d2a-4549-a5d3-5467ad8762c2";

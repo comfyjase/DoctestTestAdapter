@@ -1,13 +1,12 @@
 ﻿using Microsoft.VisualStudio.TestPlatform.ObjectModel;
 using Microsoft.VisualStudio.TestPlatform.ObjectModel.Adapter;
-using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Xml;
 
 namespace VS2022.DoctestTestAdapter.Settings
 {
-    [SettingsName(DoctestTestAdapterConstants.SettingsName)]
+    [SettingsName(VS.Common.DoctestTestAdapter.Constants.TestAdapter.SettingsName)]
     public class DoctestSettingsProvider : ISettingsProvider
     {
         private List<DoctestSettingsOutputFileData> outputFileData = new List<DoctestSettingsOutputFileData>();

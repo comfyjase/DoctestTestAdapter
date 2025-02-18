@@ -300,10 +300,10 @@ namespace VS2022.DoctestTestAdapter
                 Debug.Assert(!string.IsNullOrWhiteSpace(solutionDirectory)); 
 
                 bool isProjectFile = _path.Contains(solutionDirectory);
-                bool isDLLFile = (Path.GetExtension(_path).Equals(DoctestTestAdapterConstants.DLLFileExtension, StringComparison.OrdinalIgnoreCase));
-                bool isExeFile = (Path.GetExtension(_path).Equals(DoctestTestAdapterConstants.ExeFileExtension, StringComparison.OrdinalIgnoreCase));
-                bool isHFile = (Path.GetExtension(_path).Equals(DoctestTestAdapterConstants.HFileExtension, StringComparison.OrdinalIgnoreCase));
-                bool isHPPFile = (Path.GetExtension(_path).Equals(DoctestTestAdapterConstants.HPPFileExtension, StringComparison.OrdinalIgnoreCase));
+                bool isDLLFile = (Path.GetExtension(_path).Equals(VS.Common.DoctestTestAdapter.Constants.TestAdapter.DLLFileExtension, StringComparison.OrdinalIgnoreCase));
+                bool isExeFile = (Path.GetExtension(_path).Equals(VS.Common.DoctestTestAdapter.Constants.TestAdapter.ExeFileExtension, StringComparison.OrdinalIgnoreCase));
+                bool isHFile = (Path.GetExtension(_path).Equals(VS.Common.DoctestTestAdapter.Constants.TestAdapter.HFileExtension, StringComparison.OrdinalIgnoreCase));
+                bool isHPPFile = (Path.GetExtension(_path).Equals(VS.Common.DoctestTestAdapter.Constants.TestAdapter.HPPFileExtension, StringComparison.OrdinalIgnoreCase));
                 bool containsDoctestTestCaseKeyword = File.ReadAllLines(_path).Any(s => s.Contains("TEST_CASE(\""));
                 bool isCodeFile = (containsDoctestTestCaseKeyword && (isHFile || isHPPFile));
 

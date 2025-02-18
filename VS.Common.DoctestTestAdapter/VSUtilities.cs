@@ -4,8 +4,10 @@ using System;
 using System.Collections.Generic;
 using VS.Common.DoctestTestAdapter.Packages;
 using Microsoft.VisualStudio.Shell;
-using static Microsoft.VisualStudio.VSConstants;
 using System.Diagnostics;
+using System.Xml;
+using VS.Common.DoctestTestAdapter.IO;
+using Microsoft.VisualStudio.TestPlatform.ObjectModel;
 
 namespace VS.Common.DoctestTestAdapter
 {
@@ -143,6 +145,47 @@ namespace VS.Common.DoctestTestAdapter
 
                 return strRet;
             }
+        }
+
+        public static T GetOptionValue<T>(string optionsFilePath, string _optionCategoryNodeName, string _optionNodeName)
+        {
+            object value = null;
+
+            //XmlFile optionsFile = new XmlFile(VS.Common.DoctestTestAdapter.Constants.Options.FilePath);
+            XmlFile optionsFile = new XmlFile(optionsFilePath);
+            XmlDocument optionsXmlDocument = optionsFile.XmlDocument;
+            XmlNode optionNode = optionsXmlDocument.SelectSingleNode("//" + VS.Common.DoctestTestAdapter.Constants.XmlNodeNames.Root + "/" + VS.Common.DoctestTestAdapter.Constants.XmlNodeNames.Options + "/" + _optionCategoryNodeName + "/" + _optionNodeName);
+
+            if (optionNode != null)
+            {
+                Logger.Instance.WriteLine("Found option " + optionNode.Name + " from category " + _optionCategoryNodeName);
+
+                XmlAttribute optionValueAttribute = optionNode.Attributes["Value"];
+                if (optionValueAttribute != null)
+                {
+                    Logger.Instance.WriteLine("Category: " + _optionCategoryNodeName + " Option: " + optionNode.Name + " Value: " + optionValueAttribute.Value);
+                    value = optionValueAttribute.Value;
+                }
+            }
+
+            /*
+             * <General>
+             *  <EnableLogging Value=False/>
+             *  <CommandArguments Value=""/>
+             *  <TestExecutableFilePath Value=""/>
+             * </General>
+             */
+
+            return (T)value;
+        }
+
+        public static T GetTestPropertyValue<T>(TestCase _test, TestProperty _testProperty)
+        {
+            Debug.Assert(_test != null);
+            Debug.Assert(_testProperty != null);
+            object testPropertyObject = _test.GetPropertyValue(_testProperty);
+            Debug.Assert(testPropertyObject != null);
+            return (T)testPropertyObject;
         }
 
         public static ITestAdapterPackage GetTestAdapterPackage()

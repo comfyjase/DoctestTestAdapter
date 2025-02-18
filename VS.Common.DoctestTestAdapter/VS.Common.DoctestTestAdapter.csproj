@@ -42,6 +42,8 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Constants.cs" />
+    <Compile Include="EventArgs\TestExecutableFinishedEventArgs.cs" />
+    <Compile Include="Executables\TestExecutable.cs" />
     <Compile Include="IO\File.cs" />
     <Compile Include="IO\IFile.cs" />
     <Compile Include="IO\XmlFile.cs" />

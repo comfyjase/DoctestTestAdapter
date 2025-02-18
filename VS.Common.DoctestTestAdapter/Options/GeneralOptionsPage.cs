@@ -1,5 +1,4 @@
-﻿using Microsoft.VisualStudio.Shell;
-using System.ComponentModel;
+﻿using System.ComponentModel;
 
 namespace VS.Common.DoctestTestAdapter.Options
 {

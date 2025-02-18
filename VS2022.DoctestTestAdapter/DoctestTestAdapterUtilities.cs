@@ -28,7 +28,7 @@ namespace VS2022.DoctestTestAdapter
             testCase.CodeFilePath = _sourceFilePath;
             testCase.LineNumber = _lineNumber;
 
-            testCase.SetPropertyValue(DoctestTestAdapterConstants.ShouldBeSkippedTestProperty, _shouldBeSkipped);
+            testCase.SetPropertyValue(VS.Common.DoctestTestAdapter.Constants.TestAdapter.ShouldBeSkippedTestProperty, _shouldBeSkipped);
             
             if (_shouldBeSkipped)
             {
@@ -36,15 +36,6 @@ namespace VS2022.DoctestTestAdapter
             }
 
             return testCase;
-        }
-
-        public static T GetTestPropertyValue<T>(TestCase _test, TestProperty _testProperty)
-        {
-            Debug.Assert(_test != null);
-            Debug.Assert(_testProperty != null);
-            object testPropertyObject = _test.GetPropertyValue(_testProperty);
-            Debug.Assert(testPropertyObject != null);
-            return (T)testPropertyObject;
         }
 
         private static string GetSubstring(string _line, int startIndex, int endIndex)
@@ -137,45 +128,13 @@ namespace VS2022.DoctestTestAdapter
             return testName;
         }
 
-        public static T GetOptionValue<T>(string optionsFilePath, string _optionCategoryNodeName, string _optionNodeName)
-        {
-            object value = null;
-
-            //XmlFile optionsFile = new XmlFile(VS.Common.DoctestTestAdapter.Constants.Options.FilePath);
-            XmlFile optionsFile = new XmlFile(optionsFilePath);
-            XmlDocument optionsXmlDocument = optionsFile.XmlDocument;
-            XmlNode optionNode = optionsXmlDocument.SelectSingleNode("//" + VS.Common.DoctestTestAdapter.Constants.XmlNodeNames.Root + "/" + VS.Common.DoctestTestAdapter.Constants.XmlNodeNames.Options + "/" + _optionCategoryNodeName + "/" + _optionNodeName);
-
-            if (optionNode != null)
-            {
-                Logger.Instance.WriteLine("Found option " + optionNode.Name + " from category " + _optionCategoryNodeName);
-
-                XmlAttribute optionValueAttribute = optionNode.Attributes["Value"];
-                if (optionValueAttribute != null)
-                {
-                    Logger.Instance.WriteLine("Category: " + _optionCategoryNodeName + " Option: " + optionNode.Name + " Value: " + optionValueAttribute.Value);
-                    value = optionValueAttribute.Value;
-                }
-            }
-
-            /*
-             * <General>
-             *  <EnableLogging Value=False/>
-             *  <CommandArguments Value=""/>
-             *  <TestExecutableFilePath Value=""/>
-             * </General>
-             */
-
-            return (T)value;
-        }
-
         //TODO_comfyjase_03/02/2025: Nice to have, way to write in the .runsettings file which exe the dll tests use.
         public static string GetTestExecutableFilePath(/*DoctestSettingsProvider _doctestSettings, */string _filePath)
         {
             string testExecutableFilePath = string.Empty;
 
             Dictionary<string, List<string>> allMappedExecutableDependencies = new Dictionary<string, List<string>>();
-            XmlFile discoveredExecutablesInformationFile = new XmlFile(DoctestTestAdapterConstants.DiscoveredExecutablesInformationFilePath);
+            XmlFile discoveredExecutablesInformationFile = new XmlFile(VS.Common.DoctestTestAdapter.Constants.TestAdapter.DiscoveredExecutablesInformationFilePath);
             XmlDocument discoveredExecutablesXmlDocument = discoveredExecutablesInformationFile.XmlDocument;
             XmlNodeList node = discoveredExecutablesXmlDocument.SelectNodes("//" + VS.Common.DoctestTestAdapter.Constants.XmlNodeNames.Root + "/" + VS.Common.DoctestTestAdapter.Constants.XmlNodeNames.ExecutableFile);
 
@@ -239,7 +198,7 @@ namespace VS2022.DoctestTestAdapter
                     testExecutableFilePath = mappedExecutableDependencies.Key;
 
                     // If it's a DLL, get the first executable which depends on it.
-                    if (Path.GetExtension(testExecutableFilePath).Equals(DoctestTestAdapterConstants.DLLFileExtension, StringComparison.OrdinalIgnoreCase))
+                    if (Path.GetExtension(testExecutableFilePath).Equals(VS.Common.DoctestTestAdapter.Constants.TestAdapter.DLLFileExtension, StringComparison.OrdinalIgnoreCase))
                     {
                         //Debug.Assert(false);
 
@@ -267,7 +226,7 @@ namespace VS2022.DoctestTestAdapter
                 }
             }
 
-            Debug.Assert(!Path.GetExtension(testExecutableFilePath).Equals(DoctestTestAdapterConstants.DLLFileExtension, StringComparison.OrdinalIgnoreCase));
+            Debug.Assert(!Path.GetExtension(testExecutableFilePath).Equals(VS.Common.DoctestTestAdapter.Constants.TestAdapter.DLLFileExtension, StringComparison.OrdinalIgnoreCase));
             return testExecutableFilePath;
         }
 
@@ -298,7 +257,7 @@ namespace VS2022.DoctestTestAdapter
 
             Logger.Instance.WriteLine("dumpbin process finished checking dependences for: " + Path.GetFileName(_sourceFile));
 
-            List<string> dependencies = outputSubstring.Split('\n').Where(s => s.Contains(DoctestTestAdapterConstants.DLLFileExtension)).Select(s => s.Trim().Replace(" ", "")).ToList();
+            List<string> dependencies = outputSubstring.Split('\n').Where(s => s.Contains(VS.Common.DoctestTestAdapter.Constants.TestAdapter.DLLFileExtension)).Select(s => s.Trim().Replace(" ", "")).ToList();
 
             Logger.Instance.WriteLine(Path.GetFileName(_sourceFile) + " dependencies: " + "\n" + string.Join("\n", dependencies));
 
@@ -314,10 +273,10 @@ namespace VS2022.DoctestTestAdapter
                 Logger.Instance.WriteLine("Searching file: " + sourceFile, 1);
 
                 // Executable files
-                if (Path.GetExtension(sourceFile).Equals(DoctestTestAdapterConstants.ExeFileExtension, System.StringComparison.OrdinalIgnoreCase)
-                    || Path.GetExtension(sourceFile).Equals(DoctestTestAdapterConstants.DLLFileExtension, System.StringComparison.OrdinalIgnoreCase))
+                if (Path.GetExtension(sourceFile).Equals(VS.Common.DoctestTestAdapter.Constants.TestAdapter.ExeFileExtension, System.StringComparison.OrdinalIgnoreCase)
+                    || Path.GetExtension(sourceFile).Equals(VS.Common.DoctestTestAdapter.Constants.TestAdapter.DLLFileExtension, System.StringComparison.OrdinalIgnoreCase))
                 {
-                    VS.Common.DoctestTestAdapter.IO.XmlFile discoveredExecutableInformationFile = new VS.Common.DoctestTestAdapter.IO.XmlFile(DoctestTestAdapterConstants.DiscoveredExecutablesInformationFilePath);
+                    VS.Common.DoctestTestAdapter.IO.XmlFile discoveredExecutableInformationFile = new VS.Common.DoctestTestAdapter.IO.XmlFile(VS.Common.DoctestTestAdapter.Constants.TestAdapter.DiscoveredExecutablesInformationFilePath);
 
                     string[] existingExecuteableInformation = discoveredExecutableInformationFile.ReadAllLines();
                     bool executableInformationIsAlreadyInFile = existingExecuteableInformation.Any(s => s.Contains(sourceFile));
@@ -350,7 +309,7 @@ namespace VS2022.DoctestTestAdapter
                         + "\t</ExecutableFile>"
                     );
 
-                    Logger.Instance.WriteLine("About to write executable " + Path.GetFileName(sourceFile) + " information to " + Path.GetFileName(DoctestTestAdapterConstants.DiscoveredExecutablesInformationFilePath));
+                    Logger.Instance.WriteLine("About to write executable " + Path.GetFileName(sourceFile) + " information to " + Path.GetFileName(VS.Common.DoctestTestAdapter.Constants.TestAdapter.DiscoveredExecutablesInformationFilePath));
 
                     discoveredExecutableInformationFile.InsertAfter("<" + VS.Common.DoctestTestAdapter.Constants.XmlNodeNames.Root + ">", textToWrite);
                 }
@@ -397,7 +356,7 @@ namespace VS2022.DoctestTestAdapter
                                 
                             //TODO_comfyjase_30/01/2025: This assumes '* doctest::skip()' is on the same line as the name of the test...
                             // Would be nice to implement logic to be able to cope with '* doctest::skip()' being on a new line too
-                            bool markedWithDoctestSkip = DoctestTestAdapterConstants.SkipTestKeywords.Any(s => line.Contains(s));
+                            bool markedWithDoctestSkip = VS.Common.DoctestTestAdapter.Constants.TestAdapter.SkipTestKeywords.Any(s => line.Contains(s));
                                 
                             TestCase testCase = CreateTestCase(testOwner,
                                 testFileNamespace, 
