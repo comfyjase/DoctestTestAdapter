@@ -106,8 +106,11 @@ namespace VS.Common.DoctestTestAdapter
         /// <param name="_sourceLineNumber"></param>
         public void WriteLine(string _line, int _indentLevel = 0, [CallerMemberName] string _memberName = "", [CallerFilePath] string _sourceFilePath = "", [CallerLineNumber] int _sourceLineNumber = 0)
         {
+#if DEBUG
+            bool enableLogging = true;
+#else
             bool enableLogging = false;
-
+#endif
             if (testAdapterOptions != null)
             {
                 enableLogging = testAdapterOptions.EnableLogging;
@@ -142,7 +145,11 @@ namespace VS.Common.DoctestTestAdapter
         {
             Debug.Assert(logFile != null);
 
+#if DEBUG
+            bool enableLogging = true;
+#else
             bool enableLogging = false;
+#endif
 
             if (testAdapterOptions != null)
             {

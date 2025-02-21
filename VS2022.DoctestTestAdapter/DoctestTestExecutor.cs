@@ -17,8 +17,8 @@ namespace VS2022.DoctestTestAdapter
     {
         private bool cancelled = false;
         private bool waitingForTestResults = false;
-        private int totalNumberOfExecutables = 0;
-        private int currentNumberOfRunningExecutables = 0;
+        private int totalNumberOfTestRuns = 0;
+        private int currentNumberOfTestRuns = 0;
 
         private List<TestExecutable> testExecutables = new List<TestExecutable>();
 
@@ -26,13 +26,13 @@ namespace VS2022.DoctestTestAdapter
         {
             List<string> testCaseNames = _tests.Select(t => t.DisplayName).ToList();
 
-            // Should be something like: "[TestDecorator] Test 1, [TestDecorator] Test 2"
+            // Should be something like: [TestDecorator] Test 1, [TestDecorator] Test 2
             string commaSeparatedListOfTestCaseNames = string.Join(",", testCaseNames);
 
-            // Sorted into doctest specific argument formatting: "*"[TestDecorator] Test 1"*,*"[TestDecorator] Test 2"*"
+            // Sorted into doctest specific argument formatting: *"[TestDecorator] Test 1"*,*"[TestDecorator] Test 2"*
             string doctestTestCaseCommandArgument = "--test-case=" + string.Join(",", commaSeparatedListOfTestCaseNames.Split(',').Select(x => string.Format("*\"{0}\"*", x)).ToList());
 
-            // Full doctest arguments: --test-case="*"[TestDecorator] Test 1"*,*"[TestDecorator] Test 2"*"
+            // Full doctest arguments: --test-case=*"[TestDecorator] Test 1"*,*"[TestDecorator] Test 2"*
             string doctestArguments = doctestTestCaseCommandArgument;
 
             // Whatever the user has filled in the Tools -> Options -> Test Adapter for Doctest -> General -> Command Arguments option.
@@ -114,10 +114,14 @@ namespace VS2022.DoctestTestAdapter
                     }
                 }
             }
+            
+            totalNumberOfTestRuns = testExecutables.Count;
+            currentNumberOfTestRuns = totalNumberOfTestRuns;
 
-            totalNumberOfExecutables = testExecutables.Count;
-            currentNumberOfRunningExecutables = totalNumberOfExecutables;
-
+            // Fix up command arguments that are too long
+            // Can happen in projects with LOADS of unit tests in
+            // This test adapter works by passing in selected test cases into the --test-case argument
+            // So many test cases can mean long arguments
             foreach (TestExecutable testExecutable in testExecutables)
             {
                 if (cancelled)
@@ -127,12 +131,32 @@ namespace VS2022.DoctestTestAdapter
 
                 string commandArguments = GetCommandArguments(testExecutable.Tests, optionsFilePath);
 
-                //TODO_comfyjase_18/02/2025: validate command arguments
                 if (commandArguments.Length > VS.Common.DoctestTestAdapter.Constants.MaxCommandArgumentLength)
                 {
-                    // ...
-                    // Remember to increment totalNumberOfExecutables and currentNumberOfRunningExecutables
-                    // if you thread off multiple processes
+                    Logger.Instance.WriteLine(Path.GetFileName(testExecutable.FilePath) + " command arguments is too long, length: " + commandArguments.Length + " is greater than the limit: " + VS.Common.DoctestTestAdapter.Constants.MaxCommandArgumentLength + " so splitting up test cases to reduce command argument length.");
+
+                    // Split the list of tests in half.
+                    List<TestCase> testCases = testExecutable.Tests;
+                    int halfNumberOfTestCasesList = testCases.Count / 2;
+                    List<TestCase> firstHalfOfTests = testCases.Take(halfNumberOfTestCasesList).ToList();
+                    List<TestCase> secondHalfOfTests = testCases.Skip(halfNumberOfTestCasesList).ToList();
+
+                    // Clear the current list of tests from test executable since we need to reduce the amount of arguments.
+                    testExecutable.Tests.Clear();
+                    testExecutable.AddTestCases(firstHalfOfTests);
+                    string newCommandArguments = GetCommandArguments(testExecutable.Tests, optionsFilePath);
+                    Logger.Instance.WriteLine("Executable: " + Path.GetFileName(testExecutable.FilePath) + " will run " + testExecutable.Tests.Count + " tests with a shortened command argument length of: " + newCommandArguments.Length);
+                    testExecutable.CommandArguments = newCommandArguments;
+
+                    //TODO_comfyjase_20/02/2025: Might need a way of recursively checking command arguments and adding new executables?
+
+                    // Pass the second half of the tests as a batch to be run after the first half of the tests has run.
+                    newCommandArguments = GetCommandArguments(secondHalfOfTests, optionsFilePath);
+                    testExecutable.AddTestBatch(secondHalfOfTests, newCommandArguments);
+                    
+                    // Increment the total number of test runs to be completed since there is a new batch of tests as well.
+                    totalNumberOfTestRuns++;
+                    currentNumberOfTestRuns = totalNumberOfTestRuns;
                 }
                 else
                 {
@@ -154,11 +178,11 @@ namespace VS2022.DoctestTestAdapter
 
         private void OnTestExecutableFinished(object sender, VS.Common.DoctestTestAdapter.EventArgs.TestExecutableFinishedEventArgs e)
         {
-            currentNumberOfRunningExecutables--;
+            currentNumberOfTestRuns--;
 
-            if (currentNumberOfRunningExecutables > 0)
+            if (currentNumberOfTestRuns > 0)
             {
-                Logger.Instance.WriteLine("Waiting for " + currentNumberOfRunningExecutables + " executables...");
+                Logger.Instance.WriteLine("Waiting for " + currentNumberOfTestRuns + " executables...");
             }
             else
             {
@@ -166,7 +190,7 @@ namespace VS2022.DoctestTestAdapter
             }
 
             // No more test executables to run.
-            if (currentNumberOfRunningExecutables == 0)
+            if (currentNumberOfTestRuns == 0)
             {
                 OnAllTestExecutablesFinished();
             }

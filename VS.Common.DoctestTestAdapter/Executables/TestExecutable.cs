@@ -9,6 +9,34 @@ using VS.Common.DoctestTestAdapter.EventArgs;
 
 namespace VS.Common.DoctestTestAdapter.Executables
 {
+    public class TestBatch
+    {
+        public List<TestCase> Tests
+        {
+            get; private set;
+        }
+
+        public string CommandArguments
+        {
+            get; private set;
+        }
+
+        public int BatchNumber
+        {
+            get; private set;
+        }
+
+        public TestBatch() : this(null, null, -1)
+        { }
+
+        public TestBatch(List<TestCase> _tests, string _commandArguments, int _batchNumber)
+        {
+            Tests = _tests;
+            CommandArguments = _commandArguments;
+            BatchNumber = _batchNumber;
+        }
+    }
+
     public class TestExecutable
     {
         public string FilePath
@@ -34,8 +62,12 @@ namespace VS.Common.DoctestTestAdapter.Executables
         }
         private List<TestCase> tests = new List<TestCase>();
         
+        // In case we need to queue up tests for running later on
+        // Specifically solves the situations where the command arguments are too long
+        // So we need to be able to split up the tests into separate lists 
+        private List<TestBatch> testBatches = new List<TestBatch>();
+
         private List<string> output = new List<string>();
-        private EventHandler exitedEventHandler = null;
         public event EventHandler<TestExecutableFinishedEventArgs> Finished = null;
 
         public TestExecutable() : this(null, null, null, null)
@@ -63,6 +95,13 @@ namespace VS.Common.DoctestTestAdapter.Executables
             Debug.Assert(_tests != null);
             Debug.Assert(_tests.Count > 0);
             tests.AddRange(_tests);
+        }
+
+        public void AddTestBatch(List<TestCase> _tests, string _commandArguments)
+        {
+            Debug.Assert(_tests != null);
+            Debug.Assert(_tests.Count > 0);
+            testBatches.Add(new TestBatch(_tests, _commandArguments, testBatches.Count + 1));
         }
 
         private void RecordTestStart()
@@ -136,14 +175,12 @@ namespace VS.Common.DoctestTestAdapter.Executables
             processStartInfo.RedirectStandardOutput = true;
             processStartInfo.RedirectStandardError = true;
             processStartInfo.UseShellExecute = false;
-            processStartInfo.FileName = filePath;
-            processStartInfo.Arguments = commandArguments;
+            processStartInfo.FileName = "cmd.exe";
+            processStartInfo.Arguments = "/c " + filePath + " " + commandArguments;
             process.StartInfo = processStartInfo;
 
-            EventHandler testExecutableExitEventHandler = (_sender, _e) => OnProcessExited(_sender, _e);
-            process.Exited += testExecutableExitEventHandler;
-            exitedEventHandler = testExecutableExitEventHandler;
-            Logger.Instance.WriteLine("Executable " + process.StartInfo + " subscribed to Exit event.");
+            process.Exited += OnProcessExited;
+            Logger.Instance.WriteLine("Executable " + Path.GetFileName(process.StartInfo.FileName) + " subscribed to Exit event.");
 
             process.OutputDataReceived += (object _sender, DataReceivedEventArgs _e) =>
             {
@@ -151,6 +188,14 @@ namespace VS.Common.DoctestTestAdapter.Executables
                 {
                     Console.WriteLine(_e.Data);
                     output.Add(_e.Data + "\n");
+                }
+            };
+
+            process.ErrorDataReceived += (object _sender, DataReceivedEventArgs _e) =>
+            {
+                if (_e.Data != null && _e.Data.Count() > 0)
+                {
+                    Console.WriteLine(_e.Data);
                 }
             };
 
@@ -171,7 +216,7 @@ namespace VS.Common.DoctestTestAdapter.Executables
 
             if (process != null)
             {
-                process.Exited -= exitedEventHandler;
+                process.Exited -= OnProcessExited;
 
                 Logger.Instance.WriteLine("Test Executable: " + Path.GetFileName(process.StartInfo.FileName) + " finished.");
 
@@ -181,9 +226,36 @@ namespace VS.Common.DoctestTestAdapter.Executables
                 RecordTestFinish();
 
                 Finished?.Invoke(this, new TestExecutableFinishedEventArgs(this));
+
+                CheckIfAnyTestsAreLeftToRun();   
             }
 
             Logger.Instance.WriteLine("End");
+        }
+
+        private void CheckIfAnyTestsAreLeftToRun()
+        {
+            // If there are other test cases still to run, setup the test executable to run them next.
+            if (testBatches.Count > 0)
+            {
+                // The current list of tests has finished, so clear it out so we can pass in whatever the next batch of tests.
+                tests.Clear();
+
+                // Pass information from the batch to the test executable to use and reset ready for running again.
+                TestBatch testBatch = testBatches.First();
+                tests = testBatch.Tests;
+                commandArguments = testBatch.CommandArguments;
+                output.Clear();
+
+                // Remove this from the list because the test executable has got the information it needs.
+                // So if there are multiple test batches to run, it won't re-run the same tests again.
+                testBatches.Remove(testBatch);
+
+                Logger.Instance.WriteLine("Test batch " + testBatch.BatchNumber + " is about to run with: " + Path.GetFileName(filePath));
+
+                // Start up again now we have setup the new test batch to run.
+                Start();
+            }
         }
     }
 }
