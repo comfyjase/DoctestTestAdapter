@@ -7,5 +7,7 @@
         string CommandArguments { get; }
 
         string TestExecutableFilePath { get; }
+
+        string SolutionDirectory { get; }
     }
 }

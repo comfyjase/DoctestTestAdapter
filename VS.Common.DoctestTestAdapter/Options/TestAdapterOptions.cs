@@ -63,6 +63,7 @@ namespace VS.Common.DoctestTestAdapter.Options
                 + "\t\t\t<" + Constants.XmlNodeNames.EnableLogging + " Value=\"" + enableLogging.ToString() + "\"/>\n"
                 + "\t\t\t<" + Constants.XmlNodeNames.CommandArguments + " Value=\"" + commandArguments + "\"/>\n"
                 + "\t\t\t<" + Constants.XmlNodeNames.TestExecutableFilePath + " Value=\"" + testExecutableFilePath + "\"/>\n"
+                + "\t\t\t<" + Constants.XmlNodeNames.SolutionDirectory + " Value=\"" + solutionDirectory + "\"/>\n"
                 + "\t\t</" + Constants.XmlNodeNames.GeneralOptions + ">\n"
             );
 
@@ -92,6 +93,11 @@ namespace VS.Common.DoctestTestAdapter.Options
         public string TestExecutableFilePath
         {
             get { return testExecutableFilePath; }
+        }
+
+        public string SolutionDirectory
+        {
+            get { return solutionDirectory; }
         }
     }
 }

@@ -1,4 +1,5 @@
-﻿using Microsoft.VisualStudio.Shell;
+﻿using Microsoft.VisualStudio;
+using Microsoft.VisualStudio.Shell;
 using Microsoft.VisualStudio.Shell.Interop;
 using System;
 using System.Diagnostics;
@@ -33,6 +34,7 @@ namespace DoctestTestAdapterVSIX
     [Guid(VS.Common.DoctestTestAdapter.Constants.Package.GuidString)]
     [SuppressMessage("StyleCop.CSharp.DocumentationRules", "SA1650:ElementDocumentationMustBeSpelledCorrectly", Justification = "pkgdef, VS and vsixmanifest are valid VS terms")]
     [ProvideOptionPage(typeof(GeneralOptionsPage), VS.Common.DoctestTestAdapter.Constants.Options.ToolsOptionName, VS.Common.DoctestTestAdapter.Constants.Options.GeneralCategoryName, 0, 0, true)]
+    [ProvideAutoLoad(VSConstants.UICONTEXT.SolutionExists_string, PackageAutoLoadFlags.BackgroundLoad)]
     public sealed class DoctestTestAdapterVSIXAsyncPackage : AsyncPackage, ITestAdapterPackage
     {
         private ITestAdapterOptions testAdapterOptions = null;
@@ -91,7 +93,6 @@ namespace DoctestTestAdapterVSIX
         {
             get { return testAdapterOptions; }
         }
-
 
         #endregion
     }

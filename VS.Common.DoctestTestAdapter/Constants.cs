@@ -17,6 +17,7 @@ namespace VS.Common.DoctestTestAdapter
 
             public const string XmlFileExtension = ".xml";
             public static readonly string DiscoveredExecutablesInformationFilePath = Directory.GetCurrentDirectory() + "\\DoctestTestAdapter\\DiscoveredExecutables" + XmlFileExtension;
+            //public static readonly string DiscoveredExecutablesInformationFilePath = VSUtilities.GetSolutionDirectory() + "\\DoctestTestAdapter\\DiscoveredExecutables" + XmlFileExtension;
 
             // Supported file types
             public const string ExeFileExtension = ".exe";
@@ -59,6 +60,7 @@ namespace VS.Common.DoctestTestAdapter
             public const string EnableLogging = "EnableLogging";
             public const string CommandArguments = "CommandArguments";
             public const string TestExecutableFilePath = "TestExecutableFilePath";
+            public const string SolutionDirectory = "SolutionDirectory";
         }
 
         public class Options
@@ -83,6 +85,10 @@ namespace VS.Common.DoctestTestAdapter
             // Test executable filepath.
             public const string TestExecutableFilePathOptionName        = "Test Executable File Path";
             public const string TestExecutableFilePathOptionDescription = "Full file path for the test executable to use to run the tests.";
+
+            // Solution directory
+            public const string SolutionDirectoryOptionName = "Solution Directory";
+            public const string SolutionDirectoryOptionDescription = "Full path for the solution directory. Defaults to: $(SolutionDir)";
         }
     }
 }

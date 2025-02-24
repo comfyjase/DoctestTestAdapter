@@ -26,18 +26,23 @@ namespace VS.Common.DoctestTestAdapter
 
         private Logger()
         {
-            logFilePath = Directory.GetCurrentDirectory() + "\\DoctestTestAdapter\\Logs\\DoctestTestAdapter.log";
-            bool logFileNewlyCreated = !File.Exists(logFilePath); 
-
-            //TODO_comfyjase_02/02/2025: Would be really useful to have a timestamped log file.
-            //logFilePath = Directory.GetCurrentDirectory() + "\\Logs\\DoctestTestAdapter_" + GetCurrentTimestampForDebugFilename() + ".log";
-            logFile = new VS.Common.DoctestTestAdapter.IO.File(logFilePath);
-
-            if (logFileNewlyCreated)
+            if (logFile == null)
             {
-                WriteLine("New logger created! Directory: " + Path.GetDirectoryName(logFilePath) + " File: " + logFilePath);
-                WriteLine("DoctestTestAdapter Log Start");
-                WriteLine("============================");
+                //TODO_comfyjase_02/02/2025: Would be really useful to have a timestamped log file.
+                //logFilePath = Directory.GetCurrentDirectory() + "\\DoctestTestAdapter\\Logs\\DoctestTestAdapter_" + GetCurrentTimestampForDebugFilename() + ".log";
+
+                //logFilePath = VSUtilities.GetSolutionDirectory() + "\\DoctestTestAdapter\\Logs\\DoctestTestAdapter.log";
+                logFilePath = Directory.GetCurrentDirectory() + "\\DoctestTestAdapter\\Logs\\DoctestTestAdapter.log";
+                bool logFileNewlyCreated = !File.Exists(logFilePath);
+
+                logFile = new VS.Common.DoctestTestAdapter.IO.File(logFilePath);
+
+                if (logFileNewlyCreated)
+                {
+                    WriteLine("New logger created! Directory: " + Path.GetDirectoryName(logFilePath) + " File: " + logFilePath);
+                    WriteLine("DoctestTestAdapter Log Start");
+                    WriteLine("============================");
+                }
             }
         }
 

@@ -1,7 +1,4 @@
-﻿using Microsoft.VisualStudio.TestPlatform.ObjectModel;
-using System;
-using System.Collections.Generic;
-using System.IO;
+﻿using System;
 
 namespace VS2022.DoctestTestAdapter
 {

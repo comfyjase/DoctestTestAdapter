@@ -8,6 +8,7 @@ using System.Diagnostics;
 using System.Xml;
 using VS.Common.DoctestTestAdapter.IO;
 using Microsoft.VisualStudio.TestPlatform.ObjectModel;
+using Microsoft.VisualStudio.Threading;
 
 namespace VS.Common.DoctestTestAdapter
 {
@@ -188,10 +189,53 @@ namespace VS.Common.DoctestTestAdapter
             return (T)testPropertyObject;
         }
 
+        public static string GetSolutionDirectory()
+        {
+            string solutionDirectory = string.Empty;
+
+            IVsTask getSolutionDirectoryTask = ThreadHelper.JoinableTaskFactory.RunAsyncAsVsTask(
+                VsTaskRunContext.UIThreadBackgroundPriority,
+                async cancellationToken =>
+                {
+                    await ThreadHelper.JoinableTaskFactory.SwitchToMainThreadAsync();
+
+                    IVsSolution solution = (IVsSolution)ServiceProvider.GlobalProvider.GetService(typeof(SVsSolution));
+                    Debug.Assert(solution != null);
+
+                    solution.GetSolutionInfo(out solutionDirectory, out string solutionName, out string solutionDirectory2);
+                    Debug.Assert(!string.IsNullOrEmpty(solutionDirectory));
+
+                    return VSConstants.S_OK;
+                });
+
+            getSolutionDirectoryTask.Wait();
+
+            Debug.Assert(!string.IsNullOrEmpty(solutionDirectory));
+            return solutionDirectory;
+
+            //string solutionDirectory = ThreadHelper.JoinableTaskFactory.Run(async delegate
+            //{
+            //    await ThreadHelper.JoinableTaskFactory.SwitchToMainThreadAsync();
+
+            //    IVsSolution solution = (IVsSolution)ServiceProvider.GlobalProvider.GetService(typeof(SVsSolution));
+            //    Debug.Assert(solution != null);
+
+            //    solution.GetSolutionInfo(out string solutionDirectoryAsync, out string solutionName, out string solutionDirectory2);
+            //    Debug.Assert(!string.IsNullOrEmpty(solutionDirectoryAsync));
+
+            //    return solutionDirectoryAsync;
+            //});
+
+            //Debug.Assert(!string.IsNullOrEmpty(solutionDirectory));
+            //return solutionDirectory;
+        }
+
         public static ITestAdapterPackage GetTestAdapterPackage()
         {
             //TODO_comfyjase_12/02/2025: Comment back in once the thread exception has been fixed to fix compiler warning VSTHRD010.
             //ThreadHelper.ThrowIfNotOnUIThread();
+
+            //ThreadHelper.JoinableTaskFactory.Run();
 
             ITestAdapterPackage testAdapterPackage = null;
 

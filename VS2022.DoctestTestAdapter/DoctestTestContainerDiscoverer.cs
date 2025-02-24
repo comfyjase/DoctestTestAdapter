@@ -43,7 +43,7 @@ namespace VS2022.DoctestTestAdapter
             //TODO_comfyjase_02/02/2025: Remove this if you get timestamped log files working correctly...
             //Logger.Instance.Clear();
 
-            Logger.Instance.WriteLine("Constructor called");
+            //Logger.Instance.WriteLine("Constructor called");
 
             if (VSUtilities.ShouldAttachDebugger())
             {
