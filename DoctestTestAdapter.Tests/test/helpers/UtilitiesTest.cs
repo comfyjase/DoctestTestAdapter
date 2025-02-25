@@ -35,6 +35,7 @@ namespace DoctestTestAdapter.Tests.Helpers
             List<string> sourceFiles = Utilities.GetSourceFiles(exampleExecutableFilePath);
             Assert.IsTrue(sourceFiles.Count > 0);
             Assert.IsTrue(sourceFiles.Count == 1);
+            Assert.IsTrue(File.Exists(sourceFiles[0]));
             Assert.IsTrue(sourceFiles[0].EndsWith("TestIsEvenUsingDoctestMain.h"));
         }
     }
