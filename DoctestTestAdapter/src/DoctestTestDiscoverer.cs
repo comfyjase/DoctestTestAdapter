@@ -37,6 +37,7 @@ namespace DoctestTestAdapter
                     continue;
                 }
 
+                //List<string> sourceFiles = Utilities.GetSourceFiles(source);
 
             }
 
