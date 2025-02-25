@@ -16,11 +16,6 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ExecutableUsingDLL", "DLLEx
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "DLL", "DLLExample\DLL\DLL.vcxproj", "{0725F71F-C027-4FD5-A0F7-B904EC6DF977}"
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{34303405-71B9-4648-903C-18F823A37DF0}"
-	ProjectSection(SolutionItems) = preProject
-		test.runsettings = test.runsettings
-	EndProjectSection
-EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|x64 = Debug|x64

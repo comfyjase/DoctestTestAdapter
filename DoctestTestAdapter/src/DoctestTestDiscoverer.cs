@@ -17,6 +17,7 @@ namespace DoctestTestAdapter
         public void DiscoverTests(IEnumerable<string> sources, IDiscoveryContext discoveryContext, IMessageLogger logger, ITestCaseDiscoverySink discoverySink)
         {
             // Loop over sources
+            // Find any exe/dll dependencies
             // Find the relevant pdb file
             // Read the pdb file
             // Get a list of strings for test files to use
