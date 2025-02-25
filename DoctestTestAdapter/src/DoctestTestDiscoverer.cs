@@ -1,5 +1,4 @@
-﻿
-using DoctestTestAdapter.Shared.Helpers;
+﻿using DoctestTestAdapter.Shared.Helpers;
 using Microsoft.VisualStudio.TestPlatform.ObjectModel;
 using Microsoft.VisualStudio.TestPlatform.ObjectModel.Adapter;
 using Microsoft.VisualStudio.TestPlatform.ObjectModel.Logging;
@@ -37,8 +36,7 @@ namespace DoctestTestAdapter
                     continue;
                 }
 
-                //List<string> sourceFiles = Utilities.GetSourceFiles(source);
-
+                tests = Utilities.GetTestCases(source);
             }
 
             foreach (TestCase test in tests)

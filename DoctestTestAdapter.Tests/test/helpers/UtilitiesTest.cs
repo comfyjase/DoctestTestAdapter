@@ -1,11 +1,8 @@
-﻿
-using Microsoft.VisualStudio.TestTools.UnitTesting;
-
-using DoctestTestAdapter.Shared.Helpers;
-using System.IO;
-using System.Collections.Generic;
+﻿using DoctestTestAdapter.Shared.Helpers;
 using Microsoft.VisualStudio.TestPlatform.ObjectModel;
-using System.Diagnostics;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
+using System.Collections.Generic;
+using System.IO;
 
 namespace DoctestTestAdapter.Tests.Helpers
 {
@@ -36,8 +33,10 @@ namespace DoctestTestAdapter.Tests.Helpers
             string exampleExecutableFilePath = Utilities.GetSolutionDirectory() + "\\DoctestTestAdapter.Examples\\bin\\x64\\Debug\\UsingDoctestMain\\UsingDoctestMain.exe";
             List<string> sourceFiles = Utilities.GetSourceFiles(exampleExecutableFilePath);
             Assert.IsTrue(sourceFiles.Count == 1);
-            Assert.IsTrue(File.Exists(sourceFiles[0]));
-            Assert.IsTrue(sourceFiles[0].EndsWith("TestIsEvenUsingDoctestMain.h"));
+
+            string sourceFile = sourceFiles[0];
+            Assert.IsTrue(File.Exists(sourceFile));
+            Assert.IsTrue(sourceFile.EndsWith("TestIsEvenUsingDoctestMain.h"));
         }
 
         [TestMethod]
@@ -47,29 +46,21 @@ namespace DoctestTestAdapter.Tests.Helpers
             
             List<string> sourceFiles = Utilities.GetSourceFiles(exampleExecutableFilePath);
             Assert.IsTrue(sourceFiles.Count == 1);
-            Assert.IsTrue(File.Exists(sourceFiles[0]));
-            Assert.IsTrue(sourceFiles[0].EndsWith("TestIsEvenUsingDoctestMain.h"));
+
+            string sourceFile = sourceFiles[0];
+            Assert.IsTrue(File.Exists(sourceFile));
+            Assert.IsTrue(sourceFile.EndsWith("TestIsEvenUsingDoctestMain.h"));
 
             List<TestCase> testCases = Utilities.GetTestCases(exampleExecutableFilePath);
             Assert.IsTrue(testCases.Count == 3);
 
             TestCase firstTestCase = testCases[0];
-            AssertTestCase(firstTestCase, 
+            TestCommon.AssertTestCase(firstTestCase, 
                 exampleExecutableFilePath,
                 "TestUsingDoctestMain::Empty Class::[UsingDoctestMain] Testing IsEven Always Pass",
                 "[UsingDoctestMain] Testing IsEven Always Pass",
-                sourceFiles[0],
+                sourceFile,
                 12);
-        }
-
-        private void AssertTestCase(TestCase testCase, string source, string fullyQualifiedName, string displayName, string codeFilePath, int lineNumber)
-        {
-            Assert.IsNotNull(testCase);
-            Assert.AreEqual(source, testCase.Source);
-            Assert.AreEqual(fullyQualifiedName, testCase.FullyQualifiedName);
-            Assert.AreEqual(displayName, testCase.DisplayName);
-            Assert.AreEqual(codeFilePath, testCase.CodeFilePath);
-            Assert.AreEqual(lineNumber, testCase.LineNumber);
         }
     }
 }

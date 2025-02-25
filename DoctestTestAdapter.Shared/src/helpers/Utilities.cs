@@ -1,10 +1,9 @@
-﻿
-using Microsoft.VisualStudio.TestPlatform.ObjectModel;
-using System;
+﻿using Microsoft.VisualStudio.TestPlatform.ObjectModel;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text.RegularExpressions;
+using System;
 
 namespace DoctestTestAdapter.Shared.Helpers
 {
