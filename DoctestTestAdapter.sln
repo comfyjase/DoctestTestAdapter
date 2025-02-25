@@ -10,6 +10,9 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DoctestTestAdapter", "DoctestTestAdapter\DoctestTestAdapter.csproj", "{1D259455-C177-428C-9CB3-A77F3682CBED}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DoctestTestAdapter.Tests", "DoctestTestAdapter.Tests\DoctestTestAdapter.Tests.csproj", "{B0F139F7-E906-4E8D-A831-8956C5CDA523}"
+	ProjectSection(ProjectDependencies) = postProject
+		{FD95CE0E-D4BB-4DD9-9089-64FBE9A0D8BD} = {FD95CE0E-D4BB-4DD9-9089-64FBE9A0D8BD}
+	EndProjectSection
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "DoctestTestAdapter.Examples", "DoctestTestAdapter.Examples", "{02EA681E-C7D8-13C7-8484-4AC65E1B71E8}"
 EndProject

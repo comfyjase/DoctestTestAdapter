@@ -1,4 +1,5 @@
 ﻿
+using DoctestTestAdapter.Shared.Helpers;
 using Microsoft.VisualStudio.TestPlatform.ObjectModel;
 using Microsoft.VisualStudio.TestPlatform.ObjectModel.Adapter;
 using Microsoft.VisualStudio.TestPlatform.ObjectModel.Logging;
@@ -25,11 +26,18 @@ namespace DoctestTestAdapter
             // Read the contents into a list of strings
             // Loop over the string contents and search for keywords
 
+            //string solutionDirectory = Utilities.GetSolutionDirectory();
             List<TestCase> tests = new List<TestCase>();
 
             foreach (string source in sources)
             {
-                
+                // Skip for now?
+                if (source.EndsWith(".dll"))
+                {
+                    continue;
+                }
+
+
             }
 
             foreach (TestCase test in tests)
