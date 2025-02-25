@@ -1,0 +1,69 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.12.35728.132
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DoctestTestAdapterVSIX", "DoctestTestAdapterVSIX\DoctestTestAdapterVSIX.csproj", "{CB55D353-10BC-4B79-B9EB-836B5F3F71AE}"
+EndProject
+Project("{D954291E-2A0B-460D-934E-DC6B0785DB48}") = "DoctestTestAdapter.Shared", "DoctestTestAdapter.Shared\DoctestTestAdapter.Shared.shproj", "{71B847A1-9201-422A-9503-9AF4BBB328F0}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DoctestTestAdapter", "DoctestTestAdapter\DoctestTestAdapter.csproj", "{1D259455-C177-428C-9CB3-A77F3682CBED}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DoctestTestAdapter.Tests", "DoctestTestAdapter.Tests\DoctestTestAdapter.Tests.csproj", "{B0F139F7-E906-4E8D-A831-8956C5CDA523}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Debug|arm64 = Debug|arm64
+		Debug|x86 = Debug|x86
+		Release|Any CPU = Release|Any CPU
+		Release|arm64 = Release|arm64
+		Release|x86 = Release|x86
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{CB55D353-10BC-4B79-B9EB-836B5F3F71AE}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{CB55D353-10BC-4B79-B9EB-836B5F3F71AE}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{CB55D353-10BC-4B79-B9EB-836B5F3F71AE}.Debug|arm64.ActiveCfg = Debug|arm64
+		{CB55D353-10BC-4B79-B9EB-836B5F3F71AE}.Debug|arm64.Build.0 = Debug|arm64
+		{CB55D353-10BC-4B79-B9EB-836B5F3F71AE}.Debug|x86.ActiveCfg = Debug|x86
+		{CB55D353-10BC-4B79-B9EB-836B5F3F71AE}.Debug|x86.Build.0 = Debug|x86
+		{CB55D353-10BC-4B79-B9EB-836B5F3F71AE}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{CB55D353-10BC-4B79-B9EB-836B5F3F71AE}.Release|Any CPU.Build.0 = Release|Any CPU
+		{CB55D353-10BC-4B79-B9EB-836B5F3F71AE}.Release|arm64.ActiveCfg = Release|arm64
+		{CB55D353-10BC-4B79-B9EB-836B5F3F71AE}.Release|arm64.Build.0 = Release|arm64
+		{CB55D353-10BC-4B79-B9EB-836B5F3F71AE}.Release|x86.ActiveCfg = Release|x86
+		{CB55D353-10BC-4B79-B9EB-836B5F3F71AE}.Release|x86.Build.0 = Release|x86
+		{1D259455-C177-428C-9CB3-A77F3682CBED}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{1D259455-C177-428C-9CB3-A77F3682CBED}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{1D259455-C177-428C-9CB3-A77F3682CBED}.Debug|arm64.ActiveCfg = Debug|Any CPU
+		{1D259455-C177-428C-9CB3-A77F3682CBED}.Debug|arm64.Build.0 = Debug|Any CPU
+		{1D259455-C177-428C-9CB3-A77F3682CBED}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{1D259455-C177-428C-9CB3-A77F3682CBED}.Debug|x86.Build.0 = Debug|Any CPU
+		{1D259455-C177-428C-9CB3-A77F3682CBED}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{1D259455-C177-428C-9CB3-A77F3682CBED}.Release|Any CPU.Build.0 = Release|Any CPU
+		{1D259455-C177-428C-9CB3-A77F3682CBED}.Release|arm64.ActiveCfg = Release|Any CPU
+		{1D259455-C177-428C-9CB3-A77F3682CBED}.Release|arm64.Build.0 = Release|Any CPU
+		{1D259455-C177-428C-9CB3-A77F3682CBED}.Release|x86.ActiveCfg = Release|Any CPU
+		{1D259455-C177-428C-9CB3-A77F3682CBED}.Release|x86.Build.0 = Release|Any CPU
+		{B0F139F7-E906-4E8D-A831-8956C5CDA523}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B0F139F7-E906-4E8D-A831-8956C5CDA523}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B0F139F7-E906-4E8D-A831-8956C5CDA523}.Debug|arm64.ActiveCfg = Debug|Any CPU
+		{B0F139F7-E906-4E8D-A831-8956C5CDA523}.Debug|arm64.Build.0 = Debug|Any CPU
+		{B0F139F7-E906-4E8D-A831-8956C5CDA523}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{B0F139F7-E906-4E8D-A831-8956C5CDA523}.Debug|x86.Build.0 = Debug|Any CPU
+		{B0F139F7-E906-4E8D-A831-8956C5CDA523}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B0F139F7-E906-4E8D-A831-8956C5CDA523}.Release|Any CPU.Build.0 = Release|Any CPU
+		{B0F139F7-E906-4E8D-A831-8956C5CDA523}.Release|arm64.ActiveCfg = Release|Any CPU
+		{B0F139F7-E906-4E8D-A831-8956C5CDA523}.Release|arm64.Build.0 = Release|Any CPU
+		{B0F139F7-E906-4E8D-A831-8956C5CDA523}.Release|x86.ActiveCfg = Release|Any CPU
+		{B0F139F7-E906-4E8D-A831-8956C5CDA523}.Release|x86.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(SharedMSBuildProjectFiles) = preSolution
+		DoctestTestAdapter.Shared\DoctestTestAdapter.Shared.projitems*{1d259455-c177-428c-9cb3-a77f3682cbed}*SharedItemsImports = 4
+		DoctestTestAdapter.Shared\DoctestTestAdapter.Shared.projitems*{71b847a1-9201-422a-9503-9af4bbb328f0}*SharedItemsImports = 13
+		DoctestTestAdapter.Shared\DoctestTestAdapter.Shared.projitems*{b0f139f7-e906-4e8d-a831-8956c5cda523}*SharedItemsImports = 4
+	EndGlobalSection
+EndGlobal
