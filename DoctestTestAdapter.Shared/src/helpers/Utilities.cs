@@ -43,6 +43,7 @@ namespace DoctestTestAdapter.Shared.Helpers
             processStartInfo.CreateNoWindow = true;
             processStartInfo.UseShellExecute = false;
             processStartInfo.RedirectStandardOutput = true;
+            processStartInfo.RedirectStandardError = true;
             processStartInfo.FileName = @"cmd.exe";
             processStartInfo.Arguments = "/c call " + batFilePath + " & dumpbin /PDBPATH " + "\"" + executableFilePath + "\"";
 
@@ -50,21 +51,80 @@ namespace DoctestTestAdapter.Shared.Helpers
             dumpBinProcess.StartInfo = processStartInfo;
             dumpBinProcess.Start();
 
-            string output = dumpBinProcess.StandardOutput.ReadToEnd();
             //TODO_comfyjase_25/02/2025: Wrap this in an option for the user to toggle on/off debug test output?
-            //Console.WriteLine(output);
+            string output = dumpBinProcess.StandardOutput.ReadToEnd();
+            //if (!string.IsNullOrEmpty(output))
+            //    Console.WriteLine("dumpbin output: \n" + output);
+            string errors = dumpBinProcess.StandardError.ReadToEnd();
+            if (!string.IsNullOrEmpty(errors))
+                Console.WriteLine("dumpbin errors: \n\t" + errors);
             dumpBinProcess.WaitForExit();
 
             string startStr = "PDB file found at \'";
             int startIndex = output.IndexOf(startStr) + startStr.Length;
             int endIndex = output.LastIndexOf("\'");
             pdbFilePath = output.Substring(startIndex, endIndex - startIndex);
-            return pdbFilePath ?? throw new FileNotFoundException($"Could not find pdb file for exe {executableFilePath}");
+            return pdbFilePath ?? throw new FileNotFoundException($"Could not find pdb file for executable file {executableFilePath}");
+        }
+
+        internal static List<string> GetDependencies(string executableFilePath)
+        {
+            List<string> dependencies = new List<string>();
+            string batFilePath = "\"C:\\Program Files\\Microsoft Visual Studio\\2022\\Community\\Common7\\Tools\\VsDevCmd.bat\"";
+
+            System.Diagnostics.ProcessStartInfo processStartInfo = new System.Diagnostics.ProcessStartInfo();
+            processStartInfo.CreateNoWindow = true;
+            processStartInfo.UseShellExecute = false;
+            processStartInfo.RedirectStandardOutput = true;
+            processStartInfo.RedirectStandardError = true;
+            processStartInfo.FileName = @"cmd.exe";
+            processStartInfo.Arguments = "/c call " + batFilePath + " & dumpbin /dependents " + "\"" + executableFilePath + "\"";
+
+            System.Diagnostics.Process dumpBinProcess = new System.Diagnostics.Process();
+            dumpBinProcess.StartInfo = processStartInfo;
+            dumpBinProcess.Start();
+
+            //TODO_comfyjase_25/02/2025: Wrap this in an option for the user to toggle on/off debug test output?
+            string output = dumpBinProcess.StandardOutput.ReadToEnd();
+            //if (!string.IsNullOrEmpty(output))
+            //    Console.WriteLine("dumpbin output: \n" + output);
+            string errors = dumpBinProcess.StandardError.ReadToEnd();
+            if (!string.IsNullOrEmpty(errors))
+                Console.WriteLine("dumpbin errors: \n\t" + errors);
+            dumpBinProcess.WaitForExit();
+
+            string startIndexString = "Image has the following dependencies:";
+            string endIndexString = "Summary";
+            int startIndex = output.IndexOf(startIndexString) + startIndexString.Length;
+            int endIndex = output.IndexOf(endIndexString);
+            string outputSubstring = output.Substring(startIndex, endIndex - startIndex);
+
+            dependencies = outputSubstring.Split('\n')
+                .Where(s => s.Contains(".dll"))
+                .Select(s => s.Trim().Replace(" ", ""))
+                .ToList();
+
+            return dependencies;
         }
 
         internal static List<string> GetSourceFiles(string executableFilePath)
         {
             List<string> sourceFiles = new List<string>();
+
+            // Checking if executable has any dependencies.
+            // These dependencies may also have test files to use.
+            List<string> dependencies = GetDependencies(executableFilePath);
+            string executableDirectory = Directory.GetParent(executableFilePath).FullName;
+            foreach (string dependency in dependencies)
+            {
+                string dllFilePath = executableDirectory + "\\" + dependency;
+                if (File.Exists(dllFilePath))
+                {
+                    // dll is a direct dependent for executableFilePath
+                    // So make sure to include any test source files from the dll too so they can be executed as well.
+                    sourceFiles.AddRange(GetSourceFiles(dllFilePath));
+                }
+            }
 
             string pdbFilePath = GetPDBFilePath(executableFilePath);
             string solutionDirectory = GetSolutionDirectory();
@@ -97,13 +157,15 @@ namespace DoctestTestAdapter.Shared.Helpers
             int endIndex = output.Length;
             string stringTableStr = output.Substring(startIndex, endIndex - startIndex);
 
-            sourceFiles = stringTableStr
-                .Split('\n')
+            sourceFiles.AddRange
+            (
+                stringTableStr.Split('\n')
                 .Select(s => s.Replace("\n", string.Empty).Replace("\r", string.Empty).Substring(s.IndexOf(" ") + 1))
                 .Where(s => (s.Contains(solutionDirectory) && !s.Contains("doctest.h") && s.EndsWith(".h") && File.Exists(s)))
-                .ToList();
+                .ToList()
+            );
 
-            return sourceFiles;
+            return sourceFiles.Distinct().ToList();
         }
 
         private static string GetNamespaceSubstring(string line)
