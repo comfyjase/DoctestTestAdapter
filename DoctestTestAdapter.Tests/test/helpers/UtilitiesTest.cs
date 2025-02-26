@@ -4,6 +4,8 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System.Collections.Generic;
 using System.IO;
 
+using Constants = DoctestTestAdapter.Shared.Helpers.Constants;
+
 namespace DoctestTestAdapter.Tests.Helpers
 {
     [TestClass]
@@ -50,6 +52,39 @@ namespace DoctestTestAdapter.Tests.Helpers
             string sourceFile = sourceFiles[0];
             Assert.IsTrue(File.Exists(sourceFile));
             Assert.IsTrue(sourceFile.EndsWith("TestIsEvenUsingDoctestMain.h"));
+        }
+
+        [TestMethod]
+        public void TestCaseProperty()
+        {
+            List<TestCase> testCases = Utilities.GetTestCases(_exampleExecutableFilePath);
+            Assert.IsTrue(testCases.Count == 3);
+
+            TestCase testCase = testCases[0];
+            object shouldBeSkippedObject = Utilities.GetTestCasePropertyValue<object>(testCase, Constants.ShouldBeSkippedTestProperty);
+            Assert.IsTrue(shouldBeSkippedObject != null);
+        }
+
+        [TestMethod]
+        public void TestCaseMarkedAsSkip()
+        {
+            List<TestCase> testCases = Utilities.GetTestCases(_exampleExecutableFilePath);
+            Assert.IsTrue(testCases.Count == 3);
+
+            TestCase testCase = testCases[2];
+            bool shouldBeSkipped = Utilities.GetTestCasePropertyValue<bool>(testCase, Constants.ShouldBeSkippedTestProperty);
+            Assert.IsTrue(shouldBeSkipped);
+        }
+
+        [TestMethod]
+        public void TestCaseNotMarkedAsSkip()
+        {
+            List<TestCase> testCases = Utilities.GetTestCases(_exampleExecutableFilePath);
+            Assert.IsTrue(testCases.Count == 3);
+
+            TestCase testCase = testCases[0];
+            bool shouldBeSkipped = Utilities.GetTestCasePropertyValue<bool>(testCase, Constants.ShouldBeSkippedTestProperty);
+            Assert.IsFalse(shouldBeSkipped);
         }
 
         [TestMethod]

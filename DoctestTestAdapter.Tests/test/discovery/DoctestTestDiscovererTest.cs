@@ -14,7 +14,6 @@ namespace DoctestTestAdapter.Tests.Discovery
     {
         private string _exampleExecutableFilePath           = Utilities.GetSolutionDirectory() + "\\DoctestTestAdapter.Examples\\bin\\x64\\Debug\\UsingDoctestMain\\UsingDoctestMain.exe";
         private string _exampleExecutableUsingDLLFilePath   = Utilities.GetSolutionDirectory() + "\\DoctestTestAdapter.Examples\\bin\\x64\\Debug\\ExecutableUsingDLL\\ExecutableUsingDLL.exe";
-        private string _exampleDLLFilePath                  = Utilities.GetSolutionDirectory() + "\\DoctestTestAdapter.Examples\\bin\\x64\\Debug\\ExecutableUsingDLL\\DLL.dll";
 
         [TestMethod]
         public void DiscoverExe()
@@ -66,7 +65,7 @@ namespace DoctestTestAdapter.Tests.Discovery
         }
 
         [TestMethod]
-        public void DiscoverExeAndDll()
+        public void DiscoverExeAndDLL()
         {
             IEnumerable<string> sources = new List<string>() { _exampleExecutableUsingDLLFilePath };
             Captured<TestCase> capturedTestCases = A.Captured<TestCase>();

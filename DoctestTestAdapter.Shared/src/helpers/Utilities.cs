@@ -5,7 +5,6 @@ using System.Linq;
 using System.Text.RegularExpressions;
 using System;
 using System.Reflection;
-using System.Diagnostics;
 
 namespace DoctestTestAdapter.Shared.Helpers
 {
@@ -168,6 +167,33 @@ namespace DoctestTestAdapter.Shared.Helpers
             return sourceFiles.Distinct().ToList();
         }
 
+        internal static T GetTestCasePropertyValue<T>(TestCase test, TestProperty testProperty)
+        {
+            object testPropertyObject = test.GetPropertyValue(testProperty);
+            return (T)testPropertyObject;
+        }
+
+        internal static string GetCommandArguments(IEnumerable<TestCase> tests)
+        {
+            List<string> testCaseNames = tests.Select(t => t.DisplayName).ToList();
+
+            // Should be something like: [TestDecorator] Test 1, [TestDecorator] Test 2
+            string commaSeparatedListOfTestCaseNames = string.Join(",", testCaseNames);
+
+            // Sorted into doctest specific argument formatting: *"[TestDecorator] Test 1"*,*"[TestDecorator] Test 2"*
+            string doctestTestCaseCommandArgument = "--test-case=" + string.Join(",", commaSeparatedListOfTestCaseNames.Split(',').Select(x => string.Format("*\"{0}\"*", x)).ToList());
+
+            // Full doctest arguments: --test-case=*"[TestDecorator] Test 1"*,*"[TestDecorator] Test 2"*
+            string doctestArguments = doctestTestCaseCommandArgument;
+
+            //TODO_comfyjase_26/02/2025: User defined command arguments.
+
+            // Combined user defined arguments (if any) and doctest arguments for running the unit tests.
+            string fullCommandArguments = doctestArguments;
+
+            return fullCommandArguments;
+        }
+
         private static string GetNamespaceSubstring(string line)
         {
             string testFileNamespace = EmptyNamespaceString;
@@ -254,7 +280,7 @@ namespace DoctestTestAdapter.Shared.Helpers
             testCase.CodeFilePath = sourceCodeFilePath;
             testCase.LineNumber = lineNumber;
 
-            //testCase.SetPropertyValue(VS.Common.DoctestTestAdapter.Constants.TestAdapter.ShouldBeSkippedTestProperty, shouldBeSkipped);
+            testCase.SetPropertyValue(Helpers.Constants.ShouldBeSkippedTestProperty, shouldBeSkipped);
 
             return testCase;
         }
@@ -309,8 +335,7 @@ namespace DoctestTestAdapter.Shared.Helpers
 
                         //TODO_comfyjase_30/01/2025: This assumes '* doctest::skip()' is on the same line as the name of the test...
                         // Would be nice to implement logic to be able to cope with '* doctest::skip()' being on a new line too
-                        //bool markedWithDoctestSkip = VS.Common.DoctestTestAdapter.Constants.TestAdapter.SkipTestKeywords.Any(s => line.Contains(s));
-                        bool shouldSkip = false;
+                        bool shouldSkipTest = Helpers.Constants.SkipTestKeywords.Any(s => line.Contains(s));
 
                         TestCase testCase = CreateTestCase(testOwner, 
                             testNamespace,
@@ -318,7 +343,7 @@ namespace DoctestTestAdapter.Shared.Helpers
                             testCaseName,
                             sourceFilePath,
                             currentLineNumber,
-                            shouldSkip);
+                            shouldSkipTest);
 
                         testCases.Add(testCase);
                     }
