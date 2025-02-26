@@ -4,6 +4,8 @@ using System.IO;
 using System.Linq;
 using System.Text.RegularExpressions;
 using System;
+using System.Reflection;
+using System.Diagnostics;
 
 namespace DoctestTestAdapter.Shared.Helpers
 {
@@ -14,8 +16,7 @@ namespace DoctestTestAdapter.Shared.Helpers
 
         internal static string GetSolutionDirectory()
         {
-            //TODO_comfyjase_25/02/2025: Check if AppContext.BaseDirectory works when running VS Exp for custom test adapter.
-            DirectoryInfo directory = new DirectoryInfo(AppContext.BaseDirectory);
+            DirectoryInfo directory = new DirectoryInfo(Environment.CurrentDirectory);
 
             while (directory != null && !directory.EnumerateFiles("*.sln").Any())
                 directory = directory.Parent;
@@ -25,7 +26,7 @@ namespace DoctestTestAdapter.Shared.Helpers
 
         internal static string GetProjectDirectory(string projectFileType)
         {
-            DirectoryInfo directory = new DirectoryInfo(AppContext.BaseDirectory);
+            DirectoryInfo directory = new DirectoryInfo(Environment.CurrentDirectory);
 
             while (directory != null && !directory.EnumerateFiles("*.sln").Any() && !directory.EnumerateFiles("*" + projectFileType).Any())
                 directory = directory.Parent;
@@ -64,25 +65,31 @@ namespace DoctestTestAdapter.Shared.Helpers
         internal static List<string> GetSourceFiles(string executableFilePath)
         {
             List<string> sourceFiles = new List<string>();
-            
+
             string pdbFilePath = GetPDBFilePath(executableFilePath);
             string solutionDirectory = GetSolutionDirectory();
-            string cvDumpFilePath = solutionDirectory + "\\ThirdParty\\cvdump\\cvdump.exe";
+            string cvDumpFilePath = Directory.GetParent(Assembly.GetExecutingAssembly().CodeBase.Replace(@"file:///", string.Empty)) + "\\ThirdParty\\cvdump\\cvdump.exe";
 
             System.Diagnostics.ProcessStartInfo processStartInfo = new System.Diagnostics.ProcessStartInfo();
             processStartInfo.CreateNoWindow = true;
             processStartInfo.UseShellExecute = false;
             processStartInfo.RedirectStandardOutput = true;
-            processStartInfo.FileName = @"cmd.exe";
-            processStartInfo.Arguments = "/c " + cvDumpFilePath + " -stringtable " + "\"" + pdbFilePath + "\"";
+            processStartInfo.RedirectStandardError = true;
+            processStartInfo.FileName = string.Format(@"""{0}""", cvDumpFilePath);
+            processStartInfo.Arguments = "-stringtable " + string.Format(@"""{0}""", pdbFilePath);
 
             System.Diagnostics.Process cvDumpProcess = new System.Diagnostics.Process();
             cvDumpProcess.StartInfo = processStartInfo;
             cvDumpProcess.Start();
 
-            string output = cvDumpProcess.StandardOutput.ReadToEnd();
             //TODO_comfyjase_25/02/2025: Wrap this in an option for the user to toggle on/off debug test output?
-            //Console.WriteLine(output);
+            string output = cvDumpProcess.StandardOutput.ReadToEnd();
+            //if (!string.IsNullOrEmpty(output))
+            //    Console.WriteLine("cvdumpbin output: \n" + output);
+            string errors = cvDumpProcess.StandardError.ReadToEnd();
+            if (!string.IsNullOrEmpty(errors))
+                Console.WriteLine("cvdumpbin errors: \n\t" + errors);
+
             cvDumpProcess.WaitForExit();
 
             string startStr = "STRINGTABLE";
