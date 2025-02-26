@@ -2,8 +2,10 @@
 <PackageManifest Version="2.0.0" xmlns="http://schemas.microsoft.com/developer/vsx-schema/2011" xmlns:d="http://schemas.microsoft.com/developer/vsx-schema-design/2011">
     <Metadata>
         <Identity Id="DoctestTestAdapterVSIX.91901ec3-5a5b-4c47-96a5-df751740fc69" Version="1.0" Language="en-US" Publisher="Jase Mottershead" />
-        <DisplayName>DoctestTestAdapterVSIX</DisplayName>
-        <Description xml:space="preserve">Empty VSIX Project.</Description>
+        <DisplayName>Test Adapter for Doctest</DisplayName>
+        <Description xml:space="preserve">Enables Visual Studio's testing tools with unit tests written for doctest.</Description>
+        <License>LICENSE.txt</License>
+        <Preview>true</Preview>
     </Metadata>
     <Installation>
         <InstallationTarget Id="Microsoft.VisualStudio.Community" Version="[17.0, 18.0)">

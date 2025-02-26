@@ -6,7 +6,6 @@ using Microsoft.VisualStudio.TestPlatform.ObjectModel;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System.Collections.Generic;
 using System.IO;
-using System.Diagnostics;
 
 namespace DoctestTestAdapter.Tests.Discovery
 {
