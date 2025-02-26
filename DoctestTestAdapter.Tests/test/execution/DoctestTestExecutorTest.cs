@@ -13,17 +13,13 @@ namespace DoctestTestAdapter.Tests.Execution
 	[TestClass]
 	public class DoctestTestExecutorTest
 	{
-        private string _exampleExecutableFilePath = Utilities.GetSolutionDirectory() + "\\DoctestTestAdapter.Examples\\bin\\x64\\Debug\\UsingDoctestMain\\UsingDoctestMain.exe";
-        private string _exampleExecutableUsingDLLFilePath = Utilities.GetSolutionDirectory() + "\\DoctestTestAdapter.Examples\\bin\\x64\\Debug\\ExecutableUsingDLL\\ExecutableUsingDLL.exe";
-
         [TestMethod]
 		public void ExecuteExe()
 		{
-            //IEnumerable<string> sources = new List<string>() { _exampleExecutableFilePath };
-			List<TestCase> testCases = Utilities.GetTestCases(_exampleExecutableFilePath);
+			List<TestCase> testCases = Utilities.GetTestCases(TestCommon.ExampleExecutableFilePath);
             Assert.IsTrue(testCases.Count == 3);
 
-            List<string> sourceFiles = Utilities.GetSourceFiles(_exampleExecutableFilePath);
+            List<string> sourceFiles = Utilities.GetSourceFiles(TestCommon.ExampleExecutableFilePath);
             Assert.IsTrue(sourceFiles.Count == 1);
 
             string sourceFile = sourceFiles[0];
@@ -32,7 +28,7 @@ namespace DoctestTestAdapter.Tests.Execution
 
             TestCase failedTestCase = testCases[1];
             TestCommon.AssertTestCase(failedTestCase,
-                    _exampleExecutableFilePath,
+                    TestCommon.ExampleExecutableFilePath,
                     "TestUsingDoctestMain::Empty Class::[UsingDoctestMain] Testing IsEven Always Fail",
                     "[UsingDoctestMain] Testing IsEven Always Fail",
                     sourceFile,
@@ -82,10 +78,10 @@ namespace DoctestTestAdapter.Tests.Execution
         public void ExecuteExeAndDLL()
         {
             //IEnumerable<string> sources = new List<string>() { _exampleExecutableUsingDLLFilePath };
-            List<TestCase> testCases = Utilities.GetTestCases(_exampleExecutableUsingDLLFilePath);
+            List<TestCase> testCases = Utilities.GetTestCases(TestCommon.ExampleExecutableUsingDLLFilePath);
             Assert.IsTrue(testCases.Count == 6);
 
-            List<string> sourceFiles = Utilities.GetSourceFiles(_exampleExecutableUsingDLLFilePath);
+            List<string> sourceFiles = Utilities.GetSourceFiles(TestCommon.ExampleExecutableUsingDLLFilePath);
             Assert.IsTrue(sourceFiles.Count == 4);
 
             string dllTestSourceFile = sourceFiles[2];
@@ -98,7 +94,7 @@ namespace DoctestTestAdapter.Tests.Execution
 
             TestCase dllFailedTestCase = testCases[1];
             TestCommon.AssertTestCase(dllFailedTestCase,
-                    _exampleExecutableUsingDLLFilePath,
+                    TestCommon.ExampleExecutableUsingDLLFilePath,
                     "TestDLL::Empty Class::[DLL] Testing IsEven Always Fail",
                     "[DLL] Testing IsEven Always Fail",
                     dllTestSourceFile,
@@ -106,7 +102,7 @@ namespace DoctestTestAdapter.Tests.Execution
 
             TestCase executableUsingDLLFailedTestCase = testCases[4];
             TestCommon.AssertTestCase(executableUsingDLLFailedTestCase,
-                    _exampleExecutableUsingDLLFilePath,
+                    TestCommon.ExampleExecutableUsingDLLFilePath,
                     "TestExecutableUsingDLL::Empty Class::[ExecutableUsingDLL] Testing IsEven Always Fail",
                     "[ExecutableUsingDLL] Testing IsEven Always Fail",
                     executableUsingDLLTestSourceFile,

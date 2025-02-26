@@ -11,8 +11,6 @@ namespace DoctestTestAdapter.Tests.Helpers
     [TestClass]
     public class UtilitiesTest
     {
-        private string _exampleExecutableFilePath = Utilities.GetSolutionDirectory() + "\\DoctestTestAdapter.Examples\\bin\\x64\\Debug\\UsingDoctestMain\\UsingDoctestMain.exe";
-
         [TestMethod]
         public void SolutionDirectory()
             => Assert.IsTrue(Utilities.GetSolutionDirectory().EndsWith("DoctestTestAdapter"));
@@ -24,7 +22,7 @@ namespace DoctestTestAdapter.Tests.Helpers
         [TestMethod]
         public void PDBFilePath()
         {
-            string pdbFilePath = Utilities.GetPDBFilePath(_exampleExecutableFilePath);
+            string pdbFilePath = Utilities.GetPDBFilePath(TestCommon.ExampleExecutableFilePath);
             Assert.IsTrue(File.Exists(pdbFilePath));
             Assert.IsTrue(Path.GetExtension(pdbFilePath).Equals(".pdb"));
             Assert.IsTrue(pdbFilePath.EndsWith("UsingDoctestMain.pdb"));
@@ -33,7 +31,7 @@ namespace DoctestTestAdapter.Tests.Helpers
         [TestMethod]
         public void Dependencies()
         {
-            List<string> dependencies = Utilities.GetDependencies(_exampleExecutableFilePath);
+            List<string> dependencies = Utilities.GetDependencies(TestCommon.ExampleExecutableFilePath);
             Assert.IsTrue(dependencies.Count == 5);
 
             Assert.AreEqual("KERNEL32.dll", dependencies[0]);
@@ -46,7 +44,7 @@ namespace DoctestTestAdapter.Tests.Helpers
         [TestMethod]
         public void SourceFiles()
         {
-            List<string> sourceFiles = Utilities.GetSourceFiles(_exampleExecutableFilePath);
+            List<string> sourceFiles = Utilities.GetSourceFiles(TestCommon.ExampleExecutableFilePath);
             Assert.IsTrue(sourceFiles.Count == 1);
 
             string sourceFile = sourceFiles[0];
@@ -57,7 +55,7 @@ namespace DoctestTestAdapter.Tests.Helpers
         [TestMethod]
         public void TestCaseProperty()
         {
-            List<TestCase> testCases = Utilities.GetTestCases(_exampleExecutableFilePath);
+            List<TestCase> testCases = Utilities.GetTestCases(TestCommon.ExampleExecutableFilePath);
             Assert.IsTrue(testCases.Count == 3);
 
             TestCase testCase = testCases[0];
@@ -68,7 +66,7 @@ namespace DoctestTestAdapter.Tests.Helpers
         [TestMethod]
         public void TestCaseMarkedAsSkip()
         {
-            List<TestCase> testCases = Utilities.GetTestCases(_exampleExecutableFilePath);
+            List<TestCase> testCases = Utilities.GetTestCases(TestCommon.ExampleExecutableFilePath);
             Assert.IsTrue(testCases.Count == 3);
 
             TestCase testCase = testCases[2];
@@ -79,7 +77,7 @@ namespace DoctestTestAdapter.Tests.Helpers
         [TestMethod]
         public void TestCaseNotMarkedAsSkip()
         {
-            List<TestCase> testCases = Utilities.GetTestCases(_exampleExecutableFilePath);
+            List<TestCase> testCases = Utilities.GetTestCases(TestCommon.ExampleExecutableFilePath);
             Assert.IsTrue(testCases.Count == 3);
 
             TestCase testCase = testCases[0];
@@ -90,19 +88,19 @@ namespace DoctestTestAdapter.Tests.Helpers
         [TestMethod]
         public void TestCases()
         {            
-            List<string> sourceFiles = Utilities.GetSourceFiles(_exampleExecutableFilePath);
+            List<string> sourceFiles = Utilities.GetSourceFiles(TestCommon.ExampleExecutableFilePath);
             Assert.IsTrue(sourceFiles.Count == 1);
 
             string sourceFile = sourceFiles[0];
             Assert.IsTrue(File.Exists(sourceFile));
             Assert.IsTrue(sourceFile.EndsWith("TestIsEvenUsingDoctestMain.h"));
 
-            List<TestCase> testCases = Utilities.GetTestCases(_exampleExecutableFilePath);
+            List<TestCase> testCases = Utilities.GetTestCases(TestCommon.ExampleExecutableFilePath);
             Assert.IsTrue(testCases.Count == 3);
 
             TestCase firstTestCase = testCases[0];
-            TestCommon.AssertTestCase(firstTestCase, 
-                _exampleExecutableFilePath,
+            TestCommon.AssertTestCase(firstTestCase,
+                TestCommon.ExampleExecutableFilePath,
                 "TestUsingDoctestMain::Empty Class::[UsingDoctestMain] Testing IsEven Always Pass",
                 "[UsingDoctestMain] Testing IsEven Always Pass",
                 sourceFile,

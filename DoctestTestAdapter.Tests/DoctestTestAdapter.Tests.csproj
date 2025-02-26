@@ -43,6 +43,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="test\discovery\DoctestTestDiscovererTest.cs" />
+    <Compile Include="test\equality_comparers\TestCaseComparerTest.cs" />
     <Compile Include="test\execution\DoctestTestExecutorTest.cs" />
     <Compile Include="test\helpers\UtilitiesTest.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

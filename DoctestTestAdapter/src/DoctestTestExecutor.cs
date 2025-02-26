@@ -1,12 +1,15 @@
 ﻿using DoctestTestAdapter.Execution;
+using DoctestTestAdapter.Shared.EqualityComparers;
 using DoctestTestAdapter.Shared.Helpers;
 using Microsoft.VisualStudio.TestPlatform.ObjectModel;
 using Microsoft.VisualStudio.TestPlatform.ObjectModel.Adapter;
 using Microsoft.VisualStudio.TestPlatform.ObjectModel.Logging;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using Helpers = DoctestTestAdapter.Shared.Helpers;
 
 namespace DoctestTestAdapter
@@ -55,16 +58,20 @@ namespace DoctestTestAdapter
             {
                 _currentNumberOfTestRuns++;
 
-                List<TestCase> sourceTestCases = Utilities.GetTestCases(testExe.FilePath);
-                string commandArguments = Utilities.GetCommandArguments(sourceTestCases);
+                List<TestCase> allTestCasesFromSource = Utilities.GetTestCases(testExe.FilePath);
+                List<TestCase> selectedTestCasesForSource = tests
+                    .Intersect(allTestCasesFromSource, new TestCaseComparer())
+                    .ToList();
+
+                string commandArguments = Utilities.GetCommandArguments(selectedTestCasesForSource);
                 if (commandArguments.Length > Helpers.Constants.MaxCommandArgumentLength)
                 {
                     //TODO_comfyjase_26/02/2025: Write a way to do this recursively.
 
                     // Split the list of tests in half.
-                    int halfNumberOfTestCasesList = sourceTestCases.Count / 2;
-                    List<TestCase> firstHalfOfTests = sourceTestCases.Take(halfNumberOfTestCasesList).ToList();
-                    List<TestCase> secondHalfOfTests = sourceTestCases.Skip(halfNumberOfTestCasesList).ToList();
+                    int halfNumberOfTestCasesList = selectedTestCasesForSource.Count / 2;
+                    List<TestCase> firstHalfOfTests = selectedTestCasesForSource.Take(halfNumberOfTestCasesList).ToList();
+                    List<TestCase> secondHalfOfTests = selectedTestCasesForSource.Skip(halfNumberOfTestCasesList).ToList();
 
                     testExe.AddTestBatch(firstHalfOfTests, Utilities.GetCommandArguments(firstHalfOfTests));
                     testExe.AddTestBatch(secondHalfOfTests, Utilities.GetCommandArguments(secondHalfOfTests));
@@ -74,7 +81,7 @@ namespace DoctestTestAdapter
                 }
                 else
                 {
-                    testExe.AddTestBatch(sourceTestCases, commandArguments);
+                    testExe.AddTestBatch(selectedTestCasesForSource, commandArguments);
                 }
 
                 _testExecutables.Add(testExe);

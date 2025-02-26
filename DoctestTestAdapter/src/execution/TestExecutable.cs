@@ -7,6 +7,7 @@ using System.Diagnostics;
 using System.Linq;
 
 using Helpers = DoctestTestAdapter.Shared.Helpers;
+using System.IO;
 
 namespace DoctestTestAdapter.Execution
 {
@@ -103,6 +104,8 @@ namespace DoctestTestAdapter.Execution
 
         public void Start()
         {
+            _output.Clear();
+
             List<string> testCaseNames = _currentTestBatch.Tests.Select(t => t.DisplayName).ToList();
 
             _process = new System.Diagnostics.Process();
@@ -167,8 +170,6 @@ namespace DoctestTestAdapter.Execution
             if (_testBatches.Count > 0)
             {
                 _currentTestBatch = _testBatches.First();
-                _output.Clear();
-
                 Start();
             }
         }

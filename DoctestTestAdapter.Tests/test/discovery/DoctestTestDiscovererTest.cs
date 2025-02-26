@@ -12,13 +12,10 @@ namespace DoctestTestAdapter.Tests.Discovery
     [TestClass]
     public class DoctestTestDiscovererTest
     {
-        private string _exampleExecutableFilePath           = Utilities.GetSolutionDirectory() + "\\DoctestTestAdapter.Examples\\bin\\x64\\Debug\\UsingDoctestMain\\UsingDoctestMain.exe";
-        private string _exampleExecutableUsingDLLFilePath   = Utilities.GetSolutionDirectory() + "\\DoctestTestAdapter.Examples\\bin\\x64\\Debug\\ExecutableUsingDLL\\ExecutableUsingDLL.exe";
-
         [TestMethod]
         public void DiscoverExe()
         {
-            IEnumerable<string> sources = new List<string>(){ _exampleExecutableFilePath };
+            IEnumerable<string> sources = new List<string>(){ TestCommon.ExampleExecutableFilePath };
             Captured<TestCase> capturedTestCases = A.Captured<TestCase>();
 
             IRunContext discoveryContext = A.Fake<IRunContext>();
@@ -32,7 +29,7 @@ namespace DoctestTestAdapter.Tests.Discovery
             doctestTestDiscoverer.DiscoverTests(sources, discoveryContext, messageLogger, testCaseDiscoverySink);
             Assert.IsTrue(capturedTestCases.Values.Count == 3);
 
-            List<string> sourceFiles = Utilities.GetSourceFiles(_exampleExecutableFilePath);
+            List<string> sourceFiles = Utilities.GetSourceFiles(TestCommon.ExampleExecutableFilePath);
             Assert.IsTrue(sourceFiles.Count == 1);
 
             string sourceFile = sourceFiles[0];
@@ -41,7 +38,7 @@ namespace DoctestTestAdapter.Tests.Discovery
 
             TestCase testCase = capturedTestCases.Values[0];
             TestCommon.AssertTestCase(testCase,
-                    _exampleExecutableFilePath,
+                    TestCommon.ExampleExecutableFilePath,
                     "TestUsingDoctestMain::Empty Class::[UsingDoctestMain] Testing IsEven Always Pass",
                     "[UsingDoctestMain] Testing IsEven Always Pass",
                     sourceFile,
@@ -49,7 +46,7 @@ namespace DoctestTestAdapter.Tests.Discovery
 
             testCase = capturedTestCases.Values[1];
             TestCommon.AssertTestCase(testCase,
-                    _exampleExecutableFilePath,
+                    TestCommon.ExampleExecutableFilePath,
                     "TestUsingDoctestMain::Empty Class::[UsingDoctestMain] Testing IsEven Always Fail",
                     "[UsingDoctestMain] Testing IsEven Always Fail",
                     sourceFile,
@@ -57,7 +54,7 @@ namespace DoctestTestAdapter.Tests.Discovery
 
             testCase = capturedTestCases.Values[2];
             TestCommon.AssertTestCase(testCase,
-                    _exampleExecutableFilePath,
+                    TestCommon.ExampleExecutableFilePath,
                     "TestUsingDoctestMain::Empty Class::[UsingDoctestMain] Testing IsEven Always Skipped",
                     "[UsingDoctestMain] Testing IsEven Always Skipped",
                     sourceFile,
@@ -67,7 +64,7 @@ namespace DoctestTestAdapter.Tests.Discovery
         [TestMethod]
         public void DiscoverExeAndDLL()
         {
-            IEnumerable<string> sources = new List<string>() { _exampleExecutableUsingDLLFilePath };
+            IEnumerable<string> sources = new List<string>() { TestCommon.ExampleExecutableUsingDLLFilePath };
             Captured<TestCase> capturedTestCases = A.Captured<TestCase>();
 
             IRunContext discoveryContext = A.Fake<IRunContext>();
@@ -81,7 +78,7 @@ namespace DoctestTestAdapter.Tests.Discovery
             doctestTestDiscoverer.DiscoverTests(sources, discoveryContext, messageLogger, testCaseDiscoverySink);
             Assert.IsTrue(capturedTestCases.Values.Count == 6);
 
-            List<string> sourceFiles = Utilities.GetSourceFiles(_exampleExecutableUsingDLLFilePath);
+            List<string> sourceFiles = Utilities.GetSourceFiles(TestCommon.ExampleExecutableUsingDLLFilePath);
             Assert.IsTrue(sourceFiles.Count == 4);
 
             string dllTestSourceFile = sourceFiles[2];
@@ -95,7 +92,7 @@ namespace DoctestTestAdapter.Tests.Discovery
             // DLL Test Cases
             TestCase testCase = capturedTestCases.Values[0];
             TestCommon.AssertTestCase(testCase,
-                    _exampleExecutableUsingDLLFilePath,
+                    TestCommon.ExampleExecutableUsingDLLFilePath,
                     "TestDLL::Empty Class::[DLL] Testing IsEven Always Pass",
                     "[DLL] Testing IsEven Always Pass",
                     dllTestSourceFile,
@@ -103,7 +100,7 @@ namespace DoctestTestAdapter.Tests.Discovery
 
             testCase = capturedTestCases.Values[1];
             TestCommon.AssertTestCase(testCase,
-                    _exampleExecutableUsingDLLFilePath,
+                    TestCommon.ExampleExecutableUsingDLLFilePath,
                     "TestDLL::Empty Class::[DLL] Testing IsEven Always Fail",
                     "[DLL] Testing IsEven Always Fail",
                     dllTestSourceFile,
@@ -111,7 +108,7 @@ namespace DoctestTestAdapter.Tests.Discovery
 
             testCase = capturedTestCases.Values[2];
             TestCommon.AssertTestCase(testCase,
-                    _exampleExecutableUsingDLLFilePath,
+                    TestCommon.ExampleExecutableUsingDLLFilePath,
                     "TestDLL::Empty Class::[DLL] Testing IsEven Always Skipped",
                     "[DLL] Testing IsEven Always Skipped",
                     dllTestSourceFile,
@@ -120,7 +117,7 @@ namespace DoctestTestAdapter.Tests.Discovery
             // ExecutableUsingDLL Test Cases
             testCase = capturedTestCases.Values[3];
             TestCommon.AssertTestCase(testCase,
-                    _exampleExecutableUsingDLLFilePath,
+                    TestCommon.ExampleExecutableUsingDLLFilePath,
                     "TestExecutableUsingDLL::Empty Class::[ExecutableUsingDLL] Testing IsEven Always Pass",
                     "[ExecutableUsingDLL] Testing IsEven Always Pass",
                     executableUsingDLLTestSourceFile,
@@ -128,7 +125,7 @@ namespace DoctestTestAdapter.Tests.Discovery
 
             testCase = capturedTestCases.Values[4];
             TestCommon.AssertTestCase(testCase,
-                    _exampleExecutableUsingDLLFilePath,
+                    TestCommon.ExampleExecutableUsingDLLFilePath,
                     "TestExecutableUsingDLL::Empty Class::[ExecutableUsingDLL] Testing IsEven Always Fail",
                     "[ExecutableUsingDLL] Testing IsEven Always Fail",
                     executableUsingDLLTestSourceFile,
@@ -136,7 +133,7 @@ namespace DoctestTestAdapter.Tests.Discovery
 
             testCase = capturedTestCases.Values[5];
             TestCommon.AssertTestCase(testCase,
-                    _exampleExecutableUsingDLLFilePath,
+                    TestCommon.ExampleExecutableUsingDLLFilePath,
                     "TestExecutableUsingDLL::Empty Class::[ExecutableUsingDLL] Testing IsEven Always Skipped",
                     "[ExecutableUsingDLL] Testing IsEven Always Skipped",
                     executableUsingDLLTestSourceFile,
