@@ -9,6 +9,8 @@ namespace DoctestTestAdapter.Shared.Helpers
         // Test adapter
         internal const string ExecutorUriString = "executor://DoctestTestExecutor";
         internal static readonly Uri ExecutorUri = new Uri(ExecutorUriString);
+        internal static string EmptyNamespaceString = "Empty Namespace";
+        internal static string EmptyClassString = "Empty Class";
 
         // Process command arguments
         internal static readonly int MaxCommandArgumentLength = 32699;

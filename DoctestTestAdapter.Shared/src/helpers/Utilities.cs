@@ -10,12 +10,14 @@ namespace DoctestTestAdapter.Shared.Helpers
 {
     internal static class Utilities
     {
-        internal static string EmptyNamespaceString = "Empty Namespace";
-        internal static string EmptyClassString = "Empty Class";
-
-        internal static string GetSolutionDirectory()
+        internal static string GetSolutionDirectory(string startingDirectoryPath = null)
         {
-            DirectoryInfo directory = new DirectoryInfo(Environment.CurrentDirectory);
+            if (startingDirectoryPath == null)
+            {
+                startingDirectoryPath = Environment.CurrentDirectory;
+            }
+
+            DirectoryInfo directory = new DirectoryInfo(startingDirectoryPath);
 
             while (directory != null && !directory.EnumerateFiles("*.sln").Any())
                 directory = directory.Parent;
@@ -23,9 +25,14 @@ namespace DoctestTestAdapter.Shared.Helpers
             return directory?.FullName ?? throw new FileNotFoundException($"Could not find solution directory {directory}");
         }
 
-        internal static string GetProjectDirectory(string projectFileType)
+        internal static string GetProjectDirectory(string projectFileType, string startingDirectoryPath = null)
         {
-            DirectoryInfo directory = new DirectoryInfo(Environment.CurrentDirectory);
+            if (startingDirectoryPath == null)
+            {
+                startingDirectoryPath = Environment.CurrentDirectory;
+            }
+
+            DirectoryInfo directory = new DirectoryInfo(startingDirectoryPath);
 
             while (directory != null && !directory.EnumerateFiles("*.sln").Any() && !directory.EnumerateFiles("*" + projectFileType).Any())
                 directory = directory.Parent;
@@ -126,8 +133,8 @@ namespace DoctestTestAdapter.Shared.Helpers
             }
 
             string pdbFilePath = GetPDBFilePath(executableFilePath);
-            string solutionDirectory = GetSolutionDirectory();
-            string cvDumpFilePath = Directory.GetParent(Assembly.GetExecutingAssembly().CodeBase.Replace(@"file:///", string.Empty)) + "\\ThirdParty\\cvdump\\cvdump.exe";
+            string solutionDirectory = GetSolutionDirectory(Directory.GetParent(executableFilePath).FullName);
+            string cvDumpFilePath = Directory.GetParent(Assembly.GetExecutingAssembly().CodeBase.Replace(@"file:///", string.Empty)) + "\\thirdparty\\cvdump\\cvdump.exe";
 
             System.Diagnostics.ProcessStartInfo processStartInfo = new System.Diagnostics.ProcessStartInfo();
             processStartInfo.CreateNoWindow = true;
@@ -196,7 +203,7 @@ namespace DoctestTestAdapter.Shared.Helpers
 
         private static string GetNamespaceSubstring(string line)
         {
-            string testFileNamespace = EmptyNamespaceString;
+            string testFileNamespace = Constants.EmptyNamespaceString;
 
             string namespaceKeyword = "namespace";
             int startIndex = line.IndexOf(namespaceKeyword) + namespaceKeyword.Length;
@@ -221,16 +228,16 @@ namespace DoctestTestAdapter.Shared.Helpers
 
         private static string GetClassNameSubstring(string line)
         {
-            string className = EmptyClassString;
+            string className = Constants.EmptyClassString;
 
             string classKeyword = "class ";
             int startIndex = line.IndexOf(classKeyword) + classKeyword.Length;
-            int endIndex = (line.Contains(":") ? line.LastIndexOf(" :") : line.Length);
+            int endIndex = (Regex.Match(line, @"\b\s:\s\b").Success ? line.LastIndexOf(" :") : line.Length - 1);
 
             string subString = line.Substring(startIndex, endIndex - startIndex);
             if (!string.IsNullOrEmpty(subString))
             {
-                className = subString.Replace(" ", "");
+                className = subString.Replace(" ", string.Empty);
             }
 
             return className;
@@ -238,7 +245,7 @@ namespace DoctestTestAdapter.Shared.Helpers
 
         private static string GetTestSuiteNameSubstring(string line)
         {
-            string testSuiteName = EmptyNamespaceString;
+            string testSuiteName = Constants.EmptyNamespaceString;
 
             string openBracketStartString = "(\"";
             int startIndex = line.IndexOf(openBracketStartString) + openBracketStartString.Length;
@@ -270,6 +277,36 @@ namespace DoctestTestAdapter.Shared.Helpers
             return testName;
         }
 
+        private static void CheckForCurlyBrackets(string line, Stack<int> stack, Action onStackEmpty)
+        {
+            foreach (char letter in line)
+            {
+                switch (letter)
+                {
+                    case '{':
+                    {
+                        stack.Push(stack.Count + 1);
+                        break;
+                    }
+                    case '}':
+                    {
+                        stack.Pop();
+                        
+                        if (stack.Count == 0)
+                        {
+                            onStackEmpty();
+                        }
+
+                        break;
+                    }
+                    default:
+                    {
+                        break;
+                    }
+                }
+            }
+        }
+
         public static TestCase CreateTestCase(string testOwner, string testNamespace, string testClassName, string testCaseName, string sourceCodeFilePath, int lineNumber, bool shouldBeSkipped)
         {
             string[] parts = new string[] { testNamespace, testClassName, testCaseName };
@@ -295,11 +332,35 @@ namespace DoctestTestAdapter.Shared.Helpers
                 string[] allLines = System.IO.File.ReadAllLines(sourceFilePath);
 
                 int currentLineNumber = 1;
-                string testNamespace = EmptyNamespaceString;
-                string testClassName = EmptyClassString;
+                string testNamespace = Constants.EmptyNamespaceString;
+                string testClassName = Constants.EmptyClassString;
+
+                bool insideNamespace = false;
+                bool insideClass = false;
+                Stack<int> namespaceBracketStack = new Stack<int>();
+                Stack<int> classBracketStack = new Stack<int>();
+                Action onNamespaceStackEmpty = () => { testNamespace = Constants.EmptyNamespaceString; insideNamespace = false; };
+                Action onClassStackEmpty = () => { testClassName = Constants.EmptyClassString; insideClass = false; };
 
                 foreach (string line in allLines)
                 {
+                    // If we are inside of a namespace.
+                    if (insideNamespace)
+                    {
+                        // Check if we are still inside it after this line.
+                        // If not, reset the testNamespace string and flag we are no longer inside the namespace.
+                        CheckForCurlyBrackets(line, namespaceBracketStack, onNamespaceStackEmpty);
+                    }
+
+                    // Same as above but for classes.
+                    if (insideClass)
+                    {
+                        CheckForCurlyBrackets(line, classBracketStack, onClassStackEmpty);
+                    }
+
+                    if (sourceFilePath.EndsWith("mutex.h"))
+                        Console.WriteLine("Checking line: " + line);
+
                     int numberOfSpacesInLine = line.Count(Char.IsWhiteSpace);
 
                     // Regex for some specific keywords.
@@ -307,6 +368,8 @@ namespace DoctestTestAdapter.Shared.Helpers
                     if (Regex.Match(line, regexPattern, RegexOptions.IgnoreCase).Success && numberOfSpacesInLine < 3)
                     {
                         testNamespace = GetNamespaceSubstring(line);
+                        CheckForCurlyBrackets(line, namespaceBracketStack, onNamespaceStackEmpty);
+                        insideNamespace = true;
                         currentLineNumber++;
                         continue;
                     }
@@ -315,6 +378,8 @@ namespace DoctestTestAdapter.Shared.Helpers
                     if (Regex.Match(line, regexPattern, RegexOptions.IgnoreCase).Success && numberOfSpacesInLine < 5)
                     {
                         testClassName = GetClassNameSubstring(line);
+                        CheckForCurlyBrackets(line, classBracketStack, onClassStackEmpty);
+                        insideClass = true;
                         currentLineNumber++;
                         continue;
                     }
@@ -328,8 +393,6 @@ namespace DoctestTestAdapter.Shared.Helpers
 
                     if (line.Contains("TEST_CASE(\""))
                     {
-                        //TODO_comfyjase_28/01/2025: Find out if there is a way to update the test owner to point to the project instead of the individual header files.
-                        //string testOwner = GetTestProjectName(_discoveryContext.RunSettings, sourceFile);
                         string testOwner = executableFilePath;
                         string testCaseName = GetTestCaseNameSubstring(line);
 

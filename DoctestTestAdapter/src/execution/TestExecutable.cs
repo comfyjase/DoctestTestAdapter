@@ -7,7 +7,6 @@ using System.Diagnostics;
 using System.Linq;
 
 using Helpers = DoctestTestAdapter.Shared.Helpers;
-using System.IO;
 
 namespace DoctestTestAdapter.Execution
 {
