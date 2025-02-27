@@ -357,9 +357,6 @@ namespace DoctestTestAdapter.Shared.Helpers
                         CheckForCurlyBrackets(line, classBracketStack, onClassStackEmpty);
                     }
 
-                    if (sourceFilePath.EndsWith("mutex.h"))
-                        Console.WriteLine("Checking line: " + line);
-
                     int numberOfSpacesInLine = line.Count(Char.IsWhiteSpace);
 
                     // Regex for some specific keywords.
