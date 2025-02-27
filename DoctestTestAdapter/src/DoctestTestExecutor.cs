@@ -1,4 +1,5 @@
 ﻿using DoctestTestAdapter.Execution;
+using DoctestTestAdapter.Settings;
 using DoctestTestAdapter.Shared.EqualityComparers;
 using DoctestTestAdapter.Shared.Helpers;
 using Microsoft.VisualStudio.TestPlatform.ObjectModel;
@@ -46,11 +47,12 @@ namespace DoctestTestAdapter
 
         public void RunTests(IEnumerable<TestCase> tests, IRunContext runContext, IFrameworkHandle frameworkHandle)
         {
-            IMessageLogger logger = frameworkHandle;
-
             _waitingForTestResults = true;
             _currentNumberOfTestRuns = 0;
             _testExecutables.Clear();
+            
+            DoctestTestSettings settings = DoctestTestSettingsProvider.LoadSettings(runContext);
+            string settingsCommandArguments = settings.CommandArguments;
 
             Action<TestExecutable> setupTestExecutable = (TestExecutable testExe) =>
             {
@@ -71,15 +73,21 @@ namespace DoctestTestAdapter
                     List<TestCase> firstHalfOfTests = selectedTestCasesForSource.Take(halfNumberOfTestCasesList).ToList();
                     List<TestCase> secondHalfOfTests = selectedTestCasesForSource.Skip(halfNumberOfTestCasesList).ToList();
 
-                    testExe.AddTestBatch(firstHalfOfTests, Utilities.GetCommandArguments(firstHalfOfTests));
-                    testExe.AddTestBatch(secondHalfOfTests, Utilities.GetCommandArguments(secondHalfOfTests));
+                    string argumentsForFirstHalfOfTests = Utilities.GetCommandArguments(firstHalfOfTests);
+                    string argumentsForSecondHalfOfTests = Utilities.GetCommandArguments(secondHalfOfTests);
+
+                    string fullArgumentsForFirstHalfOfTests = (string.IsNullOrEmpty(settingsCommandArguments) ? argumentsForFirstHalfOfTests : settingsCommandArguments + " " + argumentsForFirstHalfOfTests);
+                    string fullArgumentsForSecondHalfOfTests = (string.IsNullOrEmpty(settingsCommandArguments) ? argumentsForSecondHalfOfTests : settingsCommandArguments + " " + argumentsForSecondHalfOfTests);
+                    testExe.AddTestBatch(firstHalfOfTests, fullArgumentsForFirstHalfOfTests);
+                    testExe.AddTestBatch(secondHalfOfTests, fullArgumentsForSecondHalfOfTests);
 
                     // Increment the total number of test runs to be completed since there is a new batch of tests as well.
                     _currentNumberOfTestRuns++;
                 }
                 else
                 {
-                    testExe.AddTestBatch(selectedTestCasesForSource, commandArguments);
+                    string fullArguments = (string.IsNullOrEmpty(settingsCommandArguments) ? commandArguments : settings.CommandArguments + " " + commandArguments);
+                    testExe.AddTestBatch(selectedTestCasesForSource, fullArguments);
                 }
 
                 _testExecutables.Add(testExe);

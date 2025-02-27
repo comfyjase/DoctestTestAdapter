@@ -49,6 +49,8 @@
     <Compile Include="src\DoctestTestExecutor.cs" />
     <Compile Include="src\execution\TestBatch.cs" />
     <Compile Include="src\execution\TestExecutable.cs" />
+    <Compile Include="src\settings\DoctestTestSettings.cs" />
+    <Compile Include="src\settings\DoctestTestSettingsProvider.cs" />
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="Microsoft.TestPlatform.ObjectModel">
