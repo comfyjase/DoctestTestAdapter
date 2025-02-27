@@ -290,12 +290,11 @@ namespace DoctestTestAdapter.Shared.Helpers
                     }
                     case '}':
                     {
-                        stack.Pop();
-                        
+                        if (stack.Count > 0)
+                            stack.Pop();
+
                         if (stack.Count == 0)
-                        {
                             onStackEmpty();
-                        }
 
                         break;
                     }
