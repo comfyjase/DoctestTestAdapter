@@ -1,4 +1,5 @@
-﻿using DoctestTestAdapter.Shared.Helpers;
+﻿using DoctestTestAdapter.Settings;
+using DoctestTestAdapter.Shared.Helpers;
 using Microsoft.VisualStudio.TestPlatform.ObjectModel;
 using Microsoft.VisualStudio.TestPlatform.ObjectModel.Adapter;
 using Microsoft.VisualStudio.TestPlatform.ObjectModel.Logging;
@@ -15,9 +16,11 @@ namespace DoctestTestAdapter
     {
         public void DiscoverTests(IEnumerable<string> sources, IDiscoveryContext discoveryContext, IMessageLogger logger, ITestCaseDiscoverySink discoverySink)
         {
+            DoctestTestSettings settings = DoctestTestSettingsProvider.LoadSettings(discoveryContext);
+
             foreach (string source in sources)
             {
-                Utilities.GetTestCases(source)
+                Utilities.GetTestCases(source, settings)
                     .ForEach(testCase => discoverySink.SendTestCase(testCase));
             }
         }

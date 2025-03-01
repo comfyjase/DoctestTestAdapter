@@ -7,8 +7,4 @@
     <TestSessionTimeout>500000</TestSessionTimeout>
     <TreatNoTestsAsError>true</TreatNoTestsAsError>
   </RunConfiguration>
-
-  <Doctest>
-    <CommandArguments>"--test"</CommandArguments>
-  </Doctest>
 </RunSettings>

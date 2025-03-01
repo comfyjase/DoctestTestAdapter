@@ -19,7 +19,60 @@ namespace DoctestTestAdapter
         private bool _cancelled = false; 
         private bool _waitingForTestResults = false;
         private int _currentNumberOfTestRuns = 0;
-        private List<TestExecutable> _testExecutables = new List<TestExecutable>();
+        private List<DoctestTestExecutable> _testExecutables = new List<DoctestTestExecutable>();
+
+        private void SetupTestExecutableWithTestBatches(DoctestTestExecutable newTestExecutable, IEnumerable<TestCase> tests, DoctestTestSettings settings)
+        {
+            // Get the relevant test cases for this test executable.
+            List<TestCase> allTestCasesFromSource = Utilities.GetTestCases(newTestExecutable.FilePath);
+            List<TestCase> selectedTestCasesForSource = tests
+                .Intersect(allTestCasesFromSource, new TestCaseComparer())
+                .ToList();
+
+            string commandArguments = Utilities.GetCommandArguments(settings, selectedTestCasesForSource);
+            if (commandArguments.Length >= Helpers.Constants.MaxCommandPromptArgumentLength)
+            {
+                int numberOfBatchesRequired = (int)Math.Ceiling((decimal)commandArguments.Length / Helpers.Constants.MaxCommandPromptArgumentLength);
+                int numberOfElementsEachList = (int)Math.Ceiling((decimal)selectedTestCasesForSource.Count / numberOfBatchesRequired);
+
+                for (int iB = 0; iB < numberOfBatchesRequired; iB++)
+                {
+                    // If there are 12 tests overall and we need 3 batches
+                    // Create 3 lists, each with 4 elements in
+                    // 12 tests -> GetRange(4 * iB[0]) = startIndex: 0 -> count: numberOfElements
+                    // 12 tests -> GetRange(4 * iB[1]) = startIndex: 4 -> "
+                    // 12 tests -> GetRange(4 * iB[2]) = startIndex: 8 -> "
+                    //
+                    // If there happens to be an odd number of cases the last batch is will check to see how many tests to use
+                    // based on how many tests there are remaining to be batched.
+
+                    int amountOfTestsBatched = (numberOfElementsEachList * iB);
+                    int remainingNumberOfTestCasesToBatch = selectedTestCasesForSource.Count - amountOfTestsBatched;
+                    int numberOfElements = (numberOfElementsEachList > remainingNumberOfTestCasesToBatch ? remainingNumberOfTestCasesToBatch : numberOfElementsEachList);
+                    
+                    List<TestCase> batchedTests = selectedTestCasesForSource.GetRange((numberOfElementsEachList * iB), numberOfElements);
+                    string argumentsForBatchedTests = Utilities.GetCommandArguments(settings, batchedTests);
+
+                    // If the arguments are still too long, recursively shrink them until they are the right length and add batches.
+                    if (argumentsForBatchedTests.Length >= Helpers.Constants.MaxCommandPromptArgumentLength)
+                    {
+                        SetupTestExecutableWithTestBatches(newTestExecutable, batchedTests, settings);
+                    }
+                    // Otherwise, they are fine, so add a new batch now.
+                    else
+                    {
+                        // Increment the total number of test runs to be completed since there is a new batch of tests as well.
+                        newTestExecutable.AddTestBatch(batchedTests, argumentsForBatchedTests);
+                        _currentNumberOfTestRuns++;
+                    }
+                }
+            }
+            else
+            {
+                newTestExecutable.AddTestBatch(selectedTestCasesForSource, commandArguments);
+                _currentNumberOfTestRuns++;
+            }
+        }
 
         private void OnTestExecutableFinished(object sender, System.EventArgs e)
         {
@@ -52,46 +105,6 @@ namespace DoctestTestAdapter
             _testExecutables.Clear();
             
             DoctestTestSettings settings = DoctestTestSettingsProvider.LoadSettings(runContext);
-            string settingsCommandArguments = settings.CommandArguments;
-
-            Action<TestExecutable> setupTestExecutable = (TestExecutable testExe) =>
-            {
-                _currentNumberOfTestRuns++;
-
-                List<TestCase> allTestCasesFromSource = Utilities.GetTestCases(testExe.FilePath);
-                List<TestCase> selectedTestCasesForSource = tests
-                    .Intersect(allTestCasesFromSource, new TestCaseComparer())
-                    .ToList();
-
-                string commandArguments = Utilities.GetCommandArguments(selectedTestCasesForSource);
-                if (commandArguments.Length > Helpers.Constants.MaxCommandArgumentLength)
-                {
-                    //TODO_comfyjase_26/02/2025: Write a way to do this recursively.
-
-                    // Split the list of tests in half.
-                    int halfNumberOfTestCasesList = selectedTestCasesForSource.Count / 2;
-                    List<TestCase> firstHalfOfTests = selectedTestCasesForSource.Take(halfNumberOfTestCasesList).ToList();
-                    List<TestCase> secondHalfOfTests = selectedTestCasesForSource.Skip(halfNumberOfTestCasesList).ToList();
-
-                    string argumentsForFirstHalfOfTests = Utilities.GetCommandArguments(firstHalfOfTests);
-                    string argumentsForSecondHalfOfTests = Utilities.GetCommandArguments(secondHalfOfTests);
-
-                    string fullArgumentsForFirstHalfOfTests = (string.IsNullOrEmpty(settingsCommandArguments) ? argumentsForFirstHalfOfTests : settingsCommandArguments + " " + argumentsForFirstHalfOfTests);
-                    string fullArgumentsForSecondHalfOfTests = (string.IsNullOrEmpty(settingsCommandArguments) ? argumentsForSecondHalfOfTests : settingsCommandArguments + " " + argumentsForSecondHalfOfTests);
-                    testExe.AddTestBatch(firstHalfOfTests, fullArgumentsForFirstHalfOfTests);
-                    testExe.AddTestBatch(secondHalfOfTests, fullArgumentsForSecondHalfOfTests);
-
-                    // Increment the total number of test runs to be completed since there is a new batch of tests as well.
-                    _currentNumberOfTestRuns++;
-                }
-                else
-                {
-                    string fullArguments = (string.IsNullOrEmpty(settingsCommandArguments) ? commandArguments : settings.CommandArguments + " " + commandArguments);
-                    testExe.AddTestBatch(selectedTestCasesForSource, fullArguments);
-                }
-
-                _testExecutables.Add(testExe);
-            };
 
             foreach (TestCase test in tests)
             {
@@ -99,11 +112,12 @@ namespace DoctestTestAdapter
                 if (hasTestExeAlreadyBeenSetup)
                     continue;
 
-                TestExecutable newTestExecutable = new TestExecutable(test.Source, frameworkHandle);
-                setupTestExecutable(newTestExecutable);
+                DoctestTestExecutable newTestExecutable = new DoctestTestExecutable(test.Source, runContext, frameworkHandle);
+                SetupTestExecutableWithTestBatches(newTestExecutable, tests, settings);
+                _testExecutables.Add(newTestExecutable);
             }
 
-            foreach (TestExecutable testExecutable in _testExecutables)
+            foreach (DoctestTestExecutable testExecutable in _testExecutables)
             {
                 testExecutable.Finished += OnTestExecutableFinished;
                 testExecutable.Start();

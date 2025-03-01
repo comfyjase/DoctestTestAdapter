@@ -1,16 +1,18 @@
-﻿using DoctestTestAdapter.Shared.Helpers;
+﻿using DoctestTestAdapter.Settings;
+using DoctestTestAdapter.Shared.Helpers;
 using Microsoft.VisualStudio.TestPlatform.ObjectModel.Adapter;
 using Microsoft.VisualStudio.TestPlatform.ObjectModel;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
+using System.IO;
 
 using Helpers = DoctestTestAdapter.Shared.Helpers;
 
 namespace DoctestTestAdapter.Execution
 {
-    internal class TestExecutable
+    internal class DoctestTestExecutable
     {
         public string FilePath
         {
@@ -18,26 +20,36 @@ namespace DoctestTestAdapter.Execution
         }
         private string _filePath = string.Empty;
 
+        private IRunContext _runContext = null;
         private IFrameworkHandle _frameworkHandle = null;
         private System.Diagnostics.Process _process = null;
-        private List<TestBatch> _testBatches = new List<TestBatch>();
-        private TestBatch _currentTestBatch = null;
+        private List<DoctestTestBatch> _testBatches = new List<DoctestTestBatch>();
+        public int NumberOfTestBatches
+        {
+            get
+            {
+                return _testBatches.Count;
+            }
+        }
+
+        private DoctestTestBatch _currentTestBatch = null;
         private List<string> _output = new List<string>();
 
         public event EventHandler<EventArgs> Finished = null;
 
-        public TestExecutable() : this(null, null)
+        public DoctestTestExecutable() : this(null, null, null)
         { }
 
-        public TestExecutable(string filePath, IFrameworkHandle frameworkHandle)
+        public DoctestTestExecutable(string filePath, IRunContext runContext, IFrameworkHandle frameworkHandle)
         {
             _filePath = filePath;
+            _runContext = runContext;
             _frameworkHandle = frameworkHandle;
         }
 
         public void AddTestBatch(List<TestCase> tests, string commandArguments)
         {
-            _testBatches.Add(new TestBatch(tests, commandArguments, _testBatches.Count + 1));
+            _testBatches.Add(new DoctestTestBatch(tests, commandArguments, _testBatches.Count + 1));
 
             if (_currentTestBatch == null)
             {
@@ -110,13 +122,36 @@ namespace DoctestTestAdapter.Execution
             _process = new System.Diagnostics.Process();
             _process.EnableRaisingEvents = true;
 
+            // Correct executable file path if needed.
+            // Done in case a separate exe is generated but not by project output and is preferred for running tests against.
+            // E.g. any .console.exe versions of a regular .exe file to run command line stuff.
+            DoctestTestSettings settings = DoctestTestSettingsProvider.LoadSettings(_runContext);
+            string testSource = FilePath;
+            string solutionDirectory = Utilities.GetSolutionDirectory(Directory.GetParent(testSource).FullName);
+            if (settings != null && settings.ExecutorSettings != null && settings.ExecutorSettings.ExecutableOverrides.Count > 0)
+            {
+                foreach (ExecutableOverride executableOverride in settings.ExecutorSettings.ExecutableOverrides)
+                {
+                    string key = executableOverride.Key;
+                    string value = executableOverride.Value;
+                    string keyFullPath = Path.Combine(solutionDirectory, key);
+
+                    if (Path.GetFileName(testSource).Equals(Path.GetFileName(keyFullPath)))
+                    {
+                        testSource = Path.Combine(solutionDirectory, value);
+                        break;
+                    }
+                }
+            }
+
             ProcessStartInfo processStartInfo = new ProcessStartInfo();
             processStartInfo.CreateNoWindow = true;
             processStartInfo.RedirectStandardOutput = true;
             processStartInfo.RedirectStandardError = true;
             processStartInfo.UseShellExecute = false;
-            processStartInfo.FileName = "cmd.exe";
-            processStartInfo.Arguments = "/c " + _filePath + " " + _currentTestBatch.CommandArguments;
+            processStartInfo.WorkingDirectory = solutionDirectory;
+            processStartInfo.FileName = string.Format("\"{0}\"", testSource);
+            processStartInfo.Arguments = _currentTestBatch.CommandArguments;
             _process.StartInfo = processStartInfo;
 
             _process.Exited += OnProcessExited;
@@ -125,8 +160,8 @@ namespace DoctestTestAdapter.Execution
             {
                 if (_e.Data != null && _e.Data.Count() > 0)
                 {
-                    Console.WriteLine(_e.Data);
                     _output.Add(_e.Data + "\n");
+                    Console.WriteLine(_e.Data);
                 }
             };
 
@@ -144,6 +179,7 @@ namespace DoctestTestAdapter.Execution
             bool executableStartedSuccessfully = _process.Start();
 
             _process.BeginOutputReadLine();
+            _process.BeginErrorReadLine();
         }
 
         private void OnProcessExited(object sender, System.EventArgs e)
@@ -171,6 +207,17 @@ namespace DoctestTestAdapter.Execution
                 _currentTestBatch = _testBatches.First();
                 Start();
             }
+        }
+
+        public override string ToString()
+        {
+            string testBatchesString = string.Empty;
+            _testBatches.ForEach(t => testBatchesString += ("\t" + t.ToString() + "\n"));
+            return 
+            (
+                "Test Executable: " + FilePath + "\n"
+                + testBatchesString
+            );
         }
     }
 }

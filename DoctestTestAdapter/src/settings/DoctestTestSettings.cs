@@ -11,11 +11,12 @@ namespace DoctestTestAdapter.Settings
         public const string RunSettingsXmlNode = "Doctest";
         private static readonly XmlSerializer Serializer = new XmlSerializer(typeof(DoctestTestSettings));
         
-        public string CommandArguments { get; set; }
+        public DoctestDiscoverySettings DiscoverySettings { get; set; } = new DoctestDiscoverySettings();
+
+        public DoctestExecutorSettings ExecutorSettings { get; set; } = new DoctestExecutorSettings();
 
         public DoctestTestSettings() : base(RunSettingsXmlNode)
-        {
-        }
+        {}
 
         public override XmlElement ToXml()
         {

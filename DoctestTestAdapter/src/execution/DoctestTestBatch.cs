@@ -3,7 +3,7 @@ using System.Collections.Generic;
 
 namespace DoctestTestAdapter.Execution
 {
-    internal class TestBatch
+    internal class DoctestTestBatch
     {
         public List<TestCase> Tests
         {
@@ -20,14 +20,19 @@ namespace DoctestTestAdapter.Execution
             get; private set;
         }
 
-        public TestBatch() : this(null, null, -1)
+        public DoctestTestBatch() : this(null, null, -1)
         { }
 
-        public TestBatch(List<TestCase> _tests, string _commandArguments, int _batchNumber)
+        public DoctestTestBatch(List<TestCase> _tests, string _commandArguments, int _batchNumber)
         {
             Tests = _tests;
             CommandArguments = _commandArguments;
             BatchNumber = _batchNumber;
+        }
+
+        public override string ToString()
+        {
+            return "TestBatch: Number = " + BatchNumber + " Number of Tests = " + Tests.Count + " Command Argument Length = " + CommandArguments.Length;
         }
     }
 }

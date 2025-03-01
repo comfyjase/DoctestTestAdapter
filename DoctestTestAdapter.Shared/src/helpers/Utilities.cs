@@ -5,6 +5,7 @@ using System.Linq;
 using System.Text.RegularExpressions;
 using System;
 using System.Reflection;
+using DoctestTestAdapter.Settings;
 
 namespace DoctestTestAdapter.Shared.Helpers
 {
@@ -113,7 +114,7 @@ namespace DoctestTestAdapter.Shared.Helpers
             return dependencies;
         }
 
-        internal static List<string> GetSourceFiles(string executableFilePath)
+        internal static List<string> GetSourceFiles(string executableFilePath, DoctestTestSettings settings = null)
         {
             List<string> sourceFiles = new List<string>();
 
@@ -128,7 +129,7 @@ namespace DoctestTestAdapter.Shared.Helpers
                 {
                     // dll is a direct dependent for executableFilePath
                     // So make sure to include any test source files from the dll too so they can be executed as well.
-                    sourceFiles.AddRange(GetSourceFiles(dllFilePath));
+                    sourceFiles.AddRange(GetSourceFiles(dllFilePath, settings));
                 }
             }
 
@@ -163,13 +164,28 @@ namespace DoctestTestAdapter.Shared.Helpers
             int endIndex = output.Length;
             string stringTableStr = output.Substring(startIndex, endIndex - startIndex);
 
-            sourceFiles.AddRange
-            (
-                stringTableStr.Split('\n')
-                .Select(s => s.Replace("\n", string.Empty).Replace("\r", string.Empty).Substring(s.IndexOf(" ") + 1))
-                .Where(s => (s.Contains(solutionDirectory) && !s.Contains("doctest.h") && s.EndsWith(".h") && File.Exists(s)))
-                .ToList()
-            );
+            // User has given specific search directories to use, so make sure we only return source files from those directories.
+            if (settings != null && settings.DiscoverySettings != null && settings.DiscoverySettings.SearchDirectories.Count > 0)
+            {
+                sourceFiles.AddRange
+                (
+                    stringTableStr.Split('\n')
+                    .Select(s => s.Replace("\n", string.Empty).Replace("\r", string.Empty).Substring(s.IndexOf(" ") + 1))
+                    .Where(s => (settings.DiscoverySettings.SearchDirectories.Any(sd => s.Contains(solutionDirectory + "\\" + sd + "\\")) && !s.Contains("doctest.h") && s.EndsWith(".h") && File.Exists(s)))
+                    .ToList()
+                );
+            }
+            // Otherwise, just grab any relevant source file under the solution directory.
+            else
+            {
+                sourceFiles.AddRange
+                (
+                    stringTableStr.Split('\n')
+                    .Select(s => s.Replace("\n", string.Empty).Replace("\r", string.Empty).Substring(s.IndexOf(" ") + 1))
+                    .Where(s => (s.Contains(solutionDirectory) && !s.Contains("doctest.h") && s.EndsWith(".h") && File.Exists(s)))
+                    .ToList()
+                );
+            }
 
             return sourceFiles.Distinct().ToList();
         }
@@ -180,24 +196,29 @@ namespace DoctestTestAdapter.Shared.Helpers
             return (T)testPropertyObject;
         }
 
-        internal static string GetCommandArguments(IEnumerable<TestCase> tests)
+        internal static string GetCommandArguments(DoctestTestSettings settings, IEnumerable<TestCase> tests)
         {
-            List<string> testCaseNames = tests.Select(t => t.DisplayName).ToList();
-
-            // Should be something like: [TestDecorator] Test 1, [TestDecorator] Test 2
-            string commaSeparatedListOfTestCaseNames = string.Join(",", testCaseNames);
+            List<string> testCaseNames = tests.Select(t => string.Format("*\"{0}\"*", t.DisplayName)).ToList();
 
             // Sorted into doctest specific argument formatting: *"[TestDecorator] Test 1"*,*"[TestDecorator] Test 2"*
-            string doctestTestCaseCommandArgument = "--test-case=" + string.Join(",", commaSeparatedListOfTestCaseNames.Split(',').Select(x => string.Format("*\"{0}\"*", x)).ToList());
+            string doctestTestCaseCommandArgument = "--test-case=" + string.Join(",", testCaseNames);
 
             // Full doctest arguments: --test-case=*"[TestDecorator] Test 1"*,*"[TestDecorator] Test 2"*
             string doctestArguments = doctestTestCaseCommandArgument;
 
-            //TODO_comfyjase_26/02/2025: User defined command arguments.
+            string fullCommandArguments = string.Empty;
 
-            // Combined user defined arguments (if any) and doctest arguments for running the unit tests.
-            string fullCommandArguments = doctestArguments;
-
+            // User defined command arguments: --test
+            if (settings != null && settings.ExecutorSettings != null && !string.IsNullOrEmpty(settings.ExecutorSettings.CommandArguments))
+            {
+                fullCommandArguments = settings.ExecutorSettings.CommandArguments + " " + doctestArguments;
+            }
+            // Otherwise, just use regular doctest arguments
+            else
+            {
+                fullCommandArguments = doctestArguments;
+            }
+            
             return fullCommandArguments;
         }
 
@@ -321,9 +342,9 @@ namespace DoctestTestAdapter.Shared.Helpers
             return testCase;
         }
 
-        internal static List<TestCase> GetTestCases(string executableFilePath)
+        internal static List<TestCase> GetTestCases(string executableFilePath, DoctestTestSettings settings = null)
         {
-            List<string> sourceFiles = GetSourceFiles(executableFilePath);
+            List<string> sourceFiles = GetSourceFiles(executableFilePath, settings);
             List<TestCase> testCases = new List<TestCase>();
 
             foreach (string sourceFilePath in sourceFiles)

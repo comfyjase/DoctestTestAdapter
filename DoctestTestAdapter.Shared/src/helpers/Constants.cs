@@ -12,8 +12,10 @@ namespace DoctestTestAdapter.Shared.Helpers
         internal static string EmptyNamespaceString = "Empty Namespace";
         internal static string EmptyClassString = "Empty Class";
 
-        // Process command arguments
-        internal static readonly int MaxCommandArgumentLength = 32699;
+        // Command arguments
+        // https://learn.microsoft.com/en-us/troubleshoot/windows-client/shell-experience/command-line-string-limitation
+        // According to this documentation the limit is 8191 for command prompt.
+        internal static readonly int MaxCommandPromptArgumentLength = 8191;
 
         // doctest key strings
         internal const string TestResultErrorKeyword = "ERROR: ";
