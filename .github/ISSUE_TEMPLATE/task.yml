@@ -1,5 +1,8 @@
 name: Task
-description: Write up a new task for development of the doctest test adapter.
+description: | 
+  Write up a new task for development of the doctest test adapter.
+  This is not a bug or a feature proposal.
+  Should only be used by developers on this project.
 title: "[DTA-XXX] [TASK] - Describe task briefly "
 labels: enhancement
 assignees: comfyjase
