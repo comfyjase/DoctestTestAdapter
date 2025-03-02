@@ -1,5 +1,5 @@
 name: Bug Report
-about: Report a bug for the test adapter for doctest
+description: Report a bug for the test adapter for doctest
 title: "[DTA-XXX] [BUG] - Describe bug briefly "
 labels: bug
 assignees: comfyjase
