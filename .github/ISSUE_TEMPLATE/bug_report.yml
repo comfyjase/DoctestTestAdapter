@@ -1,0 +1,68 @@
+name: Bug Report
+about: Report a bug for the test adapter for doctest
+title: "[DTA-XXX] [BUG] - Describe bug briefly "
+labels: bug
+assignees: comfyjase
+
+body:
+    - type: markdown
+      attributes:
+        value: |
+          ### Thank you for taking time to report this bug! ###
+          - Please have a look through any existing [open](https://github.com/comfyjase/DoctestTestAdapter/issues) issues to see if someone has already reported this bug.
+
+    - type: dropdown
+      attributes:
+        label:  Test Adapter Version
+        description: Which **DoctestTestAdapter** version are you using?
+        options:
+          - main branch
+          - dev branch
+        default: 0
+      validations:
+        required: true
+
+    - type: input
+      attributes:
+        label: System Information
+        description: |
+          Please provide the following information:
+          - OS name and version
+          - Visual Studio IDE name and Version
+        placeholder: Windows 10 - Visual Studio Community 2022 17.13.2
+      validations:
+        required: true
+          
+    - type: textarea
+      attributes:
+        label: Describe the Bug
+        description: |
+          - Describe the issue you are seeing.
+          - What doesn't work?
+          - What is the expected result?
+      validations:
+        required: true
+
+    - type: textarea
+      attributes:
+        label: Steps to reproduce
+        description: |
+          - List of clear steps to reproduce the bug.
+          - Please include any relevant code snippets below.
+        placeholder: |
+          Example:
+            1. Created a C++ doctest unit test [TestName].
+            2. Build the solution/project.
+            3. Look at the Test Explorer window.
+            4. Observe [TestName] doesn't appear in the window.
+      validations:
+        required: true
+    
+    - type: textarea
+      attributes:
+        label: Minimal Reproduction Project
+        description: |
+          - A folder containing a small C++ project to reproduce the bug with only necessary files included.
+          - Drag and drop a zip archive to upload it (max 10MB). **NOTE: Do not select another field until the project is done uploading.**
+      validations:
+        required: false

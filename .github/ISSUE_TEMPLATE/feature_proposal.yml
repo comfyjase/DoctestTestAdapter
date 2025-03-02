@@ -1,0 +1,39 @@
+name: Feature Proposal
+about: Suggest an idea for this project
+title: "[DTA-XXX] [FEATURE] - Describe feature proposal briefly"
+labels: enhancement
+assignees: comfyjase
+
+body:
+    - type: textarea
+      attributes:
+        label: Describe The Problem Or Limitation
+        description: | 
+          - Example: Test discovery takes too long.
+      validations:
+        required: true
+
+    - type: textarea
+      attributes:
+        label: Describe The Feature Proposal
+        description: |
+          - What is this feature and how does this feature solve the problem?
+          - Example: Add a custom discovery setting to only search specific directories in the solution which would help speed up discovery time.
+      validations:
+        required: true
+
+    - type: textarea
+      attributes:
+        label: How Will This Feature Work? (Code, Pseudo-Code, Diagrams, Mock Screenshots)
+        description: |
+          - Example: New setting for the .runsettings file: <SearchDirectories><string>directory</string></SearchDirectories>.
+      validations:
+        required: true
+
+    - type: textarea
+      attributes:
+        label: Additional context
+        description: |
+          Add any other context or data for the feature proposal here.
+      validations:
+        required: false
