@@ -1,0 +1,20 @@
+name: Task
+description: Write up a new task for development of the doctest test adapter.
+title: "[DTA-XXX] [TASK] - Describe task briefly "
+labels: enhancement
+assignees: comfyjase
+
+body:
+    - type: markdown
+      attributes:
+        value: |
+          - Please make sure there isn't any existing [open](https://github.com/comfyjase/DoctestTestAdapter/issues) issues that might be considered a duplicate of this task.
+          
+    - type: textarea
+      attributes:
+        label: Describe the Task
+        description: |
+          - Brief description for the task.
+          - What work roughly will be involved for this task?
+      validations:
+        required: true
