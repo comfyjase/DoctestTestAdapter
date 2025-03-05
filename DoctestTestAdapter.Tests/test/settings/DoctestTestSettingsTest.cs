@@ -9,12 +9,7 @@ namespace DoctestTestAdapter.Tests.Settings
 	public class DoctestTestSettingsTest
 	{
 		[TestMethod]
-		public void Load()
-		{
-            IRunContext runContext = A.Fake<IRunContext>();
-
-            DoctestTestSettings settings = DoctestTestSettingsProvider.LoadSettings(runContext);
-            Assert.IsTrue(settings != null);
-        }
+		public void Load() =>
+            Assert.IsTrue(DoctestTestSettingsProvider.LoadSettings(A.Fake<IRunContext>()) != null);
     }
 }

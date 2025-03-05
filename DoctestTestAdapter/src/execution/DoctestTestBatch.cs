@@ -20,19 +20,25 @@ namespace DoctestTestAdapter.Execution
             get; private set;
         }
 
-        public DoctestTestBatch() : this(null, null, -1)
+        public string TestReportFilePath
+        {
+            get; private set;
+        }
+
+        public DoctestTestBatch() : this(null, null, -1, null)
         { }
 
-        public DoctestTestBatch(List<TestCase> _tests, string _commandArguments, int _batchNumber)
+        public DoctestTestBatch(List<TestCase> _tests, string commandArguments, int batchNumber, string testReportFilePath)
         {
             Tests = _tests;
-            CommandArguments = _commandArguments;
-            BatchNumber = _batchNumber;
+            CommandArguments = commandArguments;
+            BatchNumber = batchNumber;
+            TestReportFilePath = testReportFilePath;
         }
 
         public override string ToString()
         {
-            return "TestBatch: Number = " + BatchNumber + " Number of Tests = " + Tests.Count + " Command Argument Length = " + CommandArguments.Length;
+            return "TestBatch: Number = " + BatchNumber + " Number of Tests = " + Tests.Count + " Command Argument Length = " + CommandArguments.Length + " Test Report File Path: " + TestReportFilePath;
         }
     }
 }

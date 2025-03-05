@@ -56,7 +56,7 @@ namespace DoctestTestAdapter.Tests.Helpers
         public void TestCaseProperty()
         {
             List<TestCase> testCases = Utilities.GetTestCases(TestCommon.ExampleExecutableFilePath);
-            Assert.IsTrue(testCases.Count == 3);
+            Assert.IsTrue(testCases.Count == 4);
 
             TestCase testCase = testCases[0];
             object shouldBeSkippedObject = Utilities.GetTestCasePropertyValue<object>(testCase, Constants.ShouldBeSkippedTestProperty);
@@ -67,7 +67,7 @@ namespace DoctestTestAdapter.Tests.Helpers
         public void TestCaseMarkedAsSkip()
         {
             List<TestCase> testCases = Utilities.GetTestCases(TestCommon.ExampleExecutableFilePath);
-            Assert.IsTrue(testCases.Count == 3);
+            Assert.IsTrue(testCases.Count == 4);
 
             TestCase testCase = testCases[2];
             bool shouldBeSkipped = Utilities.GetTestCasePropertyValue<bool>(testCase, Constants.ShouldBeSkippedTestProperty);
@@ -78,7 +78,7 @@ namespace DoctestTestAdapter.Tests.Helpers
         public void TestCaseNotMarkedAsSkip()
         {
             List<TestCase> testCases = Utilities.GetTestCases(TestCommon.ExampleExecutableFilePath);
-            Assert.IsTrue(testCases.Count == 3);
+            Assert.IsTrue(testCases.Count == 4);
 
             TestCase testCase = testCases[0];
             bool shouldBeSkipped = Utilities.GetTestCasePropertyValue<bool>(testCase, Constants.ShouldBeSkippedTestProperty);
@@ -96,7 +96,7 @@ namespace DoctestTestAdapter.Tests.Helpers
             Assert.IsTrue(sourceFile.EndsWith("TestIsEvenUsingDoctestMain.h"));
 
             List<TestCase> testCases = Utilities.GetTestCases(TestCommon.ExampleExecutableFilePath);
-            Assert.IsTrue(testCases.Count == 3);
+            Assert.IsTrue(testCases.Count == 4);
 
             TestCase firstTestCase = testCases[0];
             TestCommon.AssertTestCase(firstTestCase,
@@ -104,7 +104,7 @@ namespace DoctestTestAdapter.Tests.Helpers
                 "TestUsingDoctestMain::Empty Class::[UsingDoctestMain] Testing IsEven Always Pass",
                 "[UsingDoctestMain] Testing IsEven Always Pass",
                 sourceFile,
-                12);
+                50);
         }
     }
 }

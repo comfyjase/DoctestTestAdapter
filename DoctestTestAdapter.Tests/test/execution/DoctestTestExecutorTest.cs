@@ -3,7 +3,6 @@ using FakeItEasy;
 using Microsoft.VisualStudio.TestPlatform.ObjectModel;
 using Microsoft.VisualStudio.TestPlatform.ObjectModel.Adapter;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using System;
 using System.Collections.Generic;
 using System.IO;
 using TestResult = Microsoft.VisualStudio.TestPlatform.ObjectModel.TestResult;
@@ -17,7 +16,7 @@ namespace DoctestTestAdapter.Tests.Execution
 		public void ExecuteExe()
 		{
 			List<TestCase> testCases = Utilities.GetTestCases(TestCommon.ExampleExecutableFilePath);
-            Assert.IsTrue(testCases.Count == 3);
+            Assert.IsTrue(testCases.Count == 4);
 
             List<string> sourceFiles = Utilities.GetSourceFiles(TestCommon.ExampleExecutableFilePath);
             Assert.IsTrue(sourceFiles.Count == 1);
@@ -32,7 +31,7 @@ namespace DoctestTestAdapter.Tests.Execution
                     "TestUsingDoctestMain::Empty Class::[UsingDoctestMain] Testing IsEven Always Fail",
                     "[UsingDoctestMain] Testing IsEven Always Fail",
                     sourceFile,
-                    19);
+                    57);
 
             Captured<TestCase> capturedTestCases = A.Captured<TestCase>();
             Captured<TestResult> capturedTestResults = A.Captured<TestResult>();
@@ -44,42 +43,24 @@ namespace DoctestTestAdapter.Tests.Execution
                 .DoesNothing();
 
             ITestExecutor doctestTestExecutor = new DoctestTestExecutor();
+            doctestTestExecutor.RunTests(testCases, runContext, frameworkHandle);
 
-            // Write any console output to a string so we can verify the executor has worked correctly.
-            string testExecutorOutput = string.Empty;
-            using (StringWriter stringWriter = new StringWriter())
-            {
-                // Console.Write/WriteLine should write to stringWriter now.
-                TextWriter previousWriter = Console.Out;
-                Console.SetOut(stringWriter);
-
-                doctestTestExecutor.RunTests(testCases, runContext, frameworkHandle);
-
-                testExecutorOutput = stringWriter.ToString();
-
-                // Reset back to standard output.
-                Console.SetOut(previousWriter);
-            }
-
-            Assert.IsTrue(testExecutorOutput.Contains(sourceFile));
-            Assert.IsTrue(testExecutorOutput.Contains(failedTestCase.DisplayName));
-            Assert.IsTrue(testExecutorOutput.Contains(@"ERROR: CHECK( IsEven(1) ) is NOT correct!"));
-            Assert.IsTrue(testExecutorOutput.Contains(@"ERROR: CHECK( IsEven(3) ) is NOT correct!"));
-            Assert.IsTrue(testExecutorOutput.Contains(@"ERROR: CHECK( IsEven(5) ) is NOT correct!"));
-
-            string doctestFinalOutput = @"[doctest] test cases: 2 | 1 passed | 1 failed | 1 skipped
-[doctest] assertions: 6 | 3 passed | 3 failed |
-[doctest] Status: FAILURE!";
-
-            Assert.IsTrue(testExecutorOutput.Contains(doctestFinalOutput));
+            Assert.IsTrue(capturedTestResults.Values.Count == 4);
+            Assert.IsTrue(capturedTestResults.Values[0].Outcome == TestOutcome.Passed);
+            Assert.IsTrue(capturedTestResults.Values[1].Outcome == TestOutcome.Failed);
+            Assert.IsTrue(!string.IsNullOrEmpty(capturedTestResults.Values[1].ErrorMessage));
+            Assert.IsTrue(capturedTestResults.Values[1].ErrorMessage.Contains("CHECK( IsEven(1) ) is NOT correct!"));
+            Assert.IsTrue(capturedTestResults.Values[1].ErrorMessage.Contains("CHECK( IsEven(3) ) is NOT correct!"));
+            Assert.IsTrue(capturedTestResults.Values[1].ErrorMessage.Contains("CHECK( IsEven(5) ) is NOT correct!"));
+            Assert.IsTrue(capturedTestResults.Values[2].Outcome == TestOutcome.Skipped);
+            Assert.IsTrue(capturedTestResults.Values[3].Outcome == TestOutcome.Passed);
         }
 
         [TestMethod]
         public void ExecuteExeAndDLL()
         {
-            //IEnumerable<string> sources = new List<string>() { _exampleExecutableUsingDLLFilePath };
             List<TestCase> testCases = Utilities.GetTestCases(TestCommon.ExampleExecutableUsingDLLFilePath);
-            Assert.IsTrue(testCases.Count == 6);
+            Assert.IsTrue(testCases.Count == 8);
 
             List<string> sourceFiles = Utilities.GetSourceFiles(TestCommon.ExampleExecutableUsingDLLFilePath);
             Assert.IsTrue(sourceFiles.Count == 4);
@@ -98,15 +79,15 @@ namespace DoctestTestAdapter.Tests.Execution
                     "TestDLL::Empty Class::[DLL] Testing IsEven Always Fail",
                     "[DLL] Testing IsEven Always Fail",
                     dllTestSourceFile,
-                    15);
+                    53);
 
-            TestCase executableUsingDLLFailedTestCase = testCases[4];
+            TestCase executableUsingDLLFailedTestCase = testCases[5];
             TestCommon.AssertTestCase(executableUsingDLLFailedTestCase,
                     TestCommon.ExampleExecutableUsingDLLFilePath,
                     "TestExecutableUsingDLL::Empty Class::[ExecutableUsingDLL] Testing IsEven Always Fail",
                     "[ExecutableUsingDLL] Testing IsEven Always Fail",
                     executableUsingDLLTestSourceFile,
-                    15);
+                    53);
 
             Captured<TestCase> capturedTestCases = A.Captured<TestCase>();
             Captured<TestResult> capturedTestResults = A.Captured<TestResult>();
@@ -118,40 +99,29 @@ namespace DoctestTestAdapter.Tests.Execution
                 .DoesNothing();
 
             ITestExecutor doctestTestExecutor = new DoctestTestExecutor();
+            doctestTestExecutor.RunTests(testCases, runContext, frameworkHandle);
 
-            // Write any console output to a string so we can verify the executor has worked correctly.
-            string testExecutorOutput = string.Empty;
-            using (StringWriter stringWriter = new StringWriter())
-            {
-                // Console.Write/WriteLine should write to stringWriter now.
-                TextWriter previousWriter = Console.Out;
-                Console.SetOut(stringWriter);
+            Assert.IsTrue(capturedTestResults.Values.Count == 8);
 
-                doctestTestExecutor.RunTests(testCases, runContext, frameworkHandle);
+            // DLL Test Checks
+            Assert.IsTrue(capturedTestResults.Values[0].Outcome == TestOutcome.Passed);
+            Assert.IsTrue(capturedTestResults.Values[1].Outcome == TestOutcome.Failed);
+            Assert.IsTrue(!string.IsNullOrEmpty(capturedTestResults.Values[1].ErrorMessage));
+            Assert.IsTrue(capturedTestResults.Values[1].ErrorMessage.Contains("CHECK( IsEven(7) ) is NOT correct!"));
+            Assert.IsTrue(capturedTestResults.Values[1].ErrorMessage.Contains("CHECK( IsEven(9) ) is NOT correct!"));
+            Assert.IsTrue(capturedTestResults.Values[1].ErrorMessage.Contains("CHECK( IsEven(11) ) is NOT correct!"));
+            Assert.IsTrue(capturedTestResults.Values[2].Outcome == TestOutcome.Skipped);
+            Assert.IsTrue(capturedTestResults.Values[3].Outcome == TestOutcome.Passed);
 
-                testExecutorOutput = stringWriter.ToString();
-
-                // Reset back to standard output.
-                Console.SetOut(previousWriter);
-            }
-
-            Assert.IsTrue(testExecutorOutput.Contains(dllTestSourceFile));
-            Assert.IsTrue(testExecutorOutput.Contains(dllFailedTestCase.DisplayName));
-            Assert.IsTrue(testExecutorOutput.Contains(@"ERROR: CHECK( IsEven(7) ) is NOT correct!"));
-            Assert.IsTrue(testExecutorOutput.Contains(@"ERROR: CHECK( IsEven(9) ) is NOT correct!"));
-            Assert.IsTrue(testExecutorOutput.Contains(@"ERROR: CHECK( IsEven(11) ) is NOT correct!"));
-
-            Assert.IsTrue(testExecutorOutput.Contains(executableUsingDLLTestSourceFile));
-            Assert.IsTrue(testExecutorOutput.Contains(executableUsingDLLFailedTestCase.DisplayName));
-            Assert.IsTrue(testExecutorOutput.Contains(@"ERROR: CHECK( IsEven(1) ) is NOT correct!"));
-            Assert.IsTrue(testExecutorOutput.Contains(@"ERROR: CHECK( IsEven(3) ) is NOT correct!"));
-            Assert.IsTrue(testExecutorOutput.Contains(@"ERROR: CHECK( IsEven(5) ) is NOT correct!"));
-
-            string doctestFinalOutput = @"[doctest] test cases:  4 | 2 passed | 2 failed | 2 skipped
-[doctest] assertions: 12 | 6 passed | 6 failed |
-[doctest] Status: FAILURE!";
-
-            Assert.IsTrue(testExecutorOutput.Contains(doctestFinalOutput));
+            // Exe Test Checks
+            Assert.IsTrue(capturedTestResults.Values[4].Outcome == TestOutcome.Passed);
+            Assert.IsTrue(capturedTestResults.Values[5].Outcome == TestOutcome.Failed);
+            Assert.IsTrue(!string.IsNullOrEmpty(capturedTestResults.Values[5].ErrorMessage));
+            Assert.IsTrue(capturedTestResults.Values[5].ErrorMessage.Contains("CHECK( IsEven(1) ) is NOT correct!"));
+            Assert.IsTrue(capturedTestResults.Values[5].ErrorMessage.Contains("CHECK( IsEven(3) ) is NOT correct!"));
+            Assert.IsTrue(capturedTestResults.Values[5].ErrorMessage.Contains("CHECK( IsEven(5) ) is NOT correct!"));
+            Assert.IsTrue(capturedTestResults.Values[6].Outcome == TestOutcome.Skipped);
+            Assert.IsTrue(capturedTestResults.Values[7].Outcome == TestOutcome.Passed);
         }
 	}
 }

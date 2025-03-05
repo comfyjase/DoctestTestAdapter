@@ -21,7 +21,21 @@ namespace DoctestTestAdapter.Tests
                 + "\t</RunConfiguration>\n\n"
 
                 + "\t<Doctest>\n"
-                    + "\t\t<CommandArguments>\"--test\"</CommandArguments>\n"
+                    + "\t\t<DiscoverySettings>\n"
+                        + "\t\t\t<SearchDirectories>\n"
+                            + "\t\t\t\t<string>test</string>\n"
+                            + "\t\t\t\t<string>modules</string>\n"
+                        + "\t\t\t</SearchDirectories>\n"
+                    + "\t\t</DiscoverySettings>\n"
+                    + "\t\t<ExecutorSettings>\n"
+                        + "\t\t\t<CommandArguments>\"--test\"</CommandArguments>\n"
+                        + "\t\t\t<ExecutableOverrides>\n"
+                            + "\t\t\t\t<ExecutableOverride>\n"
+                                + "\t\t\t\t\t<Key>bin\\godot.windows.editor.dev.x86_64.exe</Key>\n"
+                                + "\t\t\t\t\t<Value>bin\\godot.windows.editor.dev.x86_64.console.exe</Value>\n"
+                            + "\t\t\t\t</ExecutableOverride>\n"
+                        + "\t\t\t</ExecutableOverrides>\n"
+                    + "\t\t</ExecutorSettings>\n"
                 + "\t</Doctest>\n"
             + "</RunSettings>\n";
 

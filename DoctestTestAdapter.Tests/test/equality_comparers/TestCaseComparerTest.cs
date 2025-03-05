@@ -14,7 +14,7 @@ namespace DoctestTestAdapter.Tests.EqualityComparers
         public void CompareSameTestCases()
         {
             List<TestCase> testCases = Utilities.GetTestCases(TestCommon.ExampleExecutableFilePath);
-            Assert.IsTrue(testCases.Count == 3);
+            Assert.IsTrue(testCases.Count == 4);
 
             List<string> sourceFiles = Utilities.GetSourceFiles(TestCommon.ExampleExecutableFilePath);
             Assert.IsTrue(sourceFiles.Count == 1);
@@ -29,7 +29,7 @@ namespace DoctestTestAdapter.Tests.EqualityComparers
                     "TestUsingDoctestMain::Empty Class::[UsingDoctestMain] Testing IsEven Always Pass",
                     "[UsingDoctestMain] Testing IsEven Always Pass",
                     sourceFile,
-                    12);
+                    50);
 
             TestCase copyOfTestCase = testCase;
 
@@ -41,7 +41,7 @@ namespace DoctestTestAdapter.Tests.EqualityComparers
         public void CompareDifferentTestCases()
         {
             List<TestCase> testCases = Utilities.GetTestCases(TestCommon.ExampleExecutableFilePath);
-            Assert.IsTrue(testCases.Count == 3);
+            Assert.IsTrue(testCases.Count == 4);
 
             List<string> sourceFiles = Utilities.GetSourceFiles(TestCommon.ExampleExecutableFilePath);
             Assert.IsTrue(sourceFiles.Count == 1);
@@ -56,7 +56,7 @@ namespace DoctestTestAdapter.Tests.EqualityComparers
                     "TestUsingDoctestMain::Empty Class::[UsingDoctestMain] Testing IsEven Always Pass",
                     "[UsingDoctestMain] Testing IsEven Always Pass",
                     sourceFile,
-                    12);
+                    50);
 
             TestCase secondTestCase = testCases[1];
             TestCommon.AssertTestCase(secondTestCase,
@@ -64,7 +64,7 @@ namespace DoctestTestAdapter.Tests.EqualityComparers
                     "TestUsingDoctestMain::Empty Class::[UsingDoctestMain] Testing IsEven Always Fail",
                     "[UsingDoctestMain] Testing IsEven Always Fail",
                     sourceFile,
-                    19);
+                    57);
 
             TestCaseComparer comparer = new TestCaseComparer();
             Assert.IsFalse(comparer.Equals(firstTestCase, secondTestCase));
