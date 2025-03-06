@@ -36,13 +36,35 @@ namespace DoctestTestAdapter.Tests.Helpers
         public void Dependencies()
         {
             List<string> dependencies = Utilities.GetDependencies(TestCommon.ExampleExecutableFilePath);
-            Assert.IsTrue(dependencies.Count == 5);
 
+#if DEBUG
+            Assert.IsTrue(dependencies.Count == 5);
+#else
+            Assert.IsTrue(dependencies.Count == 14);
+#endif
+
+#if DEBUG
             Assert.AreEqual("KERNEL32.dll", dependencies[0]);
             Assert.AreEqual("MSVCP140D.dll", dependencies[1]);
             Assert.AreEqual("VCRUNTIME140D.dll", dependencies[2]);
             Assert.AreEqual("VCRUNTIME140_1D.dll", dependencies[3]);
             Assert.AreEqual("ucrtbased.dll", dependencies[4]);
+#else
+            Assert.AreEqual("KERNEL32.dll", dependencies[0]);
+            Assert.AreEqual("MSVCP140.dll", dependencies[1]);
+            Assert.AreEqual("VCRUNTIME140_1.dll", dependencies[2]);
+            Assert.AreEqual("VCRUNTIME140.dll", dependencies[3]);
+            Assert.AreEqual("api-ms-win-crt-runtime-l1-1-0.dll", dependencies[4]);
+            Assert.AreEqual("api-ms-win-crt-stdio-l1-1-0.dll", dependencies[5]);
+            Assert.AreEqual("api-ms-win-crt-heap-l1-1-0.dll", dependencies[6]);
+            Assert.AreEqual("api-ms-win-crt-utility-l1-1-0.dll", dependencies[7]);
+            Assert.AreEqual("api-ms-win-crt-time-l1-1-0.dll", dependencies[8]);
+            Assert.AreEqual("api-ms-win-crt-string-l1-1-0.dll", dependencies[9]);
+            Assert.AreEqual("api-ms-win-crt-filesystem-l1-1-0.dll", dependencies[10]);
+            Assert.AreEqual("api-ms-win-crt-convert-l1-1-0.dll", dependencies[11]);
+            Assert.AreEqual("api-ms-win-crt-math-l1-1-0.dll", dependencies[12]);
+            Assert.AreEqual("api-ms-win-crt-locale-l1-1-0.dll", dependencies[13]);
+#endif
         }
 
         [TestMethod]

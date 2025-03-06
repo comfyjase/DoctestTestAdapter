@@ -6,8 +6,13 @@ namespace DoctestTestAdapter.Tests
 {
     internal static class TestCommon
     {
+#if DEBUG
         internal static string ExampleExecutableFilePath = Utilities.GetSolutionDirectory() + "\\DoctestTestAdapter.Examples\\bin\\x64\\Debug\\UsingDoctestMain\\UsingDoctestMain.exe";
         internal static string ExampleExecutableUsingDLLFilePath = Utilities.GetSolutionDirectory() + "\\DoctestTestAdapter.Examples\\bin\\x64\\Debug\\ExecutableUsingDLL\\ExecutableUsingDLL.exe";
+#else
+        internal static string ExampleExecutableFilePath = Utilities.GetSolutionDirectory() + "\\DoctestTestAdapter.Examples\\bin\\x64\\Release\\UsingDoctestMain\\UsingDoctestMain.exe";
+        internal static string ExampleExecutableUsingDLLFilePath = Utilities.GetSolutionDirectory() + "\\DoctestTestAdapter.Examples\\bin\\x64\\Release\\ExecutableUsingDLL\\ExecutableUsingDLL.exe";
+#endif
 
         internal static readonly string ExampleTestRunSettings =
             "<?xml version=\"1.0\" encoding=\"utf-8\"?>\n"
