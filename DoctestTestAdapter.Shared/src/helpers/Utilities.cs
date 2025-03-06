@@ -46,14 +46,10 @@ namespace DoctestTestAdapter.Shared.Helpers
         }
         
         /// <summary>
-        /// Gets the general install directory for the given Visual Studio version.
-        /// The version name should be whatever the registry value is for DisplayName and should be the user friendly name.
-        /// E.g. Visual Studio Community 2022.
-        /// Since I'm developing and have been testing in this version I'll default to that.
+        /// Gets the general install directory for any of the supported and installed visual studio versions.
         /// </summary>
-        /// <param name="versionName">Display name for the visual studio version, e.g. "Visual Studio Community 2022".</param>
         /// <returns>string - Full directory path for the vs install directory.</returns>
-        public static string GetVSInstallDirectory(string versionName = "Visual Studio Community 2022")
+        public static string GetVSInstallDirectory()
         {
             string vsInstallDirectory = string.Empty;
 
@@ -72,13 +68,13 @@ namespace DoctestTestAdapter.Shared.Helpers
                 {
                     if (key != null)
                     {
-                        // Find the specific version.
                         string displayName = (string)key.GetValue("DisplayName");
-                        if (!displayName.Equals(versionName))
-                        {
-                            continue;
-                        }
 
+                        bool foundInstalledVersion = Helpers.Constants.SupportedVisualStudioVersionNames.Any(s => displayName.Equals(s));
+                        if (!foundInstalledVersion)
+                            continue;
+
+                        // This will find whatever the first valid VS install location is and then base the directory from that.
                         vsInstallDirectory = (string)key.GetValue("InstallLocation");
                         break;
                     }

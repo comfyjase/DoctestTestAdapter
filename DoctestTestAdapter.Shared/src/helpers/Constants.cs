@@ -6,6 +6,13 @@ namespace DoctestTestAdapter.Shared.Helpers
 {
     internal static class Constants
     {
+        internal static readonly List<string> SupportedVisualStudioVersionNames = new List<string>()
+        {
+            "Visual Studio Community 2022",
+            "Visual Studio Professional 2022",
+            "Visual Studio Enterprise 2022",
+        };
+
         // Test adapter
         internal const string ExecutorUriString = "executor://DoctestTestExecutor";
         internal static readonly Uri ExecutorUri = new Uri(ExecutorUriString);
