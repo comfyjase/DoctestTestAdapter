@@ -208,8 +208,6 @@ namespace DoctestTestAdapter.Execution
 
             if (_runContext.IsBeingDebugged)
             {
-                Console.WriteLine("JASE DEBUG - Launching process " + Path.GetFileName(testSource) + " with debugger attached!");
-
                 int processId = _frameworkHandle.LaunchProcessWithDebuggerAttached(testSource, solutionDirectory, _currentTestBatch.CommandArguments, null);
                 _process = Process.GetProcessById(processId);
                 _process.EnableRaisingEvents = true;
@@ -217,8 +215,6 @@ namespace DoctestTestAdapter.Execution
             }
             else
             {
-                Console.WriteLine("JASE DEBUG - Launching process " + Path.GetFileName(testSource));
-
                 _process = new System.Diagnostics.Process();
                 _process.EnableRaisingEvents = true;
 
