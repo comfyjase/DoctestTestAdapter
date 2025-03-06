@@ -20,6 +20,10 @@ namespace DoctestTestAdapter.Tests.Helpers
             => Assert.IsTrue(Utilities.GetProjectDirectory(".csproj").EndsWith("DoctestTestAdapter.Tests"));
 
         [TestMethod]
+        public void GetVsInstallDirectory()
+            => Assert.IsTrue(!string.IsNullOrEmpty(Utilities.GetVSInstallDirectory()));
+
+        [TestMethod]
         public void PDBFilePath()
         {
             string pdbFilePath = Utilities.GetPDBFilePath(TestCommon.ExampleExecutableFilePath);

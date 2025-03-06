@@ -6,6 +6,8 @@ using System.Text.RegularExpressions;
 using System;
 using System.Reflection;
 using DoctestTestAdapter.Settings;
+using Microsoft.Win32;
+using System.Globalization;
 
 namespace DoctestTestAdapter.Shared.Helpers
 {
@@ -42,11 +44,54 @@ namespace DoctestTestAdapter.Shared.Helpers
 
             return directory?.FullName ?? throw new FileNotFoundException($"Could not find project directory {directory}");
         }
+        
+        /// <summary>
+        /// Gets the general install directory for the given Visual Studio version.
+        /// The version name should be whatever the registry value is for DisplayName and should be the user friendly name.
+        /// E.g. Visual Studio Community 2022.
+        /// Since I'm developing and have been testing in this version I'll default to that.
+        /// </summary>
+        /// <param name="versionName">Display name for the visual studio version, e.g. "Visual Studio Community 2022".</param>
+        /// <returns>string - Full directory path for the vs install directory.</returns>
+        public static string GetVSInstallDirectory(string versionName = "Visual Studio Community 2022")
+        {
+            string vsInstallDirectory = string.Empty;
+
+            List<string> foundInstances = Directory.GetDirectories("C:\\ProgramData\\Microsoft\\VisualStudio\\Packages\\_Instances\\").ToList();
+
+            foreach (string instance in foundInstances)
+            {
+                string directoryName = Path.GetFileName(instance);
+
+                string subKeyName = string.Format(
+                    CultureInfo.InvariantCulture,
+                    @"SOFTWARE\WOW6432Node\Microsoft\Windows\CurrentVersion\Uninstall\{0}\",
+                    directoryName);
+
+                using (RegistryKey key = Registry.LocalMachine.OpenSubKey(subKeyName))
+                {
+                    if (key != null)
+                    {
+                        // Find the specific version.
+                        string displayName = (string)key.GetValue("DisplayName");
+                        if (!displayName.Equals(versionName))
+                        {
+                            continue;
+                        }
+
+                        vsInstallDirectory = (string)key.GetValue("InstallLocation");
+                        break;
+                    }
+                }
+            }
+
+            return vsInstallDirectory;
+        }
 
         internal static string GetPDBFilePath(string executableFilePath)
         {
             string pdbFilePath = null;
-            string batFilePath = "\"C:\\Program Files\\Microsoft Visual Studio\\2022\\Community\\Common7\\Tools\\VsDevCmd.bat\"";
+            string batFilePath = "\"" + GetVSInstallDirectory() + "\\Common7\\Tools\\VsDevCmd.bat\"";
 
             System.Diagnostics.ProcessStartInfo processStartInfo = new System.Diagnostics.ProcessStartInfo();
             processStartInfo.CreateNoWindow = true;
@@ -79,7 +124,7 @@ namespace DoctestTestAdapter.Shared.Helpers
         internal static List<string> GetDependencies(string executableFilePath)
         {
             List<string> dependencies = new List<string>();
-            string batFilePath = "\"C:\\Program Files\\Microsoft Visual Studio\\2022\\Community\\Common7\\Tools\\VsDevCmd.bat\"";
+            string batFilePath = "\"" + GetVSInstallDirectory() + "\\Common7\\Tools\\VsDevCmd.bat\"";
 
             System.Diagnostics.ProcessStartInfo processStartInfo = new System.Diagnostics.ProcessStartInfo();
             processStartInfo.CreateNoWindow = true;
