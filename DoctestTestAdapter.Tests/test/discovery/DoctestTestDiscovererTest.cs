@@ -6,6 +6,7 @@ using Microsoft.VisualStudio.TestPlatform.ObjectModel;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System.Collections.Generic;
 using System.IO;
+using System;
 
 namespace DoctestTestAdapter.Tests.Discovery
 {
@@ -89,13 +90,21 @@ namespace DoctestTestAdapter.Tests.Discovery
             List<string> sourceFiles = Utilities.GetSourceFiles(TestCommon.ExampleExecutableUsingDLLFilePath);
             Assert.IsTrue(sourceFiles.Count == 4);
 
+            sourceFiles.ForEach(s => Console.WriteLine("Source File: " + s));
+
             string dllTestSourceFile = sourceFiles[2];
+            Console.WriteLine("dllTestSourceFile = " + dllTestSourceFile);
             Assert.IsTrue(File.Exists(dllTestSourceFile));
+            Console.WriteLine("Passed Assert.IsTrue(File.Exists(dllTestSourceFile));");
             Assert.IsTrue(dllTestSourceFile.EndsWith("TestIsEvenDLL.h"));
+            Console.WriteLine("Passed Assert.IsTrue(dllTestSourceFile.EndsWith(\"TestIsEvenDLL.h\"));");
 
             string executableUsingDLLTestSourceFile = sourceFiles[3];
+            Console.WriteLine("executableUsingDLLTestSourceFile = " + executableUsingDLLTestSourceFile);
             Assert.IsTrue(File.Exists(executableUsingDLLTestSourceFile));
+            Console.WriteLine("Passed Assert.IsTrue(File.Exists(executableUsingDLLTestSourceFile));");
             Assert.IsTrue(executableUsingDLLTestSourceFile.EndsWith("TestIsEvenExecutableUsingDLL.h"));
+            Console.WriteLine("Passed Assert.IsTrue(executableUsingDLLTestSourceFile.EndsWith(\"TestIsEvenExecutableUsingDLL.h\"));");
 
             // DLL Test Cases
             TestCase testCase = capturedTestCases.Values[0];
