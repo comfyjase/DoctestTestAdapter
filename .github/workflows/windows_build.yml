@@ -1,0 +1,52 @@
+name: Windows Build
+on: workflow_call
+
+env:
+  SOLUTION_FILE_PATH: .
+  
+concurrency:
+  group: ci-${{github.actor}}-${{github.head_ref || github.run_number}}-${{github.ref}}-windows
+  cancel-in-progress: true
+  
+jobs:
+  build-windows:
+    # Windows 10 with latest image
+    # Might have to use windows-2019
+    runs-on: "windows-latest"
+    name: ${{ matrix.name }}
+    strategy:
+      matrix:
+        include:
+          - name: Debug
+            configuration: Debug
+            tests: true
+
+          - name: Release
+            configuration: Release
+            tests: true
+            
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          submodules: recursive
+
+      - name: Setup NuGet
+        uses: nuget/setup-nuget@v2
+  
+      - name: Setup MSBuild
+        uses: microsoft/setup-msbuild@v2
+
+      - name: Restore Packages
+        run: nuget restore DoctestTestAdapter.sln
+
+      - name: Build Solution
+        run: msbuild DoctestTestAdapter.sln -t:rebuild -property:Configuration=${{ matrix.configuration }}
+
+      - name: Unit Tests
+        if: ${{ matrix.tests }}
+        uses: microsoft/vstest-action@v1.0.0
+        with:
+          testAssembly: DoctestTestAdapter.Tests.dll
+          searchFolder: ./DoctestTestAdapter.Tests/bin/${{ matrix.configuration }}/
+          runInParallel: true

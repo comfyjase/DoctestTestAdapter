@@ -1,0 +1,11 @@
+name: CI
+on: [push, pull_request]
+
+concurrency:
+  group: ci-${{github.actor}}-${{github.head_ref || github.run_number}}-${{github.ref}}
+  cancel-in-progress: true
+
+jobs:
+  windows-build:
+    name: Windows
+    uses: ./.github/workflows/windows_build.yml
