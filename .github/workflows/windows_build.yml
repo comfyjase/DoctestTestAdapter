@@ -28,31 +28,42 @@ jobs:
             upload-artifact: true
             
     steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-        with:
-          submodules: recursive
+      - name: Windows-${{ matrix.configuration }}-${{ env.BUILD_TIME }}-${{ github.ref_name }}-${{ env.SHA_SHORT }}
+        run: | 
+          echo "Double Curly Bracket Format BUILD_TIME: ${{ env.BUILD_TIME }} SHA_SHORT: ${{ env.SHA_SHORT }}"
+          echo "Single Curly Bracket Format BUILD_TIME: ${ env.BUILD_TIME } SHA_SHORT: ${ env.SHA_SHORT }"
+          echo "No Curly Bracket Format BUILD_TIME: env.BUILD_TIME SHA_SHORT: env.SHA_SHORT"
+          echo "Open Bracket Format BUILD_TIME: $(env.BUILD_TIME) SHA_SHORT: $(env.SHA_SHORT)"
+          
+        # uses: actions/checkout@v4
+        # with:
+          # submodules: recursive   
+    
+      # - name: Checkout
+        # uses: actions/checkout@v4
+        # with:
+          # submodules: recursive
       
-      - name: Setup NuGet
-        uses: nuget/setup-nuget@v2
+      # - name: Setup NuGet
+        # uses: nuget/setup-nuget@v2
   
-      - name: Setup MSBuild
-        uses: microsoft/setup-msbuild@v2
+      # - name: Setup MSBuild
+        # uses: microsoft/setup-msbuild@v2
 
-      - name: Restore Packages
-        run: nuget restore DoctestTestAdapter.sln
+      # - name: Restore Packages
+        # run: nuget restore DoctestTestAdapter.sln
 
-      - name: Build Solution
-        run: msbuild DoctestTestAdapter.sln -t:rebuild -property:Configuration=${{ matrix.configuration }}
+      # - name: Build Solution
+        # run: msbuild DoctestTestAdapter.sln -t:rebuild -property:Configuration=${{ matrix.configuration }}
 
-      - name: Unit Tests
-        if: ${{ matrix.tests }}
-        run: dotnet test "./DoctestTestAdapter.Tests/bin/${{ matrix.configuration }}/DoctestTestAdapter.Tests.dll"
+      # - name: Unit Tests
+        # if: ${{ matrix.tests }}
+        # run: dotnet test "./DoctestTestAdapter.Tests/bin/${{ matrix.configuration }}/DoctestTestAdapter.Tests.dll"
 
-      - name: Upload Artifact
-        if: ${{ matrix.upload-artifact }}
-        uses: actions/upload-artifact@v4
-        with:
-          name: Windows-${{ matrix.configuration }}-${{ env.BUILD_TIME }}-${{ github.ref_name }}-${{ env.SHA_SHORT }}
-          path: DoctestTestAdapter.VSIX/bin/${{ matrix.configuration }}/
-          retention-days: 30
+      # - name: Upload Artifact
+        # if: ${{ matrix.upload-artifact }}
+        # uses: actions/upload-artifact@v4
+        # with:
+          # name: Windows-${{ matrix.configuration }}-${{ env.BUILD_TIME }}-${{ github.ref_name }}-${{ env.SHA_SHORT }}
+          # path: DoctestTestAdapter.VSIX/bin/${{ matrix.configuration }}/
+          # retention-days: 30
