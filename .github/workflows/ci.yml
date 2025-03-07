@@ -6,6 +6,8 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
+  name: CI
+
   windows-build:
     name: Windows
     uses: ./.github/workflows/windows_build.yml
