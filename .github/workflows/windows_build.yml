@@ -51,6 +51,6 @@ jobs:
         if: ${{ matrix.upload-artifact }}
         uses: actions/upload-artifact@v4
         with:
-          name: Windows-${{ matrix.configuration }}-${{ github.ref_name }}-${{ git rev-parse --short HEAD }}
+          name: Windows-${{ matrix.configuration }}-${{ github.ref_name }}-${{ "git rev-parse --short HEAD" }}
           path: DoctestTestAdapter.VSIX/bin/${{ matrix.configuration }}/
           retention-days: 30
