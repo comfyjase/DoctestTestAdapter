@@ -56,6 +56,6 @@ jobs:
         if: ${{ matrix.upload-artifact }}
         uses: actions/upload-artifact@v4
         with:
-          name: Windows-${{ matrix.configuration }}-${{ build_time }}-${{ github.ref_name }}-${{ sha_short }}
+          name: Windows-${{ matrix.configuration }}-$build_time-${{ github.ref_name }}-$sha_short
           path: DoctestTestAdapter.VSIX/bin/${{ matrix.configuration }}/
           retention-days: 30
