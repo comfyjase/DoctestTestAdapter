@@ -5,24 +5,23 @@ Open source Visual Studio Test Adapter VSIX to search, list and run C++ doctest 
 
 | main branch | dev branch |
 |--|--|
-| main branch CI badge here | dev branch CI badge here |
+| [![CI](https://github.com/comfyjase/DoctestTestAdapter/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/comfyjase/DoctestTestAdapter/actions/workflows/ci.yml) | [![CI](https://github.com/comfyjase/DoctestTestAdapter/actions/workflows/ci.yml/badge.svg?branch=dev)](https://github.com/comfyjase/DoctestTestAdapter/actions/workflows/ci.yml) |
 | code coverage | code coverage |
 
 ## Features
 * Visual Studio Test Adapter to run and debug tests.
 * Custom settings for test discovery and execution.
-* Example C++ doctest projects for testing different setups.
 * Exe and DLL support.
 
 | IDE | Test Discovery | Test Execution | Test Debug |
 |---|---|---|---|
-| Visual Studio Community | ✅ | ✅ | ✅ |
+| Visual Studio (Community/Professional/Enterprise) | ✅ | ✅ | ✅ |
 
 ## Installing Test Adapter for Doctest
 TODO: Step by step instructions...
 
 ## Contributing
 * If you notice a bug please report using this form [here](https://github.com/comfyjase/DoctestTestAdapter/issues/new?template=bug_report.yml)
-* For suggesting improvements, please fill out this form [here](https://github.com/comfyjase/DoctestTestAdapter/issues/new?template=feature_proposal.yml)
+* For suggesting improvements please fill out this form [here](https://github.com/comfyjase/DoctestTestAdapter/issues/new?template=feature_proposal.yml)
 
 ## Thank you!
