@@ -30,7 +30,13 @@ jobs:
         uses: actions/checkout@v4
         with:
           submodules: recursive
-
+      
+      - name: Setup Environment
+        id: 
+        run: | 
+          echo "sha_short=$(git rev-parse --short HEAD)" >> $GITHUB_ENV
+          echo "build_time=$(date +'%T')" >> $GITHUB_ENV
+      
       - name: Setup NuGet
         uses: nuget/setup-nuget@v2
   
@@ -51,6 +57,6 @@ jobs:
         if: ${{ matrix.upload-artifact }}
         uses: actions/upload-artifact@v4
         with:
-          name: Windows-${{ matrix.configuration }}-${{ github.ref_name }}-${{ "git rev-parse --short HEAD" }}
+          name: Windows-${{ matrix.configuration }}-${{ build_time }}-${{ github.ref_name }}-${{ sha_short }}
           path: DoctestTestAdapter.VSIX/bin/${{ matrix.configuration }}/
           retention-days: 30
