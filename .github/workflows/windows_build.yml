@@ -18,10 +18,12 @@ jobs:
           - name: Debug
             configuration: Debug
             tests: true
+            upload-artifact: true
 
           - name: Release
             configuration: Release
             tests: true
+            upload-artifact: true
             
     steps:
       - name: Checkout
@@ -44,3 +46,11 @@ jobs:
       - name: Unit Tests
         if: ${{ matrix.tests }}
         run: dotnet test "./DoctestTestAdapter.Tests/bin/${{ matrix.configuration }}/DoctestTestAdapter.Tests.dll"
+
+      - name: Upload Artifact
+        if: ${{ matrix.upload-artifact }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: Windows-${{ matrix.configuration }}-${{ github.head_ref }}-$(git rev-parse --short HEAD)
+          path: DoctestTestAdapter.VSIX/bin/${{ matrix.configuration }}/
+          retention-days: 30
