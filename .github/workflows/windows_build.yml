@@ -3,7 +3,7 @@ on: workflow_call
 
 env:
   SOLUTION_FILE_PATH: .
-  SHA_SHORT: $(git rev-parse --short HEAD)
+  SHA_SHORT: $(git rev-parse --short "$GITHUB_SHA")
   BUILD_TIME: $(date +'%Y-%m-%d-%T')
   
 concurrency:
