@@ -3,7 +3,7 @@ on: workflow_call
 
 env:
   SOLUTION_FILE_PATH: .
-  SHA_SHORT: $(git rev-parse --short "$GITHUB_SHA")
+  SHA_SHORT: $(git rev-parse --short $GITHUB_SHA)
   BUILD_TIME: $(date +'%Y-%m-%d-%T')
   
 concurrency:
@@ -28,7 +28,7 @@ jobs:
             upload-artifact: true
             
     steps:
-      - name: Windows-${{ matrix.configuration }}-${{ env.BUILD_TIME }}-${{ github.ref_name }}-${{ env.SHA_SHORT }}
+      - name: Windows-${{ matrix.configuration }}-"${{ env.BUILD_TIME }}"-${{ github.ref_name }}-"${{ env.SHA_SHORT }}"
         run: | 
           echo "Double Curly Bracket Format BUILD_TIME: ${{ env.BUILD_TIME }} SHA_SHORT: ${{ env.SHA_SHORT }}"
           echo "Single Curly Bracket Format BUILD_TIME: ${ env.BUILD_TIME } SHA_SHORT: ${ env.SHA_SHORT }"
