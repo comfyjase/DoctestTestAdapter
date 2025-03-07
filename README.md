@@ -1,12 +1,11 @@
 # Test Adapter for doctest
-Open source Visual Studio Test Adapter VSIX to search, list and run C++ doctest unit tests. Implemented using the Microsoft Test Adapter framework [vstest](https://github.com/microsoft/vstest).
+Open source Visual Studio Test Adapter VSIX to search, list, run and debug C++ doctest unit tests. Implemented using the Microsoft Test Adapter framework [vstest](https://github.com/microsoft/vstest).
 
 [![License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE.txt) 
 
 | main branch | dev branch |
 |--|--|
 | [![CI](https://github.com/comfyjase/DoctestTestAdapter/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/comfyjase/DoctestTestAdapter/actions/workflows/ci.yml) | [![CI](https://github.com/comfyjase/DoctestTestAdapter/actions/workflows/ci.yml/badge.svg?branch=dev)](https://github.com/comfyjase/DoctestTestAdapter/actions/workflows/ci.yml) |
-| code coverage | code coverage |
 
 ## Features
 * Visual Studio Test Adapter to run and debug tests.
@@ -15,7 +14,9 @@ Open source Visual Studio Test Adapter VSIX to search, list and run C++ doctest 
 
 | IDE | Test Discovery | Test Execution | Test Debug |
 |---|---|---|---|
-| Visual Studio (Community/Professional/Enterprise) | ✅ | ✅ | ✅ |
+| Visual Studio Community 2022 | ✅ | ✅ | ✅ |
+| Visual Studio Professional 2022 | ✅ | ✅ | ✅ |
+| Visual Studio Enterprise 2022 | ✅ | ✅ | ✅ |
 
 ## Installing Test Adapter for Doctest
 TODO: Step by step instructions...
