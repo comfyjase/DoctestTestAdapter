@@ -32,7 +32,6 @@ jobs:
           submodules: recursive
       
       - name: Setup Environment
-        id: 
         run: | 
           echo "sha_short=$(git rev-parse --short HEAD)" >> $GITHUB_ENV
           echo "build_time=$(date +'%T')" >> $GITHUB_ENV
