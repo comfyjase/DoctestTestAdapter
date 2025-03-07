@@ -3,6 +3,8 @@ on: workflow_call
 
 env:
   SOLUTION_FILE_PATH: .
+  SHA_SHORT: $(git rev-parse --short HEAD)
+  BUILD_TIME: $(date +'%T')
   
 concurrency:
   group: ci-${{github.actor}}-${{github.head_ref || github.run_number}}-${{github.ref}}-windows
@@ -31,10 +33,6 @@ jobs:
         with:
           submodules: recursive
       
-      - name: Setup Environment
-        run: | 
-          echo "sha_short=$(git rev-parse --short HEAD)" >> $GITHUB_ENV
-      
       - name: Setup NuGet
         uses: nuget/setup-nuget@v2
   
@@ -55,6 +53,6 @@ jobs:
         if: ${{ matrix.upload-artifact }}
         uses: actions/upload-artifact@v4
         with:
-          name: Windows-${{ matrix.configuration }}-${{ github.ref_name }}-${{ sha_short }}
+          name: Windows-${{ matrix.configuration }}-$BUILD_TIME-${{ github.ref_name }}-$SHA_SHORT
           path: DoctestTestAdapter.VSIX/bin/${{ matrix.configuration }}/
           retention-days: 30
