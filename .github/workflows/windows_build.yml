@@ -33,8 +33,8 @@ jobs:
           
       - name: Setup Environment
         run: |
-          echo "BUILD_TIME=$(date +'%Y-%m-%d-%T')" >> $GITHUB_ENV"
-          echo "SHA_SHORT=$(git rev-parse --short HEAD)" >> $GITHUB_ENV"
+          echo "BUILD_TIME=$(date +'%Y-%m-%d-%T') >> $GITHUB_ENV"
+          echo "SHA_SHORT=$(git rev-parse --short HEAD) >> $GITHUB_ENV"
     
       - name: Windows-${{ matrix.configuration }}-${{ env.BUILD_TIME }}-${{ github.ref_name }}-${{ env.SHA_SHORT }}
         run: | 
