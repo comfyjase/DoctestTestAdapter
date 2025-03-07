@@ -33,7 +33,7 @@ jobs:
           echo "Double Curly Bracket Format BUILD_TIME: ${{ env.BUILD_TIME }} SHA_SHORT: ${{ env.SHA_SHORT }}"
           echo "Single Curly Bracket Format BUILD_TIME: ${ env.BUILD_TIME } SHA_SHORT: ${ env.SHA_SHORT }"
           echo "No Curly Bracket Format BUILD_TIME: env.BUILD_TIME SHA_SHORT: env.SHA_SHORT"
-          echo "Open Bracket Format BUILD_TIME: $(env.BUILD_TIME) SHA_SHORT: $(env.SHA_SHORT)"
+          echo "Open Dollar Sign Format BUILD_TIME: $env.BUILD_TIME SHA_SHORT: $env.SHA_SHORT"
           
         # uses: actions/checkout@v4
         # with:
