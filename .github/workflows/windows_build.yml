@@ -4,7 +4,7 @@ on: workflow_call
 env:
   SOLUTION_FILE_PATH: .
   SHA_SHORT: $(git rev-parse --short HEAD)
-  BUILD_TIME: $(date +'%T')
+  BUILD_TIME: $(date +'%Y-%m-%d-%T')
   
 concurrency:
   group: ci-${{github.actor}}-${{github.head_ref || github.run_number}}-${{github.ref}}-windows
@@ -53,6 +53,6 @@ jobs:
         if: ${{ matrix.upload-artifact }}
         uses: actions/upload-artifact@v4
         with:
-          name: Windows-${{ matrix.configuration }}-$BUILD_TIME-${{ github.ref_name }}-$SHA_SHORT
+          name: Windows-${{ matrix.configuration }}-${{ env.BUILD_TIME }}-${{ github.ref_name }}-${{ env.SHA_SHORT }}
           path: DoctestTestAdapter.VSIX/bin/${{ matrix.configuration }}/
           retention-days: 30
