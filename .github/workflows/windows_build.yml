@@ -31,10 +31,10 @@ jobs:
         with:
           submodules: recursive
     
-      - name: Setup Vars
+      - name: Setup Workflow Variables
         id: vars
         run: | 
-          echo "BUILD_TIME=$(date +'%Y¦%m¦%d-%H¦%M¦%S')" >> $env:GITHUB_OUTPUT
+          echo "BUILD_TIME=$(date +'%Y.%m.%d-%H.%M.%S')" >> $env:GITHUB_OUTPUT
           echo "SHA_SHORT=$(git rev-parse --short HEAD)" >> $env:GITHUB_OUTPUT
     
       - name: Setup NuGet

@@ -11,28 +11,28 @@ body:
           ### Thank you for taking time to report this bug! ###
           - Please have a look through any existing [open](https://github.com/comfyjase/DoctestTestAdapter/issues) issues to see if someone has already reported this bug.
 
-    - type: dropdown
-      attributes:
-        label:  Test Adapter Version
-        description: Which **DoctestTestAdapter** version are you using?
-        options:
-          - main branch
-          - dev branch
-        default: 0
-      validations:
-        required: true
-
     - type: input
       attributes:
         label: System Information
         description: |
           Please provide the following information:
           - OS name and version
-          - Visual Studio IDE name and Version
+          - Visual Studio IDE name and version
         placeholder: Windows 10 - Visual Studio Community 2022 17.13.2
       validations:
         required: true
-          
+
+    - type: input
+      attributes:
+        label: Test Adapter Version
+        description: |
+          Which version of **Test Adapter for Doctest** did you install and how did you install it?
+          - For released versions (VS Marketplace/VS Extension Manager/GitHub Releases), please provide the tag version. E.g. "v1.0.0".
+          - For developer versions (Developer Build/Built From Source), please provide platform-configuration-build timestamp-branch name-git commit sha.
+        placeholder: Test Adapter for Doctest v1.0.0 - Installed through the Visual Studio Extension Manager.
+      validations:
+        required: true
+
     - type: textarea
       attributes:
         label: Describe the Bug
@@ -40,15 +40,16 @@ body:
           - Describe the issue you are seeing.
           - What doesn't work?
           - What is the expected result?
+          - What is the actual result?
       validations:
         required: true
 
     - type: textarea
       attributes:
-        label: Steps to reproduce
+        label: Steps to Reproduce
         description: |
           - List of clear steps to reproduce the bug.
-          - Please include any relevant code snippets below.
+          - Please include any relevant code snippets/screenshots (max 10MB) below.
         placeholder: |
           Example:
             1. Created a C++ doctest unit test [TestName].
@@ -62,7 +63,7 @@ body:
       attributes:
         label: Minimal Reproduction Project
         description: |
-          - A folder containing a small C++ project to reproduce the bug with only necessary files included.
+          - A folder containing a small C++ project to reproduce the bug using the steps above with only necessary files included.
           - Drag and drop a zip archive to upload it (max 10MB). **NOTE: Do not select another field until the project is done uploading.**
       validations:
         required: false
