@@ -49,7 +49,7 @@ body:
         label: Steps to Reproduce
         description: |
           - List of clear steps to reproduce the bug.
-          - Please include any relevant code snippets/screenshots (max 10MB) below.
+          - Please include any relevant code snippets/screenshots (max 10MB) below. **NOTE: Do not select another field until the screenshots are finished uploading.**
         placeholder: |
           Example:
             1. Created a C++ doctest unit test [TestName].
