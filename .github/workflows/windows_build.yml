@@ -36,12 +36,12 @@ jobs:
       - name: Setup Environment
         id: vars
         run: | 
-          echo "BUILD_TIME=$(date +'%Y-%m-%d-%H-%M-%S')" << "$GITHUB_OUTPUT"
-          echo "SHA_SHORT=$(git rev-parse --short HEAD)" << "$GITHUB_OUTPUT"
+          echo "BUILD_TIME=$(date +'%Y-%m-%d-%H-%M-%S') << $GITHUB_OUTPUT"
+          echo "SHA_SHORT=$(git rev-parse --short HEAD) << $GITHUB_OUTPUT"
     
-      - name: Windows-${{ matrix.configuration }}-${{ steps.vars.BUILD_TIME }}-${{ github.ref_name }}-${{ steps.vars.SHA_SHORT }}
+      - name: Windows-${{ matrix.configuration }}-${{ steps.vars.outputs.BUILD_TIME }}-${{ github.ref_name }}-${{ steps.vars.outputs.SHA_SHORT }}
         run: | 
-          echo "Double Curly Bracket Format BUILD_TIME: ${{ steps.vars.BUILD_TIME }} SHA_SHORT: ${{ steps.vars.SHA_SHORT }}"
+          echo "Double Curly Bracket Format BUILD_TIME: ${{ steps.vars.outputs.BUILD_TIME }} SHA_SHORT: ${{ steps.vars.outputs.SHA_SHORT }}"
           
         # uses: actions/checkout@v4
         # with:
