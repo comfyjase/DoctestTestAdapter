@@ -119,15 +119,22 @@ namespace DoctestTestAdapter
             {
                 bool hasTestExeAlreadyBeenSetup = _testExecutables.Any(t => t.FilePath.Equals(test.Source));
                 if (hasTestExeAlreadyBeenSetup)
-                    continue;
-
-                DoctestTestExecutable newTestExecutable = new DoctestTestExecutable(test.Source, runContext, frameworkHandle);
-                SetupTestExecutableWithTestBatches(newTestExecutable, tests, settings);
-                _testExecutables.Add(newTestExecutable);
+                {
+                    DoctestTestExecutable existingTestExecutable = _testExecutables.Single(t => t.FilePath.Equals(test.Source));
+                    existingTestExecutable.TrackTestCase(test);
+                }
+                else
+                {
+                    DoctestTestExecutable newTestExecutable = new DoctestTestExecutable(test.Source, runContext, frameworkHandle);
+                    newTestExecutable.TrackTestCase(test);
+                    _testExecutables.Add(newTestExecutable);
+                }
             }
 
             foreach (DoctestTestExecutable testExecutable in _testExecutables)
             {
+                SetupTestExecutableWithTestBatches(testExecutable, tests, settings);
+
                 testExecutable.Finished += OnTestExecutableFinished;
                 testExecutable.Start();
             }

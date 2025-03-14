@@ -8,6 +8,8 @@ using System.Reflection;
 using DoctestTestAdapter.Settings;
 using Microsoft.Win32;
 using System.Globalization;
+using DoctestTestAdapter.Shared.Pdb;
+using DoctestTestAdapter.Shared.Profiling;
 
 namespace DoctestTestAdapter.Shared.Helpers
 {
@@ -24,8 +26,13 @@ namespace DoctestTestAdapter.Shared.Helpers
 
             DirectoryInfo directory = new DirectoryInfo(startingDirectoryPath);
 
-            while (directory != null && !directory.EnumerateFiles("*.sln").Any())
-                directory = directory.Parent;
+            Profiler profiler = new Profiler();
+            profiler.Start();
+            {
+                while (directory != null && !directory.EnumerateFiles("*.sln").Any())
+                    directory = directory.Parent;
+            }
+            profiler.End();
 
             return directory?.FullName ?? throw new FileNotFoundException($"Could not find solution directory {directory}");
         }
@@ -38,9 +45,14 @@ namespace DoctestTestAdapter.Shared.Helpers
             }
 
             DirectoryInfo directory = new DirectoryInfo(startingDirectoryPath);
-
-            while (directory != null && !directory.EnumerateFiles("*.sln").Any() && !directory.EnumerateFiles("*" + projectFileType).Any())
-                directory = directory.Parent;
+            
+            Profiler profiler = new Profiler();
+            profiler.Start();
+            {
+                while (directory != null && !directory.EnumerateFiles("*.sln").Any() && !directory.EnumerateFiles("*" + projectFileType).Any())
+                    directory = directory.Parent;
+            }
+            profiler.End();
 
             return directory?.FullName ?? throw new FileNotFoundException($"Could not find project directory {directory}");
         }
@@ -53,33 +65,38 @@ namespace DoctestTestAdapter.Shared.Helpers
         {
             string vsInstallDirectory = string.Empty;
 
-            List<string> foundInstances = Directory.GetDirectories("C:\\ProgramData\\Microsoft\\VisualStudio\\Packages\\_Instances\\").ToList();
-
-            foreach (string instance in foundInstances)
+            Profiler profiler = new Profiler();
+            profiler.Start();
             {
-                string directoryName = Path.GetFileName(instance);
+                List<string> foundInstances = Directory.GetDirectories("C:\\ProgramData\\Microsoft\\VisualStudio\\Packages\\_Instances\\").ToList();
 
-                string subKeyName = string.Format(
-                    CultureInfo.InvariantCulture,
-                    @"SOFTWARE\WOW6432Node\Microsoft\Windows\CurrentVersion\Uninstall\{0}\",
-                    directoryName);
-
-                using (RegistryKey key = Registry.LocalMachine.OpenSubKey(subKeyName))
+                foreach (string instance in foundInstances)
                 {
-                    if (key != null)
+                    string directoryName = Path.GetFileName(instance);
+
+                    string subKeyName = string.Format(
+                        CultureInfo.InvariantCulture,
+                        @"SOFTWARE\WOW6432Node\Microsoft\Windows\CurrentVersion\Uninstall\{0}\",
+                        directoryName);
+
+                    using (RegistryKey key = Registry.LocalMachine.OpenSubKey(subKeyName))
                     {
-                        string displayName = (string)key.GetValue("DisplayName");
+                        if (key != null)
+                        {
+                            string displayName = (string)key.GetValue("DisplayName");
 
-                        bool foundInstalledVersion = Helpers.Constants.SupportedVisualStudioVersionNames.Any(s => displayName.Equals(s));
-                        if (!foundInstalledVersion)
-                            continue;
+                            bool foundInstalledVersion = Helpers.Constants.SupportedVisualStudioVersionNames.Any(s => displayName.Equals(s));
+                            if (!foundInstalledVersion)
+                                continue;
 
-                        // This will find whatever the first valid VS install location is and then base the directory from that.
-                        vsInstallDirectory = (string)key.GetValue("InstallLocation");
-                        break;
+                            // This will find whatever the first valid VS install location is and then base the directory from that.
+                            vsInstallDirectory = (string)key.GetValue("InstallLocation");
+                            break;
+                        }
                     }
                 }
             }
+            profiler.End();
 
             return vsInstallDirectory;
         }
@@ -87,150 +104,328 @@ namespace DoctestTestAdapter.Shared.Helpers
         internal static string GetPDBFilePath(string executableFilePath)
         {
             string pdbFilePath = null;
-            string batFilePath = "\"" + GetVSInstallDirectory() + "\\Common7\\Tools\\VsDevCmd.bat\"";
 
-            System.Diagnostics.ProcessStartInfo processStartInfo = new System.Diagnostics.ProcessStartInfo();
-            processStartInfo.CreateNoWindow = true;
-            processStartInfo.UseShellExecute = false;
-            processStartInfo.RedirectStandardOutput = true;
-            processStartInfo.RedirectStandardError = true;
-            processStartInfo.FileName = @"cmd.exe";
-            processStartInfo.Arguments = "/c call " + batFilePath + " & dumpbin /PDBPATH " + "\"" + executableFilePath + "\"";
+            Profiler profiler = new Profiler();
+            profiler.Start();
+            {
+                string batFilePath = "\"" + GetVSInstallDirectory() + "\\Common7\\Tools\\VsDevCmd.bat\"";
 
-            System.Diagnostics.Process dumpBinProcess = new System.Diagnostics.Process();
-            dumpBinProcess.StartInfo = processStartInfo;
-            dumpBinProcess.Start();
+                System.Diagnostics.ProcessStartInfo processStartInfo = new System.Diagnostics.ProcessStartInfo();
+                processStartInfo.CreateNoWindow = true;
+                processStartInfo.UseShellExecute = false;
+                processStartInfo.RedirectStandardOutput = true;
+                processStartInfo.RedirectStandardError = true;
+                processStartInfo.FileName = @"cmd.exe";
+                processStartInfo.Arguments = "/c call " + batFilePath + " & dumpbin /PDBPATH " + "\"" + executableFilePath + "\"";
 
-            //TODO_comfyjase_25/02/2025: Wrap this in an option for the user to toggle on/off debug test output?
-            string output = dumpBinProcess.StandardOutput.ReadToEnd();
-            //if (!string.IsNullOrEmpty(output))
-            //    Console.WriteLine("dumpbin output: \n" + output);
-            string errors = dumpBinProcess.StandardError.ReadToEnd();
-            if (!string.IsNullOrEmpty(errors))
-                Console.WriteLine("dumpbin errors: \n\t" + errors);
-            dumpBinProcess.WaitForExit();
+                System.Diagnostics.Process dumpBinProcess = new System.Diagnostics.Process();
+                dumpBinProcess.StartInfo = processStartInfo;
+                dumpBinProcess.Start();
 
-            string startStr = "PDB file found at \'";
-            int startIndex = output.IndexOf(startStr) + startStr.Length;
-            int endIndex = output.LastIndexOf("\'");
-            pdbFilePath = output.Substring(startIndex, endIndex - startIndex);
+                //TODO_comfyjase_25/02/2025: Wrap this in an option for the user to toggle on/off debug test output?
+                string output = dumpBinProcess.StandardOutput.ReadToEnd();
+                //if (!string.IsNullOrEmpty(output))
+                //    Console.WriteLine("dumpbin output: \n" + output);
+                string errors = dumpBinProcess.StandardError.ReadToEnd();
+                if (!string.IsNullOrEmpty(errors))
+                    Console.WriteLine("dumpbin errors: \n\t" + errors);
+                dumpBinProcess.WaitForExit();
+
+                string startStr = "PDB file found at \'";
+                int startIndex = output.IndexOf(startStr) + startStr.Length;
+                int endIndex = output.LastIndexOf("\'");
+
+                pdbFilePath = output.Substring(startIndex, endIndex - startIndex);
+            }
+            profiler.End();
+
             return pdbFilePath ?? throw new FileNotFoundException($"Could not find pdb file for executable file {executableFilePath}");
         }
 
         internal static List<string> GetDependencies(string executableFilePath)
         {
             List<string> dependencies = new List<string>();
-            string batFilePath = "\"" + GetVSInstallDirectory() + "\\Common7\\Tools\\VsDevCmd.bat\"";
 
-            System.Diagnostics.ProcessStartInfo processStartInfo = new System.Diagnostics.ProcessStartInfo();
-            processStartInfo.CreateNoWindow = true;
-            processStartInfo.UseShellExecute = false;
-            processStartInfo.RedirectStandardOutput = true;
-            processStartInfo.RedirectStandardError = true;
-            processStartInfo.FileName = @"cmd.exe";
-            processStartInfo.Arguments = "/c call " + batFilePath + " & dumpbin /dependents " + "\"" + executableFilePath + "\"";
+            Profiler profiler = new Profiler();
+            profiler.Start();
+            {
+                string batFilePath = "\"" + GetVSInstallDirectory() + "\\Common7\\Tools\\VsDevCmd.bat\"";
 
-            System.Diagnostics.Process dumpBinProcess = new System.Diagnostics.Process();
-            dumpBinProcess.StartInfo = processStartInfo;
-            dumpBinProcess.Start();
+                System.Diagnostics.ProcessStartInfo processStartInfo = new System.Diagnostics.ProcessStartInfo();
+                processStartInfo.CreateNoWindow = true;
+                processStartInfo.UseShellExecute = false;
+                processStartInfo.RedirectStandardOutput = true;
+                processStartInfo.RedirectStandardError = true;
+                processStartInfo.FileName = @"cmd.exe";
+                processStartInfo.Arguments = "/c call " + batFilePath + " & dumpbin /dependents " + "\"" + executableFilePath + "\"";
 
-            //TODO_comfyjase_25/02/2025: Wrap this in an option for the user to toggle on/off debug test output?
-            string output = dumpBinProcess.StandardOutput.ReadToEnd();
-            //if (!string.IsNullOrEmpty(output))
-            //    Console.WriteLine("dumpbin output: \n" + output);
-            string errors = dumpBinProcess.StandardError.ReadToEnd();
-            if (!string.IsNullOrEmpty(errors))
-                Console.WriteLine("dumpbin errors: \n\t" + errors);
-            dumpBinProcess.WaitForExit();
+                System.Diagnostics.Process dumpBinProcess = new System.Diagnostics.Process();
+                dumpBinProcess.StartInfo = processStartInfo;
+                dumpBinProcess.Start();
 
-            string startIndexString = "Image has the following dependencies:";
-            string endIndexString = "Summary";
-            int startIndex = output.IndexOf(startIndexString) + startIndexString.Length;
-            int endIndex = output.IndexOf(endIndexString);
-            string outputSubstring = output.Substring(startIndex, endIndex - startIndex);
+                //TODO_comfyjase_25/02/2025: Wrap this in an option for the user to toggle on/off debug test output?
+                string output = dumpBinProcess.StandardOutput.ReadToEnd();
+                //if (!string.IsNullOrEmpty(output))
+                //    Console.WriteLine("dumpbin output: \n" + output);
+                string errors = dumpBinProcess.StandardError.ReadToEnd();
+                if (!string.IsNullOrEmpty(errors))
+                    Console.WriteLine("dumpbin errors: \n\t" + errors);
+                dumpBinProcess.WaitForExit();
 
-            dependencies = outputSubstring.Split('\n')
-                .Where(s => s.Contains(".dll"))
-                .Select(s => s.Trim().Replace(" ", ""))
-                .ToList();
+                string startIndexString = "Image has the following dependencies:";
+                string endIndexString = "Summary";
+                int startIndex = output.IndexOf(startIndexString) + startIndexString.Length;
+                int endIndex = output.IndexOf(endIndexString);
+                string outputSubstring = output.Substring(startIndex, endIndex - startIndex);
+
+                dependencies = outputSubstring.Split('\n')
+                    .Where(s => s.Contains(".dll"))
+                    .Select(s => s.Trim().Replace(" ", ""))
+                    .ToList();
+            }
+            profiler.End();
 
             return dependencies;
         }
 
-        internal static List<string> GetSourceFiles(string executableFilePath, DoctestTestSettings settings = null)
+        internal static List<string> GetSourceFiles(string executableFilePath, string pdbFilePath, DoctestTestSettings settings = null)
         {
             List<string> sourceFiles = new List<string>();
 
-            // Checking if executable has any dependencies.
-            // These dependencies may also have test files to use.
-            List<string> dependencies = GetDependencies(executableFilePath);
-            string executableDirectory = Directory.GetParent(executableFilePath).FullName;
-            foreach (string dependency in dependencies)
+            Profiler profiler = new Profiler();
+            profiler.Start();
             {
-                string dllFilePath = executableDirectory + "\\" + dependency;
-                if (File.Exists(dllFilePath))
+                string solutionDirectory = GetSolutionDirectory(Directory.GetParent(executableFilePath).FullName);
+                string cvDumpFilePath = Directory.GetParent(Assembly.GetExecutingAssembly().CodeBase.Replace(@"file:///", string.Empty)) + "\\thirdparty\\cvdump\\cvdump.exe";
+
+                System.Diagnostics.ProcessStartInfo processStartInfo = new System.Diagnostics.ProcessStartInfo();
+                processStartInfo.CreateNoWindow = true;
+                processStartInfo.UseShellExecute = false;
+                processStartInfo.RedirectStandardOutput = true;
+                processStartInfo.RedirectStandardError = true;
+                processStartInfo.FileName = string.Format(@"""{0}""", cvDumpFilePath);
+                processStartInfo.Arguments = "-stringtable " + string.Format(@"""{0}""", pdbFilePath);
+
+                System.Diagnostics.Process cvDumpProcess = new System.Diagnostics.Process();
+                cvDumpProcess.StartInfo = processStartInfo;
+                cvDumpProcess.Start();
+
+                //TODO_comfyjase_25/02/2025: Wrap this in an option for the user to toggle on/off debug test output?
+                string output = cvDumpProcess.StandardOutput.ReadToEnd();
+                //if (!string.IsNullOrEmpty(output))
+                //    Console.WriteLine("cvdumpbin output: \n" + output);
+                string errors = cvDumpProcess.StandardError.ReadToEnd();
+                if (!string.IsNullOrEmpty(errors))
+                    Console.WriteLine("cvdumpbin errors: \n\t" + errors);
+
+                cvDumpProcess.WaitForExit();
+
+                string startStr = "STRINGTABLE";
+                int startIndex = output.IndexOf(startStr) + startStr.Length;
+                int endIndex = output.Length;
+                string stringTableStr = output.Substring(startIndex, endIndex - startIndex);
+
+                // User has given specific search directories to use, so make sure we only return source files from those directories.
+                if (settings != null && settings.DiscoverySettings != null && settings.DiscoverySettings.SearchDirectories.Count > 0)
                 {
-                    // dll is a direct dependent for executableFilePath
-                    // So make sure to include any test source files from the dll too so they can be executed as well.
-                    sourceFiles.AddRange(GetSourceFiles(dllFilePath, settings));
+                    sourceFiles.AddRange
+                    (
+                        stringTableStr.Split('\n')
+                            .Select(s => s.Replace("\n", string.Empty).Replace("\r", string.Empty).Substring(s.IndexOf(" ") + 1))
+                            .Where(s => (settings.DiscoverySettings.SearchDirectories.Any(sd => s.Contains(solutionDirectory + "\\" + sd + "\\")) && !s.Contains("doctest.h") && s.EndsWith(".h") && File.Exists(s)))
+                            .ToList()
+                    );
+                }
+                // Otherwise, just grab any relevant source file under the solution directory.
+                else
+                {
+                    sourceFiles.AddRange
+                    (
+                        stringTableStr.Split('\n')
+                            .Select(s => s.Replace("\n", string.Empty).Replace("\r", string.Empty).Substring(s.IndexOf(" ") + 1))
+                            .Where(s => (s.Contains(solutionDirectory) && !s.Contains("doctest.h") && s.EndsWith(".h") && File.Exists(s)))
+                            .ToList()
+                    );
                 }
             }
-
-            string pdbFilePath = GetPDBFilePath(executableFilePath);
-            string solutionDirectory = GetSolutionDirectory(Directory.GetParent(executableFilePath).FullName);
-            string cvDumpFilePath = Directory.GetParent(Assembly.GetExecutingAssembly().CodeBase.Replace(@"file:///", string.Empty)) + "\\thirdparty\\cvdump\\cvdump.exe";
-
-            System.Diagnostics.ProcessStartInfo processStartInfo = new System.Diagnostics.ProcessStartInfo();
-            processStartInfo.CreateNoWindow = true;
-            processStartInfo.UseShellExecute = false;
-            processStartInfo.RedirectStandardOutput = true;
-            processStartInfo.RedirectStandardError = true;
-            processStartInfo.FileName = string.Format(@"""{0}""", cvDumpFilePath);
-            processStartInfo.Arguments = "-stringtable " + string.Format(@"""{0}""", pdbFilePath);
-
-            System.Diagnostics.Process cvDumpProcess = new System.Diagnostics.Process();
-            cvDumpProcess.StartInfo = processStartInfo;
-            cvDumpProcess.Start();
-
-            //TODO_comfyjase_25/02/2025: Wrap this in an option for the user to toggle on/off debug test output?
-            string output = cvDumpProcess.StandardOutput.ReadToEnd();
-            //if (!string.IsNullOrEmpty(output))
-            //    Console.WriteLine("cvdumpbin output: \n" + output);
-            string errors = cvDumpProcess.StandardError.ReadToEnd();
-            if (!string.IsNullOrEmpty(errors))
-                Console.WriteLine("cvdumpbin errors: \n\t" + errors);
-
-            cvDumpProcess.WaitForExit();
-
-            string startStr = "STRINGTABLE";
-            int startIndex = output.IndexOf(startStr) + startStr.Length;
-            int endIndex = output.Length;
-            string stringTableStr = output.Substring(startIndex, endIndex - startIndex);
-
-            // User has given specific search directories to use, so make sure we only return source files from those directories.
-            if (settings != null && settings.DiscoverySettings != null && settings.DiscoverySettings.SearchDirectories.Count > 0)
-            {
-                sourceFiles.AddRange
-                (
-                    stringTableStr.Split('\n')
-                        .Select(s => s.Replace("\n", string.Empty).Replace("\r", string.Empty).Substring(s.IndexOf(" ") + 1))
-                        .Where(s => (settings.DiscoverySettings.SearchDirectories.Any(sd => s.Contains(solutionDirectory + "\\" + sd + "\\")) && !s.Contains("doctest.h") && s.EndsWith(".h") && File.Exists(s)))
-                        .ToList()
-                );
-            }
-            // Otherwise, just grab any relevant source file under the solution directory.
-            else
-            {
-                sourceFiles.AddRange
-                (
-                    stringTableStr.Split('\n')
-                        .Select(s => s.Replace("\n", string.Empty).Replace("\r", string.Empty).Substring(s.IndexOf(" ") + 1))
-                        .Where(s => (s.Contains(solutionDirectory) && !s.Contains("doctest.h") && s.EndsWith(".h") && File.Exists(s)))
-                        .ToList()
-                );
-            }
+            profiler.End();
 
             return sourceFiles.Distinct().ToList();
+        }
+
+        internal static string GetSymbolLineForFunction(string symbolOutput, string functionAddress, int startSearchIndex = 0)
+        {
+            Profiler profiler = new Profiler();
+            profiler.Start();
+            {
+                string searchString = ":" + functionAddress + "]";
+                int searchIndex = symbolOutput.IndexOf(searchString, startSearchIndex);
+
+                if (searchIndex != -1)
+                {
+                    int symbolDataStartIndex = searchIndex + searchString.Length;
+                    int symbolLineStartIndex = symbolOutput.LastIndexOf("(", symbolDataStartIndex);
+                    int symbolDataEndIndex = symbolOutput.IndexOf('\n', symbolDataStartIndex);
+
+                    string symbolLine = symbolOutput.Substring(symbolLineStartIndex, symbolDataEndIndex - symbolLineStartIndex);
+
+                    //TODO_comfyjase_14/03/2025: Do we need to add DOCTEST_ANON_ as part of the symbol line as well to ensure it's only doctest stuff?
+                    //E.g. if ((symbolLine.Contains("S_LPROC32") || symbolLine.Contains("S_GPROC32")) && symbolLine.Contains("DOCTEST_ANON_"))
+                    if (symbolLine.Contains("S_LPROC32") || symbolLine.Contains("S_GPROC32"))
+                    {
+                        profiler.End();
+
+                        return symbolLine;
+                    }
+
+                    // If we have reached the final result in this string, we haven't been able to find a function symbol for this address.
+                    if (startSearchIndex == symbolLineStartIndex)
+                    {
+                        profiler.End();
+
+                        return null;
+                    }
+
+                    // Recursively search until we do find S_LPROC32 or S_GPROC32 with the given address.
+                    return GetSymbolLineForFunction(symbolOutput, functionAddress, symbolDataEndIndex);
+                }
+            }
+            profiler.End();
+
+            return null;
+        }
+
+        internal static List<PdbData> ReadPdbFile(string executableFilePath, List<string> dependencies = null, DoctestTestSettings settings = null)
+        {
+            List<PdbData> pdbData = new List<PdbData>();
+
+            Profiler profiler = new Profiler();
+            profiler.Start();
+            {
+                if (dependencies != null)
+                {
+                    foreach (string dependency in dependencies)
+                    {
+                        pdbData.AddRange(ReadPdbFile(dependency, null, settings));
+                    }
+                }
+
+                string pdbFilePath = GetPDBFilePath(executableFilePath);
+                string solutionDirectory = GetSolutionDirectory(Directory.GetParent(executableFilePath).FullName);
+                string cvDumpFilePath = Directory.GetParent(Assembly.GetExecutingAssembly().CodeBase.Replace(@"file:///", string.Empty)) + "\\thirdparty\\cvdump\\cvdump.exe";
+
+                List<string> sourceFiles = GetSourceFiles(executableFilePath, pdbFilePath, settings);
+
+                System.Diagnostics.ProcessStartInfo processStartInfo = new System.Diagnostics.ProcessStartInfo();
+                processStartInfo.CreateNoWindow = true;
+                processStartInfo.UseShellExecute = false;
+                processStartInfo.RedirectStandardOutput = true;
+                processStartInfo.RedirectStandardError = true;
+                processStartInfo.FileName = string.Format(@"""{0}""", cvDumpFilePath);
+                processStartInfo.Arguments = "-l -s " + string.Format(@"""{0}""", pdbFilePath);
+
+                System.Diagnostics.Process cvDumpProcess = new System.Diagnostics.Process();
+                cvDumpProcess.StartInfo = processStartInfo;
+                cvDumpProcess.Start();
+
+                //TODO_comfyjase_25/02/2025: Wrap this in an option for the user to toggle on/off debug test output?
+                string output = cvDumpProcess.StandardOutput.ReadToEnd();
+                //if (!string.IsNullOrEmpty(output))
+                //    Console.WriteLine("cvdumpbin output: \n" + output);
+                string errors = cvDumpProcess.StandardError.ReadToEnd();
+                if (!string.IsNullOrEmpty(errors))
+                    Console.WriteLine("cvdumpbin errors: \n\t" + errors);
+
+                cvDumpProcess.WaitForExit();
+
+                // Module data output
+                string startStr = "*** SYMBOLS";
+                int startIndex = output.IndexOf(startStr) + startStr.Length;
+                int endIndex = output.IndexOf("*** LINES");
+                string symbolOutput = output.Substring(startIndex, endIndex - startIndex);
+
+                // Line data output
+                startStr = "*** LINES";
+                startIndex = output.IndexOf(startStr) + startStr.Length;
+                endIndex = output.Length;
+                string lineDataOutput = output.Substring(startIndex, endIndex - startIndex);
+                string[] lineDataOutputArr = lineDataOutput
+                    .Trim()
+                    .Split('\n')
+                    .Where(s => (!s.Equals("\r") && !string.IsNullOrEmpty(s) && !string.IsNullOrWhiteSpace(s)))
+                    .ToArray();
+
+                PdbData currentPdbData = null;
+                for (int i = 0; i < lineDataOutputArr.Length; i++)
+                {
+                    string lineData = lineDataOutputArr[i];
+
+                    if (!sourceFiles.Any(s => lineData.Contains(s)))
+                    {
+                        continue;
+                    }
+
+                    string sourceFile = sourceFiles.Single(s => lineData.Contains(s));
+
+                    currentPdbData = pdbData.Find(p => p.CodeFilePath.Equals(sourceFile));
+                    if (currentPdbData == null)
+                    {
+                        currentPdbData = new PdbData(sourceFile);
+                        pdbData.Add(currentPdbData);
+                    }
+
+                    string lineAddrPairsStr = "line/addr pairs = ";
+                    startIndex = lineData.IndexOf(lineAddrPairsStr) + lineAddrPairsStr.Length;
+                    endIndex = lineData.Length;
+                    string subString = lineData.Substring(startIndex, endIndex - startIndex);
+
+                    if (int.TryParse(subString, out int lineAddrPairs))
+                    {
+                        int numberOfLinesAddressPairsAreOn = (int)Math.Ceiling((decimal)lineAddrPairs / 4);
+                        for (int j = 1; j < (numberOfLinesAddressPairsAreOn + 1); ++j)
+                        {
+                            string[] lineNumberAndAddress = lineDataOutputArr[i + j]
+                                .Trim()
+                                .Split(' ')
+                                .Where(s => (!string.IsNullOrEmpty(s) && !string.IsNullOrWhiteSpace(s)))
+                                .ToArray();
+
+                            for (int k = 0; k < lineNumberAndAddress.Count(); k += 2)
+                            {
+                                string lineNumberStr = lineNumberAndAddress[k];
+                                string lineAddressStr = lineNumberAndAddress[k + 1];
+
+                                if (int.TryParse(lineNumberStr, out int lineNumber))
+                                {
+                                    PdbLineData currentLineData = currentPdbData.AddLineData(lineNumber, lineAddressStr);
+                                    string symbolLine = GetSymbolLineForFunction(symbolOutput, lineAddressStr);
+
+                                    if (!string.IsNullOrEmpty(symbolLine))
+                                    {
+                                        Match regexMatch = Regex.Match(symbolLine, "Type.*?::");
+                                        if (regexMatch.Success)
+                                        {
+                                            string matchStr = regexMatch.Value;
+                                            string matchSearchString = ", ";
+                                            startIndex = matchStr.IndexOf(matchSearchString) + matchSearchString.Length;
+                                            endIndex = matchStr.LastIndexOf("::");
+                                            string fullyQualifiedName = matchStr.Substring(startIndex, endIndex - startIndex);
+                                            currentLineData.Namespace = fullyQualifiedName;
+
+                                            //TODO_comfyjase_14/03/2025: Check for class names here too?
+                                            // Namespace::NestedNamespace::Class::DOC_TEST_THINGY
+                                            //currentLineData.ClassName = fullyQualifiedName.SomethingHere();
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+            profiler.End();
+
+            return pdbData;
         }
 
         internal static T GetTestCasePropertyValue<T>(TestCase test, TestProperty testProperty)
@@ -345,108 +540,6 @@ namespace DoctestTestAdapter.Shared.Helpers
             return testName;
         }
 
-        private static void CheckForCurlyBrackets(string line, Stack<int> stack, Action onStackEmpty)
-        {
-            foreach (char letter in line)
-            {
-                switch (letter)
-                {
-                    case '{':
-                    {
-                        stack.Push(stack.Count + 1);
-                        break;
-                    }
-                    case '}':
-                    {
-                        if (stack.Count > 0)
-                            stack.Pop();
-
-                        if (stack.Count == 0)
-                            onStackEmpty();
-
-                        break;
-                    }
-                    default:
-                    {
-                        break;
-                    }
-                }
-            }
-        }
-
-        private static void CheckForCommentBlockStart(string filePath, string line, Stack<int> stack, Action onStackEmpty, ref bool insideFlag)
-        {
-            string lineWithoutWhiteSpaceCharacters = whitespace.Replace(line, string.Empty);
-
-            if (lineWithoutWhiteSpaceCharacters.StartsWith(@"/*"))
-            {
-                stack.Push(stack.Count + 1);
-
-                if (!insideFlag)
-                {
-                    insideFlag = true;
-                }
-            }
-        }
-
-        private static void CheckForCommentBlockEnd(string filePath, string line, Stack<int> stack, Action onStackEmpty, ref bool insideFlag)
-        {
-            string lineWithoutWhiteSpaceCharacters = whitespace.Replace(line, string.Empty);
-
-            if (lineWithoutWhiteSpaceCharacters.EndsWith(@"*/"))
-            {
-                if (stack.Count > 0)
-                    stack.Pop();
-
-                if (stack.Count == 0)
-                    onStackEmpty();
-            }
-        }
-
-        private static void CheckForPreprocessorIf0Block(string filePath, string line, Stack<int> stack, Action onStackEmpty, ref bool insideFlag)
-        {
-            string lineWithoutTabs = line.Replace("\t", string.Empty);
-
-            if (lineWithoutTabs.StartsWith(@"#if 0"))
-            {
-                stack.Push(stack.Count + 1);
-                if (!insideFlag)
-                {
-                    insideFlag = true;
-                }
-            }
-            else if (lineWithoutTabs.EndsWith(@"#endif"))
-            {
-                if (stack.Count > 0)
-                    stack.Pop();
-
-                if (stack.Count == 0)
-                    onStackEmpty();
-            }
-        }
-
-        private static void CheckForPreprocessorIfFalseBlock(string filePath, string line, Stack<int> stack, Action onStackEmpty, ref bool insideFlag)
-        {
-            string lineWithoutTabs = line.Replace("\t", string.Empty);
-
-            if (lineWithoutTabs.StartsWith(@"#if false"))
-            {
-                stack.Push(stack.Count + 1);
-                if (!insideFlag)
-                {
-                    insideFlag = true;
-                }
-            }
-            else if (lineWithoutTabs.EndsWith(@"#endif"))
-            {
-                if (stack.Count > 0)
-                    stack.Pop();
-
-                if (stack.Count == 0)
-                    onStackEmpty();
-            }
-        }
-
         public static TestCase CreateTestCase(string testOwner, string testNamespace, string testClassName, string testCaseName, string sourceCodeFilePath, int lineNumber, bool shouldBeSkipped)
         {
             string[] parts = new string[] { testNamespace, testClassName, testCaseName.Replace(@":", @"\:") };
@@ -464,140 +557,58 @@ namespace DoctestTestAdapter.Shared.Helpers
 
         internal static List<TestCase> GetTestCases(string executableFilePath, DoctestTestSettings settings = null)
         {
-            List<string> sourceFiles = GetSourceFiles(executableFilePath, settings);
             List<TestCase> testCases = new List<TestCase>();
 
-            foreach (string sourceFilePath in sourceFiles)
+            Profiler profiler = new Profiler();
+            profiler.Start();
             {
-                string[] allLines = System.IO.File.ReadAllLines(sourceFilePath);
-
-                int currentLineNumber = 1;
-                string testNamespace = Constants.EmptyNamespaceString;
-                string testClassName = Constants.EmptyClassString;
-
-                //TODO_comfyjase_03/03/2025: Refactor this into a generic class for pattern matching.
-                // OR even better, get all of the relevant info from the pdb file somehow...
-                // pdbdump.cpp seemed promising?
-                bool insideNamespace = false;
-                bool insideClass = false;
-                bool insideOfCommentBlock = false;
-                bool insideOfPreprocessorIf0Block = false;
-                bool insideOfPreprocessorIfFalseBlock = false;
-                Stack<int> namespaceBracketStack = new Stack<int>();
-                Stack<int> classBracketStack = new Stack<int>();
-                Stack<int> commentBlockStack = new Stack<int>();
-                Stack<int> preprocessorIf0BlockStack = new Stack<int>();
-                Stack<int> preprocessorIfFalseBlockStack = new Stack<int>();
-                Action onNamespaceStackEmpty = () => { testNamespace = Constants.EmptyNamespaceString; insideNamespace = false; };
-                Action onClassStackEmpty = () => { testClassName = Constants.EmptyClassString; insideClass = false; };
-                Action onCommentBlockStackEmpty = () => { insideOfCommentBlock= false; };
-                Action onPreprocessorIf0BlockStackEmpty = () => { insideOfPreprocessorIf0Block = false; };
-                Action onPreprocessorIfFalseBlockStackEmpty = () => { insideOfPreprocessorIfFalseBlock = false; };
-
-                foreach (string line in allLines)
+                List<string> dependencyFilePaths = new List<string>();
+                List<string> dependencies = GetDependencies(executableFilePath);
+                string executableDirectory = Directory.GetParent(executableFilePath).FullName;
+                foreach (string dependency in dependencies)
                 {
-                    string lineWithoutWhiteSpaceCharacters = whitespace.Replace(line, string.Empty);
-                    if (lineWithoutWhiteSpaceCharacters.StartsWith("//"))
+                    string dllFilePath = executableDirectory + "\\" + dependency;
+                    if (File.Exists(dllFilePath))
                     {
-                        currentLineNumber++;
-                        continue;
+                        // dll is a direct dependent for executableFilePath
+                        // So make sure to include any test source files from the dll too so they can be executed as well.
+                        dependencyFilePaths.Add(dllFilePath);
                     }
+                }
 
-                    // Ignore anything else since we are in a comment block.
-                    // Have to wait until the end of the comment block.
-                    CheckForCommentBlockStart(sourceFilePath, line, commentBlockStack, onCommentBlockStackEmpty, ref insideOfCommentBlock);
-                    if (insideOfCommentBlock)
+                List<PdbData> pdbData = Utilities.ReadPdbFile(executableFilePath, dependencyFilePaths, settings);
+
+                foreach (PdbData data in pdbData)
+                {
+                    foreach (PdbLineData lineData in data.LineData)
                     {
-                        CheckForCommentBlockEnd(sourceFilePath, line, commentBlockStack, onCommentBlockStackEmpty, ref insideOfCommentBlock);
-                        currentLineNumber++;
-                        continue;
+                        // TODO: TEST_SUITE
+
+                        if (lineData.LineStr.Contains("TEST_CASE(\""))
+                        {
+                            string testOwner = executableFilePath;
+                            string testCaseName = GetTestCaseNameSubstring(lineData.LineStr);
+                            string testNamespace = string.IsNullOrEmpty(lineData.Namespace) ? "Empty Namespace" : lineData.Namespace;
+                            string testClassName = string.IsNullOrEmpty(lineData.ClassName) ? "Empty Class" : lineData.ClassName;
+
+                            //TODO_comfyjase_30/01/2025: This assumes '* doctest::skip()' is on the same line as the name of the test...
+                            // Would be nice to implement logic to be able to cope with '* doctest::skip()' being on a new line too
+                            bool shouldSkipTest = Helpers.Constants.SkipTestKeywords.Any(s => lineData.LineStr.Contains(s));
+
+                            TestCase testCase = CreateTestCase(testOwner,
+                                testNamespace,
+                                testClassName,
+                                testCaseName,
+                                data.CodeFilePath,
+                                lineData.Number,
+                                shouldSkipTest);
+
+                            testCases.Add(testCase);
+                        }
                     }
-
-                    // Same as above, but for #if 0
-                    CheckForPreprocessorIf0Block(sourceFilePath, line, preprocessorIf0BlockStack, onPreprocessorIf0BlockStackEmpty, ref insideOfPreprocessorIf0Block);
-                    if (insideOfPreprocessorIf0Block)
-                    {
-                        currentLineNumber++;
-                        continue;
-                    }
-
-                    // Again, but for #if false
-                    CheckForPreprocessorIfFalseBlock(sourceFilePath, line, preprocessorIfFalseBlockStack, onPreprocessorIfFalseBlockStackEmpty, ref insideOfPreprocessorIfFalseBlock);
-                    if (insideOfPreprocessorIfFalseBlock)
-                    {
-                        currentLineNumber++;
-                        continue;
-                    }
-
-                    // If we are inside of a namespace.
-                    if (insideNamespace)
-                    {
-                        // Check if we are still inside it after this line.
-                        // If not, reset the testNamespace string and flag we are no longer inside the namespace.
-                        CheckForCurlyBrackets(line, namespaceBracketStack, onNamespaceStackEmpty);
-                    }
-
-                    // Same as above but for classes.
-                    if (insideClass)
-                    {
-                        CheckForCurlyBrackets(line, classBracketStack, onClassStackEmpty);
-                    }
-
-                    int numberOfSpacesInLine = line.Count(Char.IsWhiteSpace);
-
-                    // Regex for some specific keywords.
-                    string regexPattern = @"\bnamespace\b";
-                    if (Regex.Match(line, regexPattern, RegexOptions.IgnoreCase).Success && numberOfSpacesInLine < 3)
-                    {
-                        testNamespace = GetNamespaceSubstring(line);
-                        CheckForCurlyBrackets(line, namespaceBracketStack, onNamespaceStackEmpty);
-                        insideNamespace = true;
-                        currentLineNumber++;
-                        continue;
-                    }
-
-                    regexPattern = @"\bclass\b";
-                    if (Regex.Match(line, regexPattern, RegexOptions.IgnoreCase).Success && numberOfSpacesInLine < 5)
-                    {
-                        testClassName = GetClassNameSubstring(line);
-                        CheckForCurlyBrackets(line, classBracketStack, onClassStackEmpty);
-                        insideClass = true;
-                        currentLineNumber++;
-                        continue;
-                    }
-
-                    if (line.Contains("TEST_SUITE(\""))
-                    {
-                        testNamespace = GetTestSuiteNameSubstring(line);
-                        currentLineNumber++;
-                        continue;
-                    }
-
-                    if (line.Contains("TEST_CASE(\""))
-                    {
-                        string testOwner = executableFilePath;
-                        string testCaseName = GetTestCaseNameSubstring(line);
-
-                        //TODO_comfyjase_30/01/2025: This assumes '* doctest::skip()' is on the same line as the name of the test...
-                        // Would be nice to implement logic to be able to cope with '* doctest::skip()' being on a new line too
-                        bool shouldSkipTest = Helpers.Constants.SkipTestKeywords.Any(s => line.Contains(s));
-
-                        TestCase testCase = CreateTestCase(testOwner, 
-                            testNamespace,
-                            testClassName,
-                            testCaseName,
-                            sourceFilePath,
-                            currentLineNumber,
-                            shouldSkipTest);
-
-                        testCases.Add(testCase);
-                    }
-
-                    CheckForCommentBlockEnd(sourceFilePath, line, commentBlockStack, onCommentBlockStackEmpty, ref insideOfCommentBlock);
-
-                    currentLineNumber++;
                 }
             }
+            profiler.End();
 
             return testCases;
         }

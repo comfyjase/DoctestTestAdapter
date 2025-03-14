@@ -24,6 +24,9 @@ namespace DoctestTestAdapter.Shared.Helpers
         // According to this documentation the limit is 8191 for command prompt.
         internal static readonly int MaxCommandPromptArgumentLength = 8191;
 
+        // Profiling
+        internal static readonly bool ProfilingEnabled = false;
+
         // doctest key strings
         internal const string TestResultErrorKeyword = "ERROR: ";
         public static readonly List<string> SkipTestKeywords = new List<string>() { "doctest::skip()", "doctest::skip(true)" };

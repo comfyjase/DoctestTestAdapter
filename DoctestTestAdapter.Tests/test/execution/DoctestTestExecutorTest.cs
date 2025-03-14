@@ -3,11 +3,7 @@ using FakeItEasy;
 using Microsoft.VisualStudio.TestPlatform.ObjectModel;
 using Microsoft.VisualStudio.TestPlatform.ObjectModel.Adapter;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using System;
 using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Reflection.Metadata;
 using TestResult = Microsoft.VisualStudio.TestPlatform.ObjectModel.TestResult;
 
 namespace DoctestTestAdapter.Tests.Execution
@@ -18,22 +14,15 @@ namespace DoctestTestAdapter.Tests.Execution
         [TestMethod]
 		public void ExecuteExe()
 		{
-			List<TestCase> testCases = Utilities.GetTestCases(TestCommon.ExampleExecutableFilePath);
+			List<TestCase> testCases = Utilities.GetTestCases(TestCommon.UsingDoctestMainExecutableFilePath);
             Assert.IsTrue(testCases.Count == 4);
-
-            List<string> sourceFiles = Utilities.GetSourceFiles(TestCommon.ExampleExecutableFilePath);
-            Assert.IsTrue(sourceFiles.Count == 1);
-
-            string sourceFile = sourceFiles[0];
-            Assert.IsTrue(File.Exists(sourceFile));
-            Assert.IsTrue(sourceFile.EndsWith("TestIsEvenUsingDoctestMain.h"));
 
             TestCase failedTestCase = testCases[1];
             TestCommon.AssertTestCase(failedTestCase,
-                    TestCommon.ExampleExecutableFilePath,
+                    TestCommon.UsingDoctestMainExecutableFilePath,
                     "TestUsingDoctestMain::Empty Class::[UsingDoctestMain] Testing IsEven Always Fail",
                     "[UsingDoctestMain] Testing IsEven Always Fail",
-                    sourceFile,
+                    TestCommon.UsingDoctestMainTestHeaderFile,
                     57);
 
             Captured<TestCase> capturedTestCases = A.Captured<TestCase>();
@@ -62,31 +51,23 @@ namespace DoctestTestAdapter.Tests.Execution
         [TestMethod]
         public void ExecuteExeAndDLL()
         {
-            List<TestCase> testCases = Utilities.GetTestCases(TestCommon.ExampleExecutableUsingDLLFilePath);
+            List<TestCase> testCases = Utilities.GetTestCases(TestCommon.ExecutableUsingDLLExecutableFilePath);
             Assert.IsTrue(testCases.Count == 8);
-
-            List<string> sourceFiles = Utilities.GetSourceFiles(TestCommon.ExampleExecutableUsingDLLFilePath);
-            Assert.IsTrue(sourceFiles.Count == 4);
-            Assert.IsTrue(sourceFiles.Any(s => s.EndsWith("TestIsEvenDLL.h")));
-            Assert.IsTrue(sourceFiles.Any(s => s.EndsWith("TestIsEvenExecutableUsingDLL.h")));
-
-            string dllTestSourceFile = sourceFiles.Single(s => s.EndsWith("TestIsEvenDLL.h"));
-            string executableUsingDLLTestSourceFile = sourceFiles.Single(s => s.EndsWith("TestIsEvenExecutableUsingDLL.h"));
 
             TestCase dllFailedTestCase = testCases[1];
             TestCommon.AssertTestCase(dllFailedTestCase,
-                    TestCommon.ExampleExecutableUsingDLLFilePath,
+                    TestCommon.ExecutableUsingDLLExecutableFilePath,
                     "TestDLL::Empty Class::[DLL] Testing IsEven Always Fail",
                     "[DLL] Testing IsEven Always Fail",
-                    dllTestSourceFile,
+                    TestCommon.DLLTestHeaderFile,
                     53);
 
             TestCase executableUsingDLLFailedTestCase = testCases[5];
             TestCommon.AssertTestCase(executableUsingDLLFailedTestCase,
-                    TestCommon.ExampleExecutableUsingDLLFilePath,
+                    TestCommon.ExecutableUsingDLLExecutableFilePath,
                     "TestExecutableUsingDLL::Empty Class::[ExecutableUsingDLL] Testing IsEven Always Fail",
                     "[ExecutableUsingDLL] Testing IsEven Always Fail",
-                    executableUsingDLLTestSourceFile,
+                    TestCommon.ExecutableUsingDLLTestHeaderFile,
                     53);
 
             Captured<TestCase> capturedTestCases = A.Captured<TestCase>();

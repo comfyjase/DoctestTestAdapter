@@ -1,13 +1,9 @@
-﻿using DoctestTestAdapter.Shared.Helpers;
-using FakeItEasy;
+﻿using FakeItEasy;
 using Microsoft.VisualStudio.TestPlatform.ObjectModel.Adapter;
 using Microsoft.VisualStudio.TestPlatform.ObjectModel.Logging;
 using Microsoft.VisualStudio.TestPlatform.ObjectModel;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System.Collections.Generic;
-using System.IO;
-using System;
-using System.Linq;
 
 namespace DoctestTestAdapter.Tests.Discovery
 {
@@ -17,7 +13,7 @@ namespace DoctestTestAdapter.Tests.Discovery
         [TestMethod]
         public void DiscoverExe()
         {
-            IEnumerable<string> sources = new List<string>(){ TestCommon.ExampleExecutableFilePath };
+            IEnumerable<string> sources = new List<string>(){ TestCommon.UsingDoctestMainExecutableFilePath };
 
             Captured<TestCase> capturedTestCases = A.Captured<TestCase>();
             IRunContext discoveryContext = A.Fake<IRunContext>();
@@ -31,50 +27,43 @@ namespace DoctestTestAdapter.Tests.Discovery
             doctestTestDiscoverer.DiscoverTests(sources, discoveryContext, messageLogger, testCaseDiscoverySink);
             Assert.IsTrue(capturedTestCases.Values.Count == 4);
 
-            List<string> sourceFiles = Utilities.GetSourceFiles(TestCommon.ExampleExecutableFilePath);
-            Assert.IsTrue(sourceFiles.Count == 1);
-
-            string sourceFile = sourceFiles[0];
-            Assert.IsTrue(File.Exists(sourceFile));
-            Assert.IsTrue(sourceFile.EndsWith("TestIsEvenUsingDoctestMain.h"));
-
             TestCase testCase = capturedTestCases.Values[0];
             TestCommon.AssertTestCase(testCase,
-                    TestCommon.ExampleExecutableFilePath,
+                    TestCommon.UsingDoctestMainExecutableFilePath,
                     "TestUsingDoctestMain::Empty Class::[UsingDoctestMain] Testing IsEven Always Pass",
                     "[UsingDoctestMain] Testing IsEven Always Pass",
-                    sourceFile,
+                    TestCommon.UsingDoctestMainTestHeaderFile,
                     50);
 
             testCase = capturedTestCases.Values[1];
             TestCommon.AssertTestCase(testCase,
-                    TestCommon.ExampleExecutableFilePath,
+                    TestCommon.UsingDoctestMainExecutableFilePath,
                     "TestUsingDoctestMain::Empty Class::[UsingDoctestMain] Testing IsEven Always Fail",
                     "[UsingDoctestMain] Testing IsEven Always Fail",
-                    sourceFile,
+                    TestCommon.UsingDoctestMainTestHeaderFile,
                     57);
 
             testCase = capturedTestCases.Values[2];
             TestCommon.AssertTestCase(testCase,
-                    TestCommon.ExampleExecutableFilePath,
+                    TestCommon.UsingDoctestMainExecutableFilePath,
                     "TestUsingDoctestMain::Empty Class::[UsingDoctestMain] Testing IsEven Always Skipped",
                     "[UsingDoctestMain] Testing IsEven Always Skipped",
-                    sourceFile,
+                    TestCommon.UsingDoctestMainTestHeaderFile,
                     64);
 
             testCase = capturedTestCases.Values[3];
             TestCommon.AssertTestCase(testCase,
-                    TestCommon.ExampleExecutableFilePath,
+                    TestCommon.UsingDoctestMainExecutableFilePath,
                     "TestUsingDoctestMain::Empty Class::[UsingDoctestMain] Testing IsEven, Always Pass, With Commas In Name",
                     "[UsingDoctestMain] Testing IsEven, Always Pass, With Commas In Name",
-                    sourceFile,
+                    TestCommon.UsingDoctestMainTestHeaderFile,
                     71);
         }
 
         [TestMethod]
         public void DiscoverExeAndDLL()
         {
-            IEnumerable<string> sources = new List<string>() { TestCommon.ExampleExecutableUsingDLLFilePath };
+            IEnumerable<string> sources = new List<string>() { TestCommon.ExecutableUsingDLLExecutableFilePath };
             Captured<TestCase> capturedTestCases = A.Captured<TestCase>();
 
             IRunContext discoveryContext = A.Fake<IRunContext>();
@@ -88,78 +77,70 @@ namespace DoctestTestAdapter.Tests.Discovery
             doctestTestDiscoverer.DiscoverTests(sources, discoveryContext, messageLogger, testCaseDiscoverySink);
             Assert.IsTrue(capturedTestCases.Values.Count == 8);
 
-            List<string> sourceFiles = Utilities.GetSourceFiles(TestCommon.ExampleExecutableUsingDLLFilePath);
-            Assert.IsTrue(sourceFiles.Count == 4);
-            Assert.IsTrue(sourceFiles.Any(s => s.EndsWith("TestIsEvenDLL.h")));
-            Assert.IsTrue(sourceFiles.Any(s => s.EndsWith("TestIsEvenExecutableUsingDLL.h")));
-
-            string dllTestSourceFile = sourceFiles.Single(s => s.EndsWith("TestIsEvenDLL.h"));
-            string executableUsingDLLTestSourceFile = sourceFiles.Single(s => s.EndsWith("TestIsEvenExecutableUsingDLL.h"));
-
             // DLL Test Cases
             TestCase testCase = capturedTestCases.Values[0];
             TestCommon.AssertTestCase(testCase,
-                    TestCommon.ExampleExecutableUsingDLLFilePath,
+                    TestCommon.ExecutableUsingDLLExecutableFilePath,
                     "TestDLL::Empty Class::[DLL] Testing IsEven Always Pass",
                     "[DLL] Testing IsEven Always Pass",
-                    dllTestSourceFile,
+                    TestCommon.DLLTestHeaderFile,
                     46);
 
             testCase = capturedTestCases.Values[1];
             TestCommon.AssertTestCase(testCase,
-                    TestCommon.ExampleExecutableUsingDLLFilePath,
+                    TestCommon.ExecutableUsingDLLExecutableFilePath,
                     "TestDLL::Empty Class::[DLL] Testing IsEven Always Fail",
                     "[DLL] Testing IsEven Always Fail",
-                    dllTestSourceFile,
+                    TestCommon.DLLTestHeaderFile,
                     53);
 
             testCase = capturedTestCases.Values[2];
             TestCommon.AssertTestCase(testCase,
-                    TestCommon.ExampleExecutableUsingDLLFilePath,
+                    TestCommon.ExecutableUsingDLLExecutableFilePath,
                     "TestDLL::Empty Class::[DLL] Testing IsEven Always Skipped",
                     "[DLL] Testing IsEven Always Skipped",
-                    dllTestSourceFile,
+                    TestCommon.DLLTestHeaderFile,
                     60);
 
             testCase = capturedTestCases.Values[3];
             TestCommon.AssertTestCase(testCase,
-                    TestCommon.ExampleExecutableUsingDLLFilePath,
+                    TestCommon.ExecutableUsingDLLExecutableFilePath,
                     "TestDLL::Empty Class::[DLL] Testing IsEven, Always Pass, With Commas In Name",
                     "[DLL] Testing IsEven, Always Pass, With Commas In Name",
-                    dllTestSourceFile,
+                    TestCommon.DLLTestHeaderFile,
                     67);
 
             // ExecutableUsingDLL Test Cases
             testCase = capturedTestCases.Values[4];
             TestCommon.AssertTestCase(testCase,
-                    TestCommon.ExampleExecutableUsingDLLFilePath,
+                    TestCommon.ExecutableUsingDLLExecutableFilePath,
                     "TestExecutableUsingDLL::Empty Class::[ExecutableUsingDLL] Testing IsEven Always Pass",
                     "[ExecutableUsingDLL] Testing IsEven Always Pass",
-                    executableUsingDLLTestSourceFile,
+                    TestCommon.ExecutableUsingDLLTestHeaderFile,
                     46);
 
             testCase = capturedTestCases.Values[5];
             TestCommon.AssertTestCase(testCase,
-                    TestCommon.ExampleExecutableUsingDLLFilePath,
+                    TestCommon.ExecutableUsingDLLExecutableFilePath,
                     "TestExecutableUsingDLL::Empty Class::[ExecutableUsingDLL] Testing IsEven Always Fail",
                     "[ExecutableUsingDLL] Testing IsEven Always Fail",
-                    executableUsingDLLTestSourceFile,
+                    TestCommon.ExecutableUsingDLLTestHeaderFile,
                     53);
 
             testCase = capturedTestCases.Values[6];
             TestCommon.AssertTestCase(testCase,
-                    TestCommon.ExampleExecutableUsingDLLFilePath,
+                    TestCommon.ExecutableUsingDLLExecutableFilePath,
                     "TestExecutableUsingDLL::Empty Class::[ExecutableUsingDLL] Testing IsEven Always Skipped",
                     "[ExecutableUsingDLL] Testing IsEven Always Skipped",
-                    executableUsingDLLTestSourceFile,
+                    TestCommon.ExecutableUsingDLLTestHeaderFile,
                     60);
 
             testCase = capturedTestCases.Values[7];
             TestCommon.AssertTestCase(testCase,
-                    TestCommon.ExampleExecutableUsingDLLFilePath,
+                    TestCommon.ExecutableUsingDLLExecutableFilePath,
                     "TestExecutableUsingDLL::Empty Class::[ExecutableUsingDLL] Testing IsEven, Always Pass, With Commas In Name",
                     "[ExecutableUsingDLL] Testing IsEven, Always Pass, With Commas In Name",
-                    executableUsingDLLTestSourceFile,
+                    TestCommon.ExecutableUsingDLLTestHeaderFile,
                     67);
         }
     }

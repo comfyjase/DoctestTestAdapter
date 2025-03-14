@@ -52,7 +52,12 @@ namespace DoctestTestAdapter.Execution
             _filePath = filePath;
             _runContext = runContext;
             _frameworkHandle = frameworkHandle;
-            _allTestCases = Utilities.GetTestCases(_filePath, DoctestTestSettingsProvider.LoadSettings(_runContext));
+        }
+
+        public void TrackTestCase(TestCase testCase)
+        {
+            if (!_allTestCases.Contains(testCase))
+                _allTestCases.Add(testCase);
         }
 
         public void AddTestBatch(List<TestCase> tests, string commandArguments)

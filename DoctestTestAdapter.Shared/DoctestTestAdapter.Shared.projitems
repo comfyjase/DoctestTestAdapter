@@ -9,9 +9,12 @@
     <Import_RootNamespace>DoctestTestAdapter.Shared</Import_RootNamespace>
   </PropertyGroup>
   <ItemGroup>
+    <Compile Include="$(MSBuildThisFileDirectory)src\equality_comparers\PdbLineDataComparer.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)src\equality_comparers\TestCaseComparer.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)src\helpers\Constants.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)src\helpers\Utilities.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)src\pdb\PdbData.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)src\profiling\Profiler.cs" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="$(MSBuildThisFileDirectory)thirdparty\cvdump\cvdump.exe">
