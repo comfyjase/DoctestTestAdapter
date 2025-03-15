@@ -10,12 +10,13 @@ using Microsoft.Win32;
 using System.Globalization;
 using DoctestTestAdapter.Shared.Pdb;
 using DoctestTestAdapter.Shared.Profiling;
+using System.Runtime;
 
 namespace DoctestTestAdapter.Shared.Helpers
 {
     internal static class Utilities
     {
-        private static readonly Regex whitespace = new Regex(@"\s+");
+        private static readonly Regex SymbolFunctionSearchPattern = new Regex(@"Type.*?::");
 
         internal static string GetSolutionDirectory(string startingDirectoryPath = null)
         {
@@ -132,8 +133,8 @@ namespace DoctestTestAdapter.Shared.Helpers
                 dumpBinProcess.WaitForExit();
 
                 string startStr = "PDB file found at \'";
-                int startIndex = output.IndexOf(startStr) + startStr.Length;
-                int endIndex = output.LastIndexOf("\'");
+                int startIndex = output.IndexOf(startStr, StringComparison.OrdinalIgnoreCase) + startStr.Length;
+                int endIndex = output.LastIndexOf("\'", StringComparison.OrdinalIgnoreCase);
 
                 pdbFilePath = output.Substring(startIndex, endIndex - startIndex);
             }
@@ -174,8 +175,8 @@ namespace DoctestTestAdapter.Shared.Helpers
 
                 string startIndexString = "Image has the following dependencies:";
                 string endIndexString = "Summary";
-                int startIndex = output.IndexOf(startIndexString) + startIndexString.Length;
-                int endIndex = output.IndexOf(endIndexString);
+                int startIndex = output.IndexOf(startIndexString, StringComparison.OrdinalIgnoreCase) + startIndexString.Length;
+                int endIndex = output.IndexOf(endIndexString, StringComparison.OrdinalIgnoreCase);
                 string outputSubstring = output.Substring(startIndex, endIndex - startIndex);
 
                 dependencies = outputSubstring.Split('\n')
@@ -221,7 +222,7 @@ namespace DoctestTestAdapter.Shared.Helpers
                 cvDumpProcess.WaitForExit();
 
                 string startStr = "STRINGTABLE";
-                int startIndex = output.IndexOf(startStr) + startStr.Length;
+                int startIndex = output.IndexOf(startStr, StringComparison.OrdinalIgnoreCase) + startStr.Length;
                 int endIndex = output.Length;
                 string stringTableStr = output.Substring(startIndex, endIndex - startIndex);
 
@@ -259,13 +260,13 @@ namespace DoctestTestAdapter.Shared.Helpers
             profiler.Start();
             {
                 string searchString = ":" + functionAddress + "]";
-                int searchIndex = symbolOutput.IndexOf(searchString, startSearchIndex);
+                int searchIndex = symbolOutput.IndexOf(searchString, startSearchIndex, StringComparison.OrdinalIgnoreCase);
 
                 if (searchIndex != -1)
                 {
                     int symbolDataStartIndex = searchIndex + searchString.Length;
-                    int symbolLineStartIndex = symbolOutput.LastIndexOf("(", symbolDataStartIndex);
-                    int symbolDataEndIndex = symbolOutput.IndexOf('\n', symbolDataStartIndex);
+                    int symbolLineStartIndex = symbolOutput.LastIndexOf("(", symbolDataStartIndex, StringComparison.OrdinalIgnoreCase);
+                    int symbolDataEndIndex = symbolOutput.IndexOf("\n", symbolDataStartIndex, StringComparison.OrdinalIgnoreCase);
 
                     string symbolLine = symbolOutput.Substring(symbolLineStartIndex, symbolDataEndIndex - symbolLineStartIndex);
 
@@ -295,6 +296,66 @@ namespace DoctestTestAdapter.Shared.Helpers
             return null;
         }
 
+        internal static string SymbolDataOutput(string executableFilePath, string pdbFilePath, DoctestTestSettings settings = null)
+        {
+            string solutionDirectory = GetSolutionDirectory(Directory.GetParent(executableFilePath).FullName);
+            string cvDumpFilePath = Directory.GetParent(Assembly.GetExecutingAssembly().CodeBase.Replace(@"file:///", string.Empty)) + "\\thirdparty\\cvdump\\cvdump.exe";
+
+            System.Diagnostics.ProcessStartInfo processStartInfo = new System.Diagnostics.ProcessStartInfo();
+            processStartInfo.CreateNoWindow = true;
+            processStartInfo.UseShellExecute = false;
+            processStartInfo.RedirectStandardOutput = true;
+            processStartInfo.RedirectStandardError = true;
+            processStartInfo.FileName = string.Format(@"""{0}""", cvDumpFilePath);
+            processStartInfo.Arguments = "-s " + string.Format(@"""{0}""", pdbFilePath);
+
+            System.Diagnostics.Process cvDumpProcess = new System.Diagnostics.Process();
+            cvDumpProcess.StartInfo = processStartInfo;
+            cvDumpProcess.Start();
+
+            //TODO_comfyjase_25/02/2025: Wrap this in an option for the user to toggle on/off debug test output?
+            string output = cvDumpProcess.StandardOutput.ReadToEnd();
+            //if (!string.IsNullOrEmpty(output))
+            //    Console.WriteLine("cvdumpbin output: \n" + output);
+            string errors = cvDumpProcess.StandardError.ReadToEnd();
+            if (!string.IsNullOrEmpty(errors))
+                Console.WriteLine("cvdumpbin errors: \n\t" + errors);
+
+            cvDumpProcess.WaitForExit();
+
+            return output;
+        }
+
+        internal static string LineDataOutput(string executableFilePath, string pdbFilePath, DoctestTestSettings settings = null)
+        {
+            string solutionDirectory = GetSolutionDirectory(Directory.GetParent(executableFilePath).FullName);
+            string cvDumpFilePath = Directory.GetParent(Assembly.GetExecutingAssembly().CodeBase.Replace(@"file:///", string.Empty)) + "\\thirdparty\\cvdump\\cvdump.exe";
+
+            System.Diagnostics.ProcessStartInfo processStartInfo = new System.Diagnostics.ProcessStartInfo();
+            processStartInfo.CreateNoWindow = true;
+            processStartInfo.UseShellExecute = false;
+            processStartInfo.RedirectStandardOutput = true;
+            processStartInfo.RedirectStandardError = true;
+            processStartInfo.FileName = string.Format(@"""{0}""", cvDumpFilePath);
+            processStartInfo.Arguments = "-l " + string.Format(@"""{0}""", pdbFilePath);
+
+            System.Diagnostics.Process cvDumpProcess = new System.Diagnostics.Process();
+            cvDumpProcess.StartInfo = processStartInfo;
+            cvDumpProcess.Start();
+
+            //TODO_comfyjase_25/02/2025: Wrap this in an option for the user to toggle on/off debug test output?
+            string output = cvDumpProcess.StandardOutput.ReadToEnd();
+            //if (!string.IsNullOrEmpty(output))
+            //    Console.WriteLine("cvdumpbin output: \n" + output);
+            string errors = cvDumpProcess.StandardError.ReadToEnd();
+            if (!string.IsNullOrEmpty(errors))
+                Console.WriteLine("cvdumpbin errors: \n\t" + errors);
+
+            cvDumpProcess.WaitForExit();
+
+            return output;
+        }
+
         internal static List<PdbData> ReadPdbFile(string executableFilePath, List<string> dependencies = null, DoctestTestSettings settings = null)
         {
             List<PdbData> pdbData = new List<PdbData>();
@@ -316,39 +377,13 @@ namespace DoctestTestAdapter.Shared.Helpers
 
                 List<string> sourceFiles = GetSourceFiles(executableFilePath, pdbFilePath, settings);
 
-                System.Diagnostics.ProcessStartInfo processStartInfo = new System.Diagnostics.ProcessStartInfo();
-                processStartInfo.CreateNoWindow = true;
-                processStartInfo.UseShellExecute = false;
-                processStartInfo.RedirectStandardOutput = true;
-                processStartInfo.RedirectStandardError = true;
-                processStartInfo.FileName = string.Format(@"""{0}""", cvDumpFilePath);
-                processStartInfo.Arguments = "-l -s " + string.Format(@"""{0}""", pdbFilePath);
+                string symbolDataOutput = SymbolDataOutput(executableFilePath, pdbFilePath, settings);
+                string lineDataOutput = LineDataOutput(executableFilePath, pdbFilePath, settings);
 
-                System.Diagnostics.Process cvDumpProcess = new System.Diagnostics.Process();
-                cvDumpProcess.StartInfo = processStartInfo;
-                cvDumpProcess.Start();
-
-                //TODO_comfyjase_25/02/2025: Wrap this in an option for the user to toggle on/off debug test output?
-                string output = cvDumpProcess.StandardOutput.ReadToEnd();
-                //if (!string.IsNullOrEmpty(output))
-                //    Console.WriteLine("cvdumpbin output: \n" + output);
-                string errors = cvDumpProcess.StandardError.ReadToEnd();
-                if (!string.IsNullOrEmpty(errors))
-                    Console.WriteLine("cvdumpbin errors: \n\t" + errors);
-
-                cvDumpProcess.WaitForExit();
-
-                // Module data output
-                string startStr = "*** SYMBOLS";
-                int startIndex = output.IndexOf(startStr) + startStr.Length;
-                int endIndex = output.IndexOf("*** LINES");
-                string symbolOutput = output.Substring(startIndex, endIndex - startIndex);
+                Console.WriteLine("JASE DEBUG - symbolDataOutput.Length: " + symbolDataOutput.Length);
+                Console.WriteLine("JASE DEBUG - lineDataOutput.Length: " + lineDataOutput.Length);
 
                 // Line data output
-                startStr = "*** LINES";
-                startIndex = output.IndexOf(startStr) + startStr.Length;
-                endIndex = output.Length;
-                string lineDataOutput = output.Substring(startIndex, endIndex - startIndex);
                 string[] lineDataOutputArr = lineDataOutput
                     .Trim()
                     .Split('\n')
@@ -356,16 +391,19 @@ namespace DoctestTestAdapter.Shared.Helpers
                     .ToArray();
 
                 PdbData currentPdbData = null;
+                string lineAddressPairsString = "line/addr pairs = ";
+                string matchSearchStartString = ", ";
+                string matchSearchEndString = "::";
+
                 for (int i = 0; i < lineDataOutputArr.Length; i++)
                 {
                     string lineData = lineDataOutputArr[i];
 
-                    if (!sourceFiles.Any(s => lineData.Contains(s)))
+                    string sourceFile = sourceFiles.Find(s => lineData.Contains(s));
+                    if (string.IsNullOrEmpty(sourceFile))
                     {
                         continue;
                     }
-
-                    string sourceFile = sourceFiles.Single(s => lineData.Contains(s));
 
                     currentPdbData = pdbData.Find(p => p.CodeFilePath.Equals(sourceFile));
                     if (currentPdbData == null)
@@ -374,9 +412,8 @@ namespace DoctestTestAdapter.Shared.Helpers
                         pdbData.Add(currentPdbData);
                     }
 
-                    string lineAddrPairsStr = "line/addr pairs = ";
-                    startIndex = lineData.IndexOf(lineAddrPairsStr) + lineAddrPairsStr.Length;
-                    endIndex = lineData.Length;
+                    int startIndex = lineData.IndexOf(lineAddressPairsString, StringComparison.OrdinalIgnoreCase) + lineAddressPairsString.Length;
+                    int endIndex = lineData.Length;
                     string subString = lineData.Substring(startIndex, endIndex - startIndex);
 
                     if (int.TryParse(subString, out int lineAddrPairs))
@@ -398,17 +435,16 @@ namespace DoctestTestAdapter.Shared.Helpers
                                 if (int.TryParse(lineNumberStr, out int lineNumber))
                                 {
                                     PdbLineData currentLineData = currentPdbData.AddLineData(lineNumber, lineAddressStr);
-                                    string symbolLine = GetSymbolLineForFunction(symbolOutput, lineAddressStr);
+                                    string symbolLine = GetSymbolLineForFunction(symbolDataOutput, lineAddressStr);
 
                                     if (!string.IsNullOrEmpty(symbolLine))
                                     {
-                                        Match regexMatch = Regex.Match(symbolLine, "Type.*?::");
+                                        Match regexMatch = SymbolFunctionSearchPattern.Match(symbolLine);
                                         if (regexMatch.Success)
                                         {
                                             string matchStr = regexMatch.Value;
-                                            string matchSearchString = ", ";
-                                            startIndex = matchStr.IndexOf(matchSearchString) + matchSearchString.Length;
-                                            endIndex = matchStr.LastIndexOf("::");
+                                            startIndex = matchStr.IndexOf(matchSearchStartString, StringComparison.OrdinalIgnoreCase) + matchSearchStartString.Length;
+                                            endIndex = matchStr.LastIndexOf(matchSearchEndString, StringComparison.OrdinalIgnoreCase);
                                             string fullyQualifiedName = matchStr.Substring(startIndex, endIndex - startIndex);
                                             currentLineData.Namespace = fullyQualifiedName;
 
