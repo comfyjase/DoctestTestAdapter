@@ -63,7 +63,7 @@ namespace DoctestTestAdapter.Shared.Helpers
                         {
                             string displayName = (string)key.GetValue("DisplayName");
 
-                            bool foundInstalledVersion = Helpers.Constants.SupportedVisualStudioVersionNames.Any(s => displayName.Equals(s));
+                            bool foundInstalledVersion = Helpers.Constants.SupportedVisualStudioNames.Any(s => displayName.Contains(s));
                             if (!foundInstalledVersion)
                                 continue;
 

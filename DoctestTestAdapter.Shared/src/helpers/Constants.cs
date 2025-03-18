@@ -6,11 +6,11 @@ namespace DoctestTestAdapter.Shared.Helpers
     internal static class Constants
     {
         // Visual Studio
-        internal static readonly List<string> SupportedVisualStudioVersionNames = new List<string>()
+        internal static readonly List<string> SupportedVisualStudioNames = new List<string>()
         {
-            "Visual Studio Community 2022",
-            "Visual Studio Professional 2022",
-            "Visual Studio Enterprise 2022",
+            "Visual Studio Community",
+            "Visual Studio Professional",
+            "Visual Studio Enterprise",
         };
 
         // Test adapter
