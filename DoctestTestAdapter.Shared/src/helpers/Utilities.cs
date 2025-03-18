@@ -10,7 +10,6 @@ using System.Globalization;
 using DoctestTestAdapter.Shared.Profiling;
 using System.Diagnostics;
 using DoctestTestAdapter.Shared.Keywords;
-using System.Text.RegularExpressions;
 
 namespace DoctestTestAdapter.Shared.Helpers
 {
@@ -255,9 +254,9 @@ namespace DoctestTestAdapter.Shared.Helpers
             string fullCommandArguments = string.Empty;
 
             // User defined command arguments: --test
-            if (settings != null && settings.ExecutorSettings != null && !string.IsNullOrEmpty(settings.ExecutorSettings.CommandArguments))
+            if (settings != null && settings.GeneralSettings != null && !string.IsNullOrEmpty(settings.GeneralSettings.CommandArguments))
             {
-                fullCommandArguments = settings.ExecutorSettings.CommandArguments + " " + doctestArguments;
+                fullCommandArguments = settings.GeneralSettings.CommandArguments + " " + doctestArguments;
             }
             // Otherwise, just use regular doctest arguments
             else
@@ -267,8 +266,6 @@ namespace DoctestTestAdapter.Shared.Helpers
             
             return fullCommandArguments;
         }
-
-        
 
         public static TestCase CreateTestCase(string testOwner, string testNamespace, string testClassName, string testCaseName, string sourceCodeFilePath, int lineNumber)
         {
@@ -308,9 +305,9 @@ namespace DoctestTestAdapter.Shared.Helpers
             processStartInfo.UseShellExecute = false;
             processStartInfo.WorkingDirectory = solutionDirectory;
             processStartInfo.FileName = string.Format("\"{0}\"", executableFilePath);
-            if (settings != null && settings.DiscoverySettings != null && !string.IsNullOrEmpty(settings.DiscoverySettings.CommandArguments))
+            if (settings != null && settings.GeneralSettings != null && !string.IsNullOrEmpty(settings.GeneralSettings.CommandArguments))
             {
-                processStartInfo.Arguments = settings.DiscoverySettings.CommandArguments + " --no-intro=true --no-version=true --list-test-suites";
+                processStartInfo.Arguments = settings.GeneralSettings.CommandArguments + " --no-intro=true --no-version=true --list-test-suites";
             }
             else
             {
@@ -361,9 +358,9 @@ namespace DoctestTestAdapter.Shared.Helpers
             processStartInfo.UseShellExecute = false;
             processStartInfo.WorkingDirectory = solutionDirectory;
             processStartInfo.FileName = string.Format("\"{0}\"", executableFilePath);
-            if (settings != null && settings.DiscoverySettings != null && !string.IsNullOrEmpty(settings.DiscoverySettings.CommandArguments))
+            if (settings != null && settings.GeneralSettings != null && !string.IsNullOrEmpty(settings.GeneralSettings.CommandArguments))
             {
-                processStartInfo.Arguments = settings.DiscoverySettings.CommandArguments + " --no-intro=true --no-version=true --list-test-cases";
+                processStartInfo.Arguments = settings.GeneralSettings.CommandArguments + " --no-intro=true --no-version=true --list-test-cases";
             }
             else
             {

@@ -26,12 +26,12 @@ namespace DoctestTestAdapter.Tests.Discovery
 
             ITestDiscoverer doctestTestDiscoverer = new DoctestTestDiscoverer();
             doctestTestDiscoverer.DiscoverTests(sources, discoveryContext, messageLogger, testCaseDiscoverySink);
-            Assert.IsTrue(capturedTestCases.Values.Count == 25);
+            Assert.HasCount(25, capturedTestCases.Values);
 
             TestCommon.AssertTestCases(capturedTestCases.Values.ToList(),
                 TestCommon.UsingDoctestMainExecutableFilePath,
                 "UsingDoctestMain",
-                TestCommon.UsingDoctestMainTestHeaderFile);
+                TestCommon.UsingDoctestMainTestHeaderFilePath);
         }
 
         [TestMethod]
@@ -49,7 +49,7 @@ namespace DoctestTestAdapter.Tests.Discovery
 
             ITestDiscoverer doctestTestDiscoverer = new DoctestTestDiscoverer();
             doctestTestDiscoverer.DiscoverTests(sources, discoveryContext, messageLogger, testCaseDiscoverySink);
-            Assert.IsTrue(capturedTestCases.Values.Count == 50);
+            Assert.HasCount(50, capturedTestCases.Values);
 
             List<TestCase> dllTestCases = capturedTestCases.Values
                 .ToList()
@@ -63,12 +63,12 @@ namespace DoctestTestAdapter.Tests.Discovery
             TestCommon.AssertTestCases(dllTestCases,
                 TestCommon.ExecutableUsingDLLExecutableFilePath,
                 "DLL",
-                TestCommon.DLLTestHeaderFile
+                TestCommon.DLLTestHeaderFilePath
             );
             TestCommon.AssertTestCases(executableUsingDLLTestCases,
                 TestCommon.ExecutableUsingDLLExecutableFilePath,
                 "ExecutableUsingDLL",
-                TestCommon.ExecutableUsingDLLTestHeaderFile
+                TestCommon.ExecutableUsingDLLTestHeaderFilePath
             );
         }
     }

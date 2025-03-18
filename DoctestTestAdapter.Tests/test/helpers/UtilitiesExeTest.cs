@@ -7,7 +7,7 @@ using System.IO;
 namespace DoctestTestAdapter.Tests.Helpers
 {
     [TestClass]
-    public class UtilitiesTestExe
+    public class UtilitiesExeTest
     {
         [TestMethod]
         public void SolutionDirectory()
@@ -19,8 +19,6 @@ namespace DoctestTestAdapter.Tests.Helpers
             string pdbFilePath = Utilities.GetPDBFilePath(TestCommon.UsingDoctestMainExecutableFilePath);
             Assert.IsFalse(string.IsNullOrEmpty(pdbFilePath));
             Assert.IsTrue(File.Exists(pdbFilePath));
-            Assert.IsTrue(Path.GetExtension(pdbFilePath).Equals(".pdb"));
-            Assert.AreEqual("UsingDoctestMain.pdb", Path.GetFileName(pdbFilePath));
             Assert.AreEqual(TestCommon.UsingDoctestMainPdbFilePath, pdbFilePath);
         }
 
@@ -33,7 +31,7 @@ namespace DoctestTestAdapter.Tests.Helpers
             Assert.IsNotEmpty(dependencies);
 
 #if DEBUG
-            Assert.IsTrue(dependencies.Count == 5);
+            Assert.HasCount(5, dependencies);
 
             foreach (string dependency in dependencies)
             {
@@ -46,7 +44,7 @@ namespace DoctestTestAdapter.Tests.Helpers
             Assert.AreEqual("VCRUNTIME140D.dll", dependencies[3]);
             Assert.AreEqual("ucrtbased.dll", dependencies[4]);
 #else
-            Assert.IsTrue(dependencies.Count == 9);
+            Assert.HasCount(9, dependencies);
 
             foreach (string dependency in dependencies)
             {
@@ -70,12 +68,12 @@ namespace DoctestTestAdapter.Tests.Helpers
         {
             List<string> sourceFiles = Utilities.GetSourceFiles(TestCommon.UsingDoctestMainExecutableFilePath, TestCommon.UsingDoctestMainPdbFilePath);
             Assert.IsNotEmpty(sourceFiles);
-            Assert.IsTrue(sourceFiles.Count == 1);
+            Assert.HasCount(1, sourceFiles);
 
             string sourceFile = sourceFiles[0];
             Assert.IsFalse(string.IsNullOrEmpty(sourceFile));
             Assert.IsTrue(File.Exists(sourceFile));
-            Assert.IsTrue(sourceFile.EndsWith("TestIsEvenUsingDoctestMain.h"));
+            Assert.AreEqual(TestCommon.UsingDoctestMainTestHeaderFilePath, sourceFile);
         }
 
         [TestMethod]
@@ -83,7 +81,7 @@ namespace DoctestTestAdapter.Tests.Helpers
         {
             List<string> testSuiteNames = Utilities.GetAllTestSuiteNames(TestCommon.UsingDoctestMainExecutableFilePath);
             Assert.IsNotEmpty(testSuiteNames);
-            Assert.IsTrue(testSuiteNames.Count == 2);
+            Assert.HasCount(2, testSuiteNames);
 
             foreach (string testSuiteName in testSuiteNames)
             {
@@ -99,7 +97,7 @@ namespace DoctestTestAdapter.Tests.Helpers
         {
             List<string> testCaseNames = Utilities.GetAllTestCaseNames(TestCommon.UsingDoctestMainExecutableFilePath);
             Assert.IsNotEmpty(testCaseNames);
-            Assert.IsTrue(testCaseNames.Count == 25);
+            Assert.HasCount(25, testCaseNames);
             TestCommon.AssertTestCaseNames(testCaseNames, "[UsingDoctestMain]");
         }
 
@@ -107,11 +105,11 @@ namespace DoctestTestAdapter.Tests.Helpers
         public void TestCases()
         {
             List<TestCase> testCases = Utilities.GetTestCases(TestCommon.UsingDoctestMainExecutableFilePath);
-            Assert.IsTrue(testCases.Count == 25);
+            Assert.HasCount(25, testCases);
             TestCommon.AssertTestCases(testCases, 
                 TestCommon.UsingDoctestMainExecutableFilePath,
                 "UsingDoctestMain",
-                TestCommon.UsingDoctestMainTestHeaderFile
+                TestCommon.UsingDoctestMainTestHeaderFilePath
             );
         }
     }

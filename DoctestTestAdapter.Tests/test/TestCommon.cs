@@ -25,10 +25,10 @@ namespace DoctestTestAdapter.Tests
         internal static string DLLPdbFilePath = Utilities.GetSolutionDirectory() + "\\DoctestTestAdapter.Examples\\bin\\x64\\Release\\DLL\\DLL.pdb";
 #endif
 
-        internal static string UsingDoctestMainTestHeaderFile = Utilities.GetSolutionDirectory() + "\\DoctestTestAdapter.Examples\\UsingDoctestMain\\TestIsEvenUsingDoctestMain.h";
-        internal static string UsingCustomMainTestHeaderFile = Utilities.GetSolutionDirectory() + "\\DoctestTestAdapter.Examples\\UsingCustomMain\\TestIsEvenUsingCustomMain.h";
-        internal static string ExecutableUsingDLLTestHeaderFile = Utilities.GetSolutionDirectory() + "\\DoctestTestAdapter.Examples\\DLLExample\\ExecutableUsingDLL\\TestIsEvenExecutableUsingDLL.h";
-        internal static string DLLTestHeaderFile = Utilities.GetSolutionDirectory() + "\\DoctestTestAdapter.Examples\\DLLExample\\DLL\\TestIsEvenDLL.h";
+        internal static string UsingDoctestMainTestHeaderFilePath = Utilities.GetSolutionDirectory() + "\\DoctestTestAdapter.Examples\\UsingDoctestMain\\TestIsEvenUsingDoctestMain.h";
+        internal static string UsingCustomMainTestHeaderFilePath = Utilities.GetSolutionDirectory() + "\\DoctestTestAdapter.Examples\\UsingCustomMain\\TestIsEvenUsingCustomMain.h";
+        internal static string ExecutableUsingDLLTestHeaderFilePath = Utilities.GetSolutionDirectory() + "\\DoctestTestAdapter.Examples\\DLLExample\\ExecutableUsingDLL\\TestIsEvenExecutableUsingDLL.h";
+        internal static string DLLTestHeaderFilePath = Utilities.GetSolutionDirectory() + "\\DoctestTestAdapter.Examples\\DLLExample\\DLL\\TestIsEvenDLL.h";
 
         // Setup for convenience.
         private class ExampleTestCaseData
@@ -112,7 +112,7 @@ namespace DoctestTestAdapter.Tests
         internal static void AssertTestCases(List<TestCase> testCases, string expectedTestSource, string expectedPrefix, string expectedCodeFilePath)
         {
             Assert.IsNotEmpty(testCases);
-            Assert.IsTrue(testCases.Count == exampleTestCaseData.Count);
+            Assert.AreEqual(exampleTestCaseData.Count, testCases.Count);
 
             for (int i = 0; i < testCases.Count; ++i)
             {

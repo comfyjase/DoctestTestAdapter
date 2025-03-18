@@ -16,12 +16,12 @@ namespace DoctestTestAdapter.Tests.Execution
 		public void ExecuteExe()
 		{
 			List<TestCase> testCases = Utilities.GetTestCases(TestCommon.UsingDoctestMainExecutableFilePath);
-            Assert.IsTrue(testCases.Count == 25);
+            Assert.HasCount(25, testCases);
 
             TestCommon.AssertTestCases(testCases, 
                 TestCommon.UsingDoctestMainExecutableFilePath,
                 "UsingDoctestMain",
-                TestCommon.UsingDoctestMainTestHeaderFile);
+                TestCommon.UsingDoctestMainTestHeaderFilePath);
 
             Captured<TestCase> capturedTestCases = A.Captured<TestCase>();
             Captured<TestResult> capturedTestResults = A.Captured<TestResult>();
@@ -34,8 +34,8 @@ namespace DoctestTestAdapter.Tests.Execution
 
             ITestExecutor doctestTestExecutor = new DoctestTestExecutor();
             doctestTestExecutor.RunTests(testCases, runContext, frameworkHandle);
-
-            Assert.IsTrue(capturedTestResults.Values.Count == 25);
+            
+            Assert.HasCount(25, capturedTestResults.Values);
             TestCommon.AssertTestResults(capturedTestResults.Values.ToList());
         }
 
@@ -43,7 +43,7 @@ namespace DoctestTestAdapter.Tests.Execution
         public void ExecuteExeAndDLL()
         {
             List<TestCase> testCases = Utilities.GetTestCases(TestCommon.ExecutableUsingDLLExecutableFilePath);
-            Assert.IsTrue(testCases.Count == 50);
+            Assert.HasCount(50, testCases);
 
             List<TestCase> dllTestCases = testCases
                 .ToList()
@@ -57,12 +57,12 @@ namespace DoctestTestAdapter.Tests.Execution
             TestCommon.AssertTestCases(dllTestCases,
                 TestCommon.ExecutableUsingDLLExecutableFilePath,
                 "DLL",
-                TestCommon.DLLTestHeaderFile
+                TestCommon.DLLTestHeaderFilePath
             );
             TestCommon.AssertTestCases(executableUsingDLLTestCases,
                 TestCommon.ExecutableUsingDLLExecutableFilePath,
                 "ExecutableUsingDLL",
-                TestCommon.ExecutableUsingDLLTestHeaderFile
+                TestCommon.ExecutableUsingDLLTestHeaderFilePath
             );
 
             Captured<TestCase> capturedTestCases = A.Captured<TestCase>();
@@ -77,7 +77,7 @@ namespace DoctestTestAdapter.Tests.Execution
             ITestExecutor doctestTestExecutor = new DoctestTestExecutor();
             doctestTestExecutor.RunTests(testCases, runContext, frameworkHandle);
 
-            Assert.IsTrue(capturedTestResults.Values.Count == 50);
+            Assert.HasCount(50, capturedTestResults.Values);
 
             List<TestResult> dllTestResults = capturedTestResults.Values
                 .Where(t => t.TestCase.DisplayName.Contains("[DLL]"))

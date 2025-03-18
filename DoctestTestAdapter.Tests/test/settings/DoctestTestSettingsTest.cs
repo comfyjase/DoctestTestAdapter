@@ -10,6 +10,6 @@ namespace DoctestTestAdapter.Tests.Settings
 	{
 		[TestMethod]
 		public void Load() =>
-            Assert.IsTrue(DoctestTestSettingsProvider.LoadSettings(A.Fake<IRunContext>()) != null);
+            Assert.IsNotNull(DoctestTestSettingsProvider.LoadSettings(A.Fake<IRunContext>()));
     }
 }

@@ -8,7 +8,7 @@ using System.Linq;
 namespace DoctestTestAdapter.Tests.Helpers
 {
     [TestClass]
-    public class UtilitiesTestDLL
+    public class UtilitiesDLLTest
     {
         [TestMethod]
         public void SolutionDirectory()
@@ -20,8 +20,6 @@ namespace DoctestTestAdapter.Tests.Helpers
             string pdbFilePath = Utilities.GetPDBFilePath(TestCommon.DLLExecutableFilePath);
             Assert.IsFalse(string.IsNullOrEmpty(pdbFilePath));
             Assert.IsTrue(File.Exists(pdbFilePath));
-            Assert.IsTrue(Path.GetExtension(pdbFilePath).Equals(".pdb"));
-            Assert.AreEqual("DLL.pdb", Path.GetFileName(pdbFilePath));
             Assert.AreEqual(TestCommon.DLLPdbFilePath, pdbFilePath);
         }
 
@@ -32,7 +30,7 @@ namespace DoctestTestAdapter.Tests.Helpers
             Assert.IsNotEmpty(dependencies);
 
 #if DEBUG
-            Assert.IsTrue(dependencies.Count == 5);
+            Assert.HasCount(5, dependencies);
 
             foreach (string dependency in dependencies)
             {
@@ -45,7 +43,7 @@ namespace DoctestTestAdapter.Tests.Helpers
             Assert.AreEqual("VCRUNTIME140_1D.dll", dependencies[3]);
             Assert.AreEqual("ucrtbased.dll", dependencies[4]);
 #else
-            Assert.IsTrue(dependencies.Count == 13);
+            Assert.HasCount(13, dependencies);
 
             foreach (string dependency in dependencies)
             {
@@ -73,12 +71,12 @@ namespace DoctestTestAdapter.Tests.Helpers
         {
             List<string> sourceFiles = Utilities.GetSourceFiles(TestCommon.DLLExecutableFilePath, TestCommon.DLLPdbFilePath);
             Assert.IsNotEmpty(sourceFiles);
-            Assert.IsTrue(sourceFiles.Count == 1);
+            Assert.HasCount(1, sourceFiles);
 
             string sourceFile = sourceFiles[0];
             Assert.IsFalse(string.IsNullOrEmpty(sourceFile));
             Assert.IsTrue(File.Exists(sourceFile));
-            Assert.IsTrue(sourceFile.EndsWith("TestIsEvenDLL.h"));
+            Assert.AreEqual(TestCommon.DLLTestHeaderFilePath, sourceFile);
         }
 
         [TestMethod]
@@ -89,7 +87,7 @@ namespace DoctestTestAdapter.Tests.Helpers
             // You can't just run a DLL file.
             List<string> testSuiteNames = Utilities.GetAllTestSuiteNames(TestCommon.ExecutableUsingDLLExecutableFilePath);
             Assert.IsNotEmpty(testSuiteNames);
-            Assert.IsTrue(testSuiteNames.Count == 4);
+            Assert.HasCount(4, testSuiteNames);
 
             foreach (string testSuiteName in testSuiteNames)
             {
@@ -111,7 +109,7 @@ namespace DoctestTestAdapter.Tests.Helpers
             // Same as the TestSuiteNamesDLL unit test - can't just run a DLL file, so use the exe that loads the DLL.
             List<string> testCaseNames = Utilities.GetAllTestCaseNames(TestCommon.ExecutableUsingDLLExecutableFilePath);
             Assert.IsNotEmpty(testCaseNames);
-            Assert.IsTrue(testCaseNames.Count == 50);
+            Assert.HasCount(50, testCaseNames);
 
             List<string> testCaseNamesFromDLL = testCaseNames
                 .Where(s => s.StartsWith("[DLL]"))
@@ -128,7 +126,7 @@ namespace DoctestTestAdapter.Tests.Helpers
         public void TestCases()
         {
             List<TestCase> testCases = Utilities.GetTestCases(TestCommon.ExecutableUsingDLLExecutableFilePath);
-            Assert.IsTrue(testCases.Count == 50);
+            Assert.HasCount(50, testCases);
 
             List<TestCase> dllTestCases = testCases
                 .Where(t => t.DisplayName.Contains("[DLL]"))
@@ -140,12 +138,12 @@ namespace DoctestTestAdapter.Tests.Helpers
             TestCommon.AssertTestCases(dllTestCases,
                 TestCommon.ExecutableUsingDLLExecutableFilePath,
                 "DLL",
-                TestCommon.DLLTestHeaderFile
+                TestCommon.DLLTestHeaderFilePath
             );
             TestCommon.AssertTestCases(executableUsingDLLTestCases,
                 TestCommon.ExecutableUsingDLLExecutableFilePath,
                 "ExecutableUsingDLL",
-                TestCommon.ExecutableUsingDLLTestHeaderFile
+                TestCommon.ExecutableUsingDLLTestHeaderFilePath
             );
         }
     }

@@ -15,9 +15,12 @@ namespace DoctestTestAdapter.Tests.EqualityComparers
                     "TestUsingDoctestMain",
                     "Empty Class",
                     "[UsingDoctestMain] Testing IsEven Always Pass",
-                    TestCommon.UsingDoctestMainTestHeaderFile,
+                    TestCommon.UsingDoctestMainTestHeaderFilePath,
                     50);
+            Assert.IsNotNull(testCase);
+            
             TestCase copyOfTestCase = testCase;
+            Assert.IsNotNull(copyOfTestCase);
 
             TestCaseComparer comparer = new TestCaseComparer();
             Assert.IsTrue(comparer.Equals(testCase, copyOfTestCase));
@@ -30,17 +33,36 @@ namespace DoctestTestAdapter.Tests.EqualityComparers
                     "TestUsingDoctestMain",
                     "Empty Class",
                     "[UsingDoctestMain] Testing IsEven Always Pass",
-                    TestCommon.UsingDoctestMainTestHeaderFile,
+                    TestCommon.UsingDoctestMainTestHeaderFilePath,
                     50);
+            Assert.IsNotNull(testCaseA);
             TestCase testCaseB = Utilities.CreateTestCase(TestCommon.UsingDoctestMainExecutableFilePath,
                     "TestUsingDoctestMain",
                     "Empty Class",
                     "[UsingDoctestMain] Testing IsEven Always Fail",
-                    TestCommon.UsingDoctestMainTestHeaderFile,
+                    TestCommon.UsingDoctestMainTestHeaderFilePath,
                     57);
+            Assert.IsNotNull(testCaseB);
 
             TestCaseComparer comparer = new TestCaseComparer();
             Assert.IsFalse(comparer.Equals(testCaseA, testCaseB));
+        }
+
+        [TestMethod]
+        public void CompareTestCaseAgainstNull()
+        {
+            TestCase testCaseA = Utilities.CreateTestCase(TestCommon.UsingDoctestMainExecutableFilePath,
+                    "TestUsingDoctestMain",
+                    "Empty Class",
+                    "[UsingDoctestMain] Testing IsEven Always Pass",
+                    TestCommon.UsingDoctestMainTestHeaderFilePath,
+                    50);
+            Assert.IsNotNull(testCaseA);
+
+            TestCase testCaseB = null;
+
+            TestCaseComparer testCaseComparer = new TestCaseComparer();
+            Assert.IsFalse(testCaseComparer.Equals(testCaseA, testCaseB));
         }
     }
 }

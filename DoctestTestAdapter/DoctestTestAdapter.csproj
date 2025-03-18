@@ -51,6 +51,7 @@
     <Compile Include="src\execution\DoctestTestExecutable.cs" />
     <Compile Include="src\settings\DoctestDiscoverySettings.cs" />
     <Compile Include="src\settings\DoctestExecutorSettings.cs" />
+    <Compile Include="src\settings\DoctestGeneralSettings.cs" />
     <Compile Include="src\settings\DoctestTestSettings.cs" />
     <Compile Include="src\settings\DoctestTestSettingsProvider.cs" />
   </ItemGroup>

@@ -10,7 +10,9 @@ namespace DoctestTestAdapter.Settings
     {
         public const string RunSettingsXmlNode = "Doctest";
         private static readonly XmlSerializer Serializer = new XmlSerializer(typeof(DoctestTestSettings));
-        
+
+        public DoctestGeneralSettings GeneralSettings { get; set; } = new DoctestGeneralSettings();
+
         public DoctestDiscoverySettings DiscoverySettings { get; set; } = new DoctestDiscoverySettings();
 
         public DoctestExecutorSettings ExecutorSettings { get; set; } = new DoctestExecutorSettings();
