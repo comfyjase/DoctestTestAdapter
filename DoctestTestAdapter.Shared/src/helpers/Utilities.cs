@@ -2,22 +2,20 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Text.RegularExpressions;
 using System;
 using System.Reflection;
 using DoctestTestAdapter.Settings;
 using Microsoft.Win32;
 using System.Globalization;
-using DoctestTestAdapter.Shared.Pdb;
 using DoctestTestAdapter.Shared.Profiling;
-using System.Runtime;
+using System.Diagnostics;
+using DoctestTestAdapter.Shared.Keywords;
+using System.Text.RegularExpressions;
 
 namespace DoctestTestAdapter.Shared.Helpers
 {
     internal static class Utilities
     {
-        private static readonly Regex SymbolFunctionSearchPattern = new Regex(@"Type.*?::");
-
         internal static string GetSolutionDirectory(string startingDirectoryPath = null)
         {
             if (startingDirectoryPath == null)
@@ -36,26 +34,6 @@ namespace DoctestTestAdapter.Shared.Helpers
             profiler.End();
 
             return directory?.FullName ?? throw new FileNotFoundException($"Could not find solution directory {directory}");
-        }
-
-        internal static string GetProjectDirectory(string projectFileType, string startingDirectoryPath = null)
-        {
-            if (startingDirectoryPath == null)
-            {
-                startingDirectoryPath = Environment.CurrentDirectory;
-            }
-
-            DirectoryInfo directory = new DirectoryInfo(startingDirectoryPath);
-            
-            Profiler profiler = new Profiler();
-            profiler.Start();
-            {
-                while (directory != null && !directory.EnumerateFiles("*.sln").Any() && !directory.EnumerateFiles("*" + projectFileType).Any())
-                    directory = directory.Parent;
-            }
-            profiler.End();
-
-            return directory?.FullName ?? throw new FileNotFoundException($"Could not find project directory {directory}");
         }
         
         /// <summary>
@@ -254,216 +232,6 @@ namespace DoctestTestAdapter.Shared.Helpers
             return sourceFiles.Distinct().ToList();
         }
 
-        internal static string GetSymbolLineForFunction(string symbolOutput, string functionAddress, int startSearchIndex = 0)
-        {
-            Profiler profiler = new Profiler();
-            profiler.Start();
-            {
-                string searchString = ":" + functionAddress + "]";
-                int searchIndex = symbolOutput.IndexOf(searchString, startSearchIndex, StringComparison.OrdinalIgnoreCase);
-
-                if (searchIndex != -1)
-                {
-                    int symbolDataStartIndex = searchIndex + searchString.Length;
-                    int symbolLineStartIndex = symbolOutput.LastIndexOf("(", symbolDataStartIndex, StringComparison.OrdinalIgnoreCase);
-                    int symbolDataEndIndex = symbolOutput.IndexOf("\n", symbolDataStartIndex, StringComparison.OrdinalIgnoreCase);
-
-                    string symbolLine = symbolOutput.Substring(symbolLineStartIndex, symbolDataEndIndex - symbolLineStartIndex);
-
-                    //TODO_comfyjase_14/03/2025: Do we need to add DOCTEST_ANON_ as part of the symbol line as well to ensure it's only doctest stuff?
-                    //E.g. if ((symbolLine.Contains("S_LPROC32") || symbolLine.Contains("S_GPROC32")) && symbolLine.Contains("DOCTEST_ANON_"))
-                    if (symbolLine.Contains("S_LPROC32") || symbolLine.Contains("S_GPROC32"))
-                    {
-                        profiler.End();
-
-                        return symbolLine;
-                    }
-
-                    // If we have reached the final result in this string, we haven't been able to find a function symbol for this address.
-                    if (startSearchIndex == symbolLineStartIndex)
-                    {
-                        profiler.End();
-
-                        return null;
-                    }
-
-                    // Recursively search until we do find S_LPROC32 or S_GPROC32 with the given address.
-                    return GetSymbolLineForFunction(symbolOutput, functionAddress, symbolDataEndIndex);
-                }
-            }
-            profiler.End();
-
-            return null;
-        }
-
-        internal static string SymbolDataOutput(string executableFilePath, string pdbFilePath, DoctestTestSettings settings = null)
-        {
-            string solutionDirectory = GetSolutionDirectory(Directory.GetParent(executableFilePath).FullName);
-            string cvDumpFilePath = Directory.GetParent(Assembly.GetExecutingAssembly().CodeBase.Replace(@"file:///", string.Empty)) + "\\thirdparty\\cvdump\\cvdump.exe";
-
-            System.Diagnostics.ProcessStartInfo processStartInfo = new System.Diagnostics.ProcessStartInfo();
-            processStartInfo.CreateNoWindow = true;
-            processStartInfo.UseShellExecute = false;
-            processStartInfo.RedirectStandardOutput = true;
-            processStartInfo.RedirectStandardError = true;
-            processStartInfo.FileName = string.Format(@"""{0}""", cvDumpFilePath);
-            processStartInfo.Arguments = "-s " + string.Format(@"""{0}""", pdbFilePath);
-
-            System.Diagnostics.Process cvDumpProcess = new System.Diagnostics.Process();
-            cvDumpProcess.StartInfo = processStartInfo;
-            cvDumpProcess.Start();
-
-            //TODO_comfyjase_25/02/2025: Wrap this in an option for the user to toggle on/off debug test output?
-            string output = cvDumpProcess.StandardOutput.ReadToEnd();
-            //if (!string.IsNullOrEmpty(output))
-            //    Console.WriteLine("cvdumpbin output: \n" + output);
-            string errors = cvDumpProcess.StandardError.ReadToEnd();
-            if (!string.IsNullOrEmpty(errors))
-                Console.WriteLine("cvdumpbin errors: \n\t" + errors);
-
-            cvDumpProcess.WaitForExit();
-
-            return output;
-        }
-
-        internal static string LineDataOutput(string executableFilePath, string pdbFilePath, DoctestTestSettings settings = null)
-        {
-            string solutionDirectory = GetSolutionDirectory(Directory.GetParent(executableFilePath).FullName);
-            string cvDumpFilePath = Directory.GetParent(Assembly.GetExecutingAssembly().CodeBase.Replace(@"file:///", string.Empty)) + "\\thirdparty\\cvdump\\cvdump.exe";
-
-            System.Diagnostics.ProcessStartInfo processStartInfo = new System.Diagnostics.ProcessStartInfo();
-            processStartInfo.CreateNoWindow = true;
-            processStartInfo.UseShellExecute = false;
-            processStartInfo.RedirectStandardOutput = true;
-            processStartInfo.RedirectStandardError = true;
-            processStartInfo.FileName = string.Format(@"""{0}""", cvDumpFilePath);
-            processStartInfo.Arguments = "-l " + string.Format(@"""{0}""", pdbFilePath);
-
-            System.Diagnostics.Process cvDumpProcess = new System.Diagnostics.Process();
-            cvDumpProcess.StartInfo = processStartInfo;
-            cvDumpProcess.Start();
-
-            //TODO_comfyjase_25/02/2025: Wrap this in an option for the user to toggle on/off debug test output?
-            string output = cvDumpProcess.StandardOutput.ReadToEnd();
-            //if (!string.IsNullOrEmpty(output))
-            //    Console.WriteLine("cvdumpbin output: \n" + output);
-            string errors = cvDumpProcess.StandardError.ReadToEnd();
-            if (!string.IsNullOrEmpty(errors))
-                Console.WriteLine("cvdumpbin errors: \n\t" + errors);
-
-            cvDumpProcess.WaitForExit();
-
-            return output;
-        }
-
-        internal static List<PdbData> ReadPdbFile(string executableFilePath, List<string> dependencies = null, DoctestTestSettings settings = null)
-        {
-            List<PdbData> pdbData = new List<PdbData>();
-
-            Profiler profiler = new Profiler();
-            profiler.Start();
-            {
-                if (dependencies != null)
-                {
-                    foreach (string dependency in dependencies)
-                    {
-                        pdbData.AddRange(ReadPdbFile(dependency, null, settings));
-                    }
-                }
-
-                string pdbFilePath = GetPDBFilePath(executableFilePath);
-                string solutionDirectory = GetSolutionDirectory(Directory.GetParent(executableFilePath).FullName);
-                string cvDumpFilePath = Directory.GetParent(Assembly.GetExecutingAssembly().CodeBase.Replace(@"file:///", string.Empty)) + "\\thirdparty\\cvdump\\cvdump.exe";
-
-                List<string> sourceFiles = GetSourceFiles(executableFilePath, pdbFilePath, settings);
-
-                string symbolDataOutput = SymbolDataOutput(executableFilePath, pdbFilePath, settings);
-                string lineDataOutput = LineDataOutput(executableFilePath, pdbFilePath, settings);
-
-                Console.WriteLine("JASE DEBUG - symbolDataOutput.Length: " + symbolDataOutput.Length);
-                Console.WriteLine("JASE DEBUG - lineDataOutput.Length: " + lineDataOutput.Length);
-
-                // Line data output
-                string[] lineDataOutputArr = lineDataOutput
-                    .Trim()
-                    .Split('\n')
-                    .Where(s => (!s.Equals("\r") && !string.IsNullOrEmpty(s) && !string.IsNullOrWhiteSpace(s)))
-                    .ToArray();
-
-                PdbData currentPdbData = null;
-                string lineAddressPairsString = "line/addr pairs = ";
-                string matchSearchStartString = ", ";
-                string matchSearchEndString = "::";
-
-                for (int i = 0; i < lineDataOutputArr.Length; i++)
-                {
-                    string lineData = lineDataOutputArr[i];
-
-                    string sourceFile = sourceFiles.Find(s => lineData.Contains(s));
-                    if (string.IsNullOrEmpty(sourceFile))
-                    {
-                        continue;
-                    }
-
-                    currentPdbData = pdbData.Find(p => p.CodeFilePath.Equals(sourceFile));
-                    if (currentPdbData == null)
-                    {
-                        currentPdbData = new PdbData(sourceFile);
-                        pdbData.Add(currentPdbData);
-                    }
-
-                    int startIndex = lineData.IndexOf(lineAddressPairsString, StringComparison.OrdinalIgnoreCase) + lineAddressPairsString.Length;
-                    int endIndex = lineData.Length;
-                    string subString = lineData.Substring(startIndex, endIndex - startIndex);
-
-                    if (int.TryParse(subString, out int lineAddrPairs))
-                    {
-                        int numberOfLinesAddressPairsAreOn = (int)Math.Ceiling((decimal)lineAddrPairs / 4);
-                        for (int j = 1; j < (numberOfLinesAddressPairsAreOn + 1); ++j)
-                        {
-                            string[] lineNumberAndAddress = lineDataOutputArr[i + j]
-                                .Trim()
-                                .Split(' ')
-                                .Where(s => (!string.IsNullOrEmpty(s) && !string.IsNullOrWhiteSpace(s)))
-                                .ToArray();
-
-                            for (int k = 0; k < lineNumberAndAddress.Count(); k += 2)
-                            {
-                                string lineNumberStr = lineNumberAndAddress[k];
-                                string lineAddressStr = lineNumberAndAddress[k + 1];
-
-                                if (int.TryParse(lineNumberStr, out int lineNumber))
-                                {
-                                    PdbLineData currentLineData = currentPdbData.AddLineData(lineNumber, lineAddressStr);
-                                    string symbolLine = GetSymbolLineForFunction(symbolDataOutput, lineAddressStr);
-
-                                    if (!string.IsNullOrEmpty(symbolLine))
-                                    {
-                                        Match regexMatch = SymbolFunctionSearchPattern.Match(symbolLine);
-                                        if (regexMatch.Success)
-                                        {
-                                            string matchStr = regexMatch.Value;
-                                            startIndex = matchStr.IndexOf(matchSearchStartString, StringComparison.OrdinalIgnoreCase) + matchSearchStartString.Length;
-                                            endIndex = matchStr.LastIndexOf(matchSearchEndString, StringComparison.OrdinalIgnoreCase);
-                                            string fullyQualifiedName = matchStr.Substring(startIndex, endIndex - startIndex);
-                                            currentLineData.Namespace = fullyQualifiedName;
-
-                                            //TODO_comfyjase_14/03/2025: Check for class names here too?
-                                            // Namespace::NestedNamespace::Class::DOC_TEST_THINGY
-                                            //currentLineData.ClassName = fullyQualifiedName.SomethingHere();
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-            profiler.End();
-
-            return pdbData;
-        }
-
         internal static T GetTestCasePropertyValue<T>(TestCase test, TestProperty testProperty)
         {
             object testPropertyObject = test.GetPropertyValue(testProperty);
@@ -472,7 +240,7 @@ namespace DoctestTestAdapter.Shared.Helpers
 
         internal static string GetCommandArguments(string executableFilePath, int batchNumber, DoctestTestSettings settings, IEnumerable<TestCase> tests)
         {
-            List<string> testCaseNames = tests.Select(t => string.Format("*\"{0}\"*", t.DisplayName.Replace(",", @"\,"))).ToList();
+            List<string> testCaseNames = tests.Select(t => string.Format("*\"{0}\"*", t.DisplayName.Replace(@"\", @"\\").Replace(",", @"\,"))).ToList();
 
             // Sorted into doctest specific argument formatting: *"[TestDecorator] Test 1"*,*"[TestDecorator] Test 2"*
             string doctestTestCaseCommandArgument = "--test-case=" + string.Join(",", testCaseNames);
@@ -500,85 +268,23 @@ namespace DoctestTestAdapter.Shared.Helpers
             return fullCommandArguments;
         }
 
-        private static string GetNamespaceSubstring(string line)
+        
+
+        public static TestCase CreateTestCase(string testOwner, string testNamespace, string testClassName, string testCaseName, string sourceCodeFilePath, int lineNumber)
         {
-            string testFileNamespace = Constants.EmptyNamespaceString;
-
-            string namespaceKeyword = "namespace";
-            int startIndex = line.IndexOf(namespaceKeyword) + namespaceKeyword.Length;
-
-            // E.g. if the line only contains the namespace keyword and nothing else...
-            // Then just count this as an empty namespace.
-            if (startIndex == line.Length)
+            // Here we escape any characters used by the test explorer.
+            // This makes sure to display the test case names correctly in the test explorer window.
+            // Note: Can't escape the '.' character, this is used as a separator for the fully qualified name.
+            // Anything with a '.' in won't be valid - this is a VS thing.
+            // However, we can escape '::' separator.
+            // Apparently we only need to do this for the test case name. Namespace works fine as is.
+            string[] parts = new string[]
             {
-                return testFileNamespace;
-            }
+                testNamespace,
+                testClassName,
+                testCaseName.Replace(@"::", @"\:\:")
+            };
 
-            int endIndex = (line.Contains("{") ? line.IndexOf("{") : line.Length);
-
-            string subString = line.Substring(startIndex, endIndex - startIndex);
-            if (!string.IsNullOrEmpty(subString))
-            {
-                testFileNamespace = subString.Replace(" ", string.Empty);
-            }
-
-            return testFileNamespace;
-        }
-
-        private static string GetClassNameSubstring(string line)
-        {
-            string className = Constants.EmptyClassString;
-
-            string classKeyword = "class ";
-            int startIndex = line.IndexOf(classKeyword) + classKeyword.Length;
-            int endIndex = (Regex.Match(line, @"\b\s:\s\b").Success ? line.LastIndexOf(" :") : line.Length - 1);
-
-            string subString = line.Substring(startIndex, endIndex - startIndex);
-            if (!string.IsNullOrEmpty(subString))
-            {
-                className = subString.Replace(" ", string.Empty);
-            }
-
-            return className;
-        }
-
-        private static string GetTestSuiteNameSubstring(string line)
-        {
-            string testSuiteName = Constants.EmptyNamespaceString;
-
-            string openBracketStartString = "(\"";
-            int startIndex = line.IndexOf(openBracketStartString) + openBracketStartString.Length;
-            int endIndex = line.LastIndexOf("\"");
-
-            string subString = line.Substring(startIndex, endIndex - startIndex);
-            if (!string.IsNullOrEmpty(subString))
-            {
-                testSuiteName = subString;
-            }
-
-            return testSuiteName;
-        }
-
-        private static string GetTestCaseNameSubstring(string line)
-        {
-            string testName = string.Empty;
-
-            string openBracketStartString = "(\"";
-            int startIndex = line.IndexOf(openBracketStartString) + openBracketStartString.Length;
-            int endIndex = line.LastIndexOf("\"");
-
-            string subString = line.Substring(startIndex, endIndex - startIndex);
-            if (!string.IsNullOrEmpty(subString))
-            {
-                testName = subString;
-            }
-
-            return testName;
-        }
-
-        public static TestCase CreateTestCase(string testOwner, string testNamespace, string testClassName, string testCaseName, string sourceCodeFilePath, int lineNumber, bool shouldBeSkipped)
-        {
-            string[] parts = new string[] { testNamespace, testClassName, testCaseName.Replace(@":", @"\:") };
             string fullyQualifiedName = string.Join(@"::", parts);
 
             TestCase testCase = new TestCase(fullyQualifiedName, Constants.ExecutorUri, testOwner);
@@ -586,9 +292,117 @@ namespace DoctestTestAdapter.Shared.Helpers
             testCase.CodeFilePath = sourceCodeFilePath;
             testCase.LineNumber = lineNumber;
 
-            testCase.SetPropertyValue(Helpers.Constants.ShouldBeSkippedTestProperty, shouldBeSkipped);
-
             return testCase;
+        }
+
+        internal static List<string> GetAllTestSuiteNames(string executableFilePath, DoctestTestSettings settings = null)
+        {
+            List<string> testSuiteNames = new List<string>();
+
+            string solutionDirectory = GetSolutionDirectory(Directory.GetParent(executableFilePath).FullName);
+
+            ProcessStartInfo processStartInfo = new ProcessStartInfo();
+            processStartInfo.CreateNoWindow = true;
+            processStartInfo.RedirectStandardOutput = true;
+            processStartInfo.RedirectStandardError = true;
+            processStartInfo.UseShellExecute = false;
+            processStartInfo.WorkingDirectory = solutionDirectory;
+            processStartInfo.FileName = string.Format("\"{0}\"", executableFilePath);
+            if (settings != null && settings.DiscoverySettings != null && !string.IsNullOrEmpty(settings.DiscoverySettings.CommandArguments))
+            {
+                processStartInfo.Arguments = settings.DiscoverySettings.CommandArguments + " --no-intro=true --no-version=true --list-test-suites";
+            }
+            else
+            {
+                processStartInfo.Arguments = "--no-intro=true --no-version=true --list-test-suites";
+            }
+            
+            System.Diagnostics.Process exeProcess = new System.Diagnostics.Process();
+            exeProcess.StartInfo = processStartInfo;
+            exeProcess.Start();
+
+            //TODO_comfyjase_25/02/2025: Wrap this in an option for the user to toggle on/off debug test output?
+            string output = exeProcess.StandardOutput.ReadToEnd();
+            //if (!string.IsNullOrEmpty(output))
+            //    Console.WriteLine("exeProcess output: \n" + output);
+            string errors = exeProcess.StandardError.ReadToEnd();
+            if (!string.IsNullOrEmpty(errors))
+                Console.WriteLine("exeProcess errors: \n\t" + errors);
+
+            exeProcess.WaitForExit();
+
+            string startSearchString = "===============================================================================\r\n";
+            string endSearchString = "\r\n===============================================================================";
+            int startOfDoctestListIndex = output.IndexOf(startSearchString) + startSearchString.Length;
+            int endOfDoctestListIndex = output.LastIndexOf(endSearchString);
+            string subString = output.Substring(startOfDoctestListIndex, endOfDoctestListIndex - startOfDoctestListIndex); 
+
+            if (!string.IsNullOrEmpty(subString))
+            {
+                testSuiteNames = subString
+                    .Split('\n')
+                    .Select(s => s.Trim())
+                    .ToList();
+            }
+
+            return testSuiteNames;
+        }
+
+        internal static List<string> GetAllTestCaseNames(string executableFilePath, DoctestTestSettings settings = null)
+        {
+            List<string> testCaseNames = new List<string>();
+
+            string solutionDirectory = GetSolutionDirectory(Directory.GetParent(executableFilePath).FullName);
+
+            ProcessStartInfo processStartInfo = new ProcessStartInfo();
+            processStartInfo.CreateNoWindow = true;
+            processStartInfo.RedirectStandardOutput = true;
+            processStartInfo.RedirectStandardError = true;
+            processStartInfo.UseShellExecute = false;
+            processStartInfo.WorkingDirectory = solutionDirectory;
+            processStartInfo.FileName = string.Format("\"{0}\"", executableFilePath);
+            if (settings != null && settings.DiscoverySettings != null && !string.IsNullOrEmpty(settings.DiscoverySettings.CommandArguments))
+            {
+                processStartInfo.Arguments = settings.DiscoverySettings.CommandArguments + " --no-intro=true --no-version=true --list-test-cases";
+            }
+            else
+            {
+                processStartInfo.Arguments = "--no-intro=true --no-version=true --list-test-cases";
+            }
+
+            System.Diagnostics.Process exeProcess = new System.Diagnostics.Process();
+            exeProcess.StartInfo = processStartInfo;
+            exeProcess.Start();
+
+            //TODO_comfyjase_25/02/2025: Wrap this in an option for the user to toggle on/off debug test output?
+            string output = exeProcess.StandardOutput.ReadToEnd();
+            //if (!string.IsNullOrEmpty(output))
+            //    Console.WriteLine("exeProcess output: \n" + output);
+            string errors = exeProcess.StandardError.ReadToEnd();
+            if (!string.IsNullOrEmpty(errors))
+                Console.WriteLine("exeProcess errors: \n\t" + errors);
+
+            exeProcess.WaitForExit();
+
+            // TODO: Process string to get only test suite names.
+            //Console.WriteLine(output);
+
+            string startSearchString = "===============================================================================\r\n";
+            string endSearchString = "\r\n===============================================================================";
+            int startOfDoctestListIndex = output.IndexOf(startSearchString) + startSearchString.Length;
+            int endOfDoctestListIndex = output.LastIndexOf(endSearchString);
+            string subString = output.Substring(startOfDoctestListIndex, endOfDoctestListIndex - startOfDoctestListIndex);
+
+            if (!string.IsNullOrEmpty(subString))
+            {
+                testCaseNames = subString
+                    .Trim()
+                    .Split('\n')
+                    .Select(s => s.Trim())
+                    .ToList();
+            }
+
+            return testCaseNames;
         }
 
         internal static List<TestCase> GetTestCases(string executableFilePath, DoctestTestSettings settings = null)
@@ -608,39 +422,46 @@ namespace DoctestTestAdapter.Shared.Helpers
                     {
                         // dll is a direct dependent for executableFilePath
                         // So make sure to include any test source files from the dll too so they can be executed as well.
+                        // This only goes one level deep atm for dependencies.
+                        // If we need to recursively check for dependencies, this function would probably need more arguments.
+                        // E.g. testCases.AddRange(GetTestCases(dllFilePath, settings, ...));
                         dependencyFilePaths.Add(dllFilePath);
                     }
                 }
 
-                List<PdbData> pdbData = Utilities.ReadPdbFile(executableFilePath, dependencyFilePaths, settings);
+                List<string> allTestSuiteNames = GetAllTestSuiteNames(executableFilePath, settings);
+                List<string> allTestCaseNames = GetAllTestCaseNames(executableFilePath, settings);
 
-                foreach (PdbData data in pdbData)
+                // Get all of the source files
+                string pdbFilePath = GetPDBFilePath(executableFilePath);
+                List<string> allSourceFilePaths = GetSourceFiles(executableFilePath, pdbFilePath, settings);
+                foreach (string dependencyFilePath in dependencyFilePaths)
                 {
-                    foreach (PdbLineData lineData in data.LineData)
+                    pdbFilePath = GetPDBFilePath(dependencyFilePath);
+                    allSourceFilePaths.AddRange(GetSourceFiles(dependencyFilePath, pdbFilePath, settings));
+                }
+                
+                string testNamespace = string.Empty;
+                string testClassName = string.Empty;
+
+                List<Keyword> keywords = new List<Keyword>()
+                {
+                    new NamespaceKeyword(),
+                    new ClassKeyword(),
+                    new DoctestTestSuiteKeyword(allTestSuiteNames),
+                    new DoctestTestCaseKeyword(allTestCaseNames),
+                };
+
+                // Loop over all of the source files and read them line by line
+                foreach (string sourceFilePath in allSourceFilePaths)
+                {
+                    string[] allLines = File.ReadAllLines(sourceFilePath);
+                    int currentLineNumber = 0;
+
+                    foreach (string line in allLines)
                     {
-                        // TODO: TEST_SUITE
-
-                        if (lineData.LineStr.Contains("TEST_CASE(\""))
-                        {
-                            string testOwner = executableFilePath;
-                            string testCaseName = GetTestCaseNameSubstring(lineData.LineStr);
-                            string testNamespace = string.IsNullOrEmpty(lineData.Namespace) ? "Empty Namespace" : lineData.Namespace;
-                            string testClassName = string.IsNullOrEmpty(lineData.ClassName) ? "Empty Class" : lineData.ClassName;
-
-                            //TODO_comfyjase_30/01/2025: This assumes '* doctest::skip()' is on the same line as the name of the test...
-                            // Would be nice to implement logic to be able to cope with '* doctest::skip()' being on a new line too
-                            bool shouldSkipTest = Helpers.Constants.SkipTestKeywords.Any(s => lineData.LineStr.Contains(s));
-
-                            TestCase testCase = CreateTestCase(testOwner,
-                                testNamespace,
-                                testClassName,
-                                testCaseName,
-                                data.CodeFilePath,
-                                lineData.Number,
-                                shouldSkipTest);
-
-                            testCases.Add(testCase);
-                        }
+                        ++currentLineNumber;
+                        keywords.ForEach(k => k.Check(executableFilePath, sourceFilePath, ref testNamespace, ref testClassName, line, currentLineNumber, ref testCases));
                     }
                 }
             }

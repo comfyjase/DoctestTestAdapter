@@ -16,8 +16,7 @@ namespace DoctestTestAdapter.Tests.EqualityComparers
                     "Empty Class",
                     "[UsingDoctestMain] Testing IsEven Always Pass",
                     TestCommon.UsingDoctestMainTestHeaderFile,
-                    50,
-                    false);
+                    50);
             TestCase copyOfTestCase = testCase;
 
             TestCaseComparer comparer = new TestCaseComparer();
@@ -32,15 +31,13 @@ namespace DoctestTestAdapter.Tests.EqualityComparers
                     "Empty Class",
                     "[UsingDoctestMain] Testing IsEven Always Pass",
                     TestCommon.UsingDoctestMainTestHeaderFile,
-                    50,
-                    false);
+                    50);
             TestCase testCaseB = Utilities.CreateTestCase(TestCommon.UsingDoctestMainExecutableFilePath,
                     "TestUsingDoctestMain",
                     "Empty Class",
                     "[UsingDoctestMain] Testing IsEven Always Fail",
                     TestCommon.UsingDoctestMainTestHeaderFile,
-                    57,
-                    false);
+                    57);
 
             TestCaseComparer comparer = new TestCaseComparer();
             Assert.IsFalse(comparer.Equals(testCaseA, testCaseB));

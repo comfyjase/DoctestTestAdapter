@@ -18,14 +18,8 @@
     <ClCompile Include="dllmain.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="MathUtilitiesDLL.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="MathUtilitiesDLL.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="CoreDLL.h">
       <Filter>Header Files</Filter>
     </ClInclude>

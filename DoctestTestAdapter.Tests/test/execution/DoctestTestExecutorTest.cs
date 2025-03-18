@@ -4,6 +4,7 @@ using Microsoft.VisualStudio.TestPlatform.ObjectModel;
 using Microsoft.VisualStudio.TestPlatform.ObjectModel.Adapter;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System.Collections.Generic;
+using System.Linq;
 using TestResult = Microsoft.VisualStudio.TestPlatform.ObjectModel.TestResult;
 
 namespace DoctestTestAdapter.Tests.Execution
@@ -15,15 +16,12 @@ namespace DoctestTestAdapter.Tests.Execution
 		public void ExecuteExe()
 		{
 			List<TestCase> testCases = Utilities.GetTestCases(TestCommon.UsingDoctestMainExecutableFilePath);
-            Assert.IsTrue(testCases.Count == 4);
+            Assert.IsTrue(testCases.Count == 25);
 
-            TestCase failedTestCase = testCases[1];
-            TestCommon.AssertTestCase(failedTestCase,
-                    TestCommon.UsingDoctestMainExecutableFilePath,
-                    "TestUsingDoctestMain::Empty Class::[UsingDoctestMain] Testing IsEven Always Fail",
-                    "[UsingDoctestMain] Testing IsEven Always Fail",
-                    TestCommon.UsingDoctestMainTestHeaderFile,
-                    57);
+            TestCommon.AssertTestCases(testCases, 
+                TestCommon.UsingDoctestMainExecutableFilePath,
+                "UsingDoctestMain",
+                TestCommon.UsingDoctestMainTestHeaderFile);
 
             Captured<TestCase> capturedTestCases = A.Captured<TestCase>();
             Captured<TestResult> capturedTestResults = A.Captured<TestResult>();
@@ -37,38 +35,35 @@ namespace DoctestTestAdapter.Tests.Execution
             ITestExecutor doctestTestExecutor = new DoctestTestExecutor();
             doctestTestExecutor.RunTests(testCases, runContext, frameworkHandle);
 
-            Assert.IsTrue(capturedTestResults.Values.Count == 4);
-            Assert.IsTrue(capturedTestResults.Values[0].Outcome == TestOutcome.Passed);
-            Assert.IsTrue(capturedTestResults.Values[1].Outcome == TestOutcome.Failed);
-            Assert.IsTrue(!string.IsNullOrEmpty(capturedTestResults.Values[1].ErrorMessage));
-            Assert.IsTrue(capturedTestResults.Values[1].ErrorMessage.Contains("CHECK( IsEven(1) ) is NOT correct!"));
-            Assert.IsTrue(capturedTestResults.Values[1].ErrorMessage.Contains("CHECK( IsEven(3) ) is NOT correct!"));
-            Assert.IsTrue(capturedTestResults.Values[1].ErrorMessage.Contains("CHECK( IsEven(5) ) is NOT correct!"));
-            Assert.IsTrue(capturedTestResults.Values[2].Outcome == TestOutcome.Skipped);
-            Assert.IsTrue(capturedTestResults.Values[3].Outcome == TestOutcome.Passed);
+            Assert.IsTrue(capturedTestResults.Values.Count == 25);
+            TestCommon.AssertTestResults(capturedTestResults.Values.ToList());
         }
 
         [TestMethod]
         public void ExecuteExeAndDLL()
         {
             List<TestCase> testCases = Utilities.GetTestCases(TestCommon.ExecutableUsingDLLExecutableFilePath);
-            Assert.IsTrue(testCases.Count == 8);
+            Assert.IsTrue(testCases.Count == 50);
 
-            TestCase dllFailedTestCase = testCases[1];
-            TestCommon.AssertTestCase(dllFailedTestCase,
-                    TestCommon.ExecutableUsingDLLExecutableFilePath,
-                    "TestDLL::Empty Class::[DLL] Testing IsEven Always Fail",
-                    "[DLL] Testing IsEven Always Fail",
-                    TestCommon.DLLTestHeaderFile,
-                    53);
+            List<TestCase> dllTestCases = testCases
+                .ToList()
+                .Where(t => t.DisplayName.Contains("[DLL]"))
+                .ToList();
+            List<TestCase> executableUsingDLLTestCases = testCases
+                .ToList()
+                .Where(t => t.DisplayName.Contains("[ExecutableUsingDLL]"))
+                .ToList();
 
-            TestCase executableUsingDLLFailedTestCase = testCases[5];
-            TestCommon.AssertTestCase(executableUsingDLLFailedTestCase,
-                    TestCommon.ExecutableUsingDLLExecutableFilePath,
-                    "TestExecutableUsingDLL::Empty Class::[ExecutableUsingDLL] Testing IsEven Always Fail",
-                    "[ExecutableUsingDLL] Testing IsEven Always Fail",
-                    TestCommon.ExecutableUsingDLLTestHeaderFile,
-                    53);
+            TestCommon.AssertTestCases(dllTestCases,
+                TestCommon.ExecutableUsingDLLExecutableFilePath,
+                "DLL",
+                TestCommon.DLLTestHeaderFile
+            );
+            TestCommon.AssertTestCases(executableUsingDLLTestCases,
+                TestCommon.ExecutableUsingDLLExecutableFilePath,
+                "ExecutableUsingDLL",
+                TestCommon.ExecutableUsingDLLTestHeaderFile
+            );
 
             Captured<TestCase> capturedTestCases = A.Captured<TestCase>();
             Captured<TestResult> capturedTestResults = A.Captured<TestResult>();
@@ -82,27 +77,17 @@ namespace DoctestTestAdapter.Tests.Execution
             ITestExecutor doctestTestExecutor = new DoctestTestExecutor();
             doctestTestExecutor.RunTests(testCases, runContext, frameworkHandle);
 
-            Assert.IsTrue(capturedTestResults.Values.Count == 8);
+            Assert.IsTrue(capturedTestResults.Values.Count == 50);
 
-            // DLL Test Checks
-            Assert.IsTrue(capturedTestResults.Values[0].Outcome == TestOutcome.Passed);
-            Assert.IsTrue(capturedTestResults.Values[1].Outcome == TestOutcome.Failed);
-            Assert.IsTrue(!string.IsNullOrEmpty(capturedTestResults.Values[1].ErrorMessage));
-            Assert.IsTrue(capturedTestResults.Values[1].ErrorMessage.Contains("CHECK( IsEven(7) ) is NOT correct!"));
-            Assert.IsTrue(capturedTestResults.Values[1].ErrorMessage.Contains("CHECK( IsEven(9) ) is NOT correct!"));
-            Assert.IsTrue(capturedTestResults.Values[1].ErrorMessage.Contains("CHECK( IsEven(11) ) is NOT correct!"));
-            Assert.IsTrue(capturedTestResults.Values[2].Outcome == TestOutcome.Skipped);
-            Assert.IsTrue(capturedTestResults.Values[3].Outcome == TestOutcome.Passed);
+            List<TestResult> dllTestResults = capturedTestResults.Values
+                .Where(t => t.TestCase.DisplayName.Contains("[DLL]"))
+                .ToList();
+            List<TestResult> executableUsingDLLTestResults = capturedTestResults.Values
+                .Where(t => t.TestCase.DisplayName.Contains("[ExecutableUsingDLL]"))
+                .ToList();
 
-            // Exe Test Checks
-            Assert.IsTrue(capturedTestResults.Values[4].Outcome == TestOutcome.Passed);
-            Assert.IsTrue(capturedTestResults.Values[5].Outcome == TestOutcome.Failed);
-            Assert.IsTrue(!string.IsNullOrEmpty(capturedTestResults.Values[5].ErrorMessage));
-            Assert.IsTrue(capturedTestResults.Values[5].ErrorMessage.Contains("CHECK( IsEven(1) ) is NOT correct!"));
-            Assert.IsTrue(capturedTestResults.Values[5].ErrorMessage.Contains("CHECK( IsEven(3) ) is NOT correct!"));
-            Assert.IsTrue(capturedTestResults.Values[5].ErrorMessage.Contains("CHECK( IsEven(5) ) is NOT correct!"));
-            Assert.IsTrue(capturedTestResults.Values[6].Outcome == TestOutcome.Skipped);
-            Assert.IsTrue(capturedTestResults.Values[7].Outcome == TestOutcome.Passed);
+            TestCommon.AssertTestResults(dllTestResults);
+            TestCommon.AssertTestResults(executableUsingDLLTestResults);
         }
 	}
 }

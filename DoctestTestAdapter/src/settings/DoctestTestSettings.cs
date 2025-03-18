@@ -20,7 +20,7 @@ namespace DoctestTestAdapter.Settings
 
         public override XmlElement ToXml()
         {
-            using (var stringWriter = new StringWriter())
+            using (StringWriter stringWriter = new StringWriter())
             {
                 Serializer.Serialize(stringWriter, this);
 
