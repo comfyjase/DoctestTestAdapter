@@ -49,6 +49,9 @@
     <Compile Include="test\helpers\UtilitiesDLLTest.cs" />
     <Compile Include="test\helpers\UtilitiesExeTest.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="test\keywords\NamespaceKeywordTest.cs" />
+    <Compile Include="test\keywords\DoctestTestSuiteKeywordTest.cs" />
+    <Compile Include="test\keywords\DoctestTestCaseKeywordTest.cs" />
     <Compile Include="test\settings\DoctestTestSettingsTest.cs" />
     <Compile Include="test\TestCommon.cs" />
   </ItemGroup>

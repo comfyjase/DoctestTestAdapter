@@ -1,7 +1,10 @@
 ﻿using DoctestTestAdapter.Shared.Helpers;
+using DoctestTestAdapter.Shared.Keywords;
 using Microsoft.VisualStudio.TestPlatform.ObjectModel;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using System;
 using System.Collections.Generic;
+using System.IO;
 
 namespace DoctestTestAdapter.Tests
 {
@@ -158,6 +161,39 @@ namespace DoctestTestAdapter.Tests
                 Assert.IsFalse(string.IsNullOrEmpty(testCaseNames[i]));
                 Assert.AreEqual(prefixTag + " " + exampleTestCaseData[i].TestCaseName, testCaseNames[i]);
             }
+        }
+
+        internal static void AssertKeywords(string executableFilePath, string headerFilePath, List<Keyword> keywords, Func<int, string, List<TestCase>, bool> testFunction)
+        {
+            Assert.IsNotEmpty(keywords);
+
+            string[] allLines = File.ReadAllLines(headerFilePath);
+            Assert.IsNotEmpty(allLines);
+
+            List<TestCase> testCases = new List<TestCase>();
+            string testNamespace = string.Empty;
+            string testClassName = string.Empty;
+            int currentLineNumber = 0;
+
+            foreach (string line in allLines)
+            {
+                ++currentLineNumber;
+                keywords.ForEach(k => k.Check(executableFilePath,
+                    headerFilePath,
+                    ref testNamespace,
+                    ref testClassName,
+                    line,
+                    currentLineNumber,
+                    ref testCases));
+
+                if (testFunction(currentLineNumber, testNamespace, testCases))
+                {
+                    return;
+                }
+            }
+
+            // Should not get here if the test is successful.
+            Assert.IsTrue(false);
         }
 
         internal static void AssertTestResults(List<Microsoft.VisualStudio.TestPlatform.ObjectModel.TestResult> testResults)

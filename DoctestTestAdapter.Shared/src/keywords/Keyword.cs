@@ -22,11 +22,6 @@ namespace DoctestTestAdapter.Shared.Keywords
             _regexSearchPattern = new Regex(@"(^|[\t])\b" + Word + @"\b");
         }
 
-        protected virtual bool HasLeftKeywordScope()
-        {
-            return true;
-        }
-
         protected abstract void OnEnterKeywordScope(string executableFilePath, string sourceFilePath, ref string namespaceName, ref string className, string line, int lineNumber, ref List<TestCase> allTestCases);
 
         protected abstract void OnExitKeywordScope(string executableFilePath, string sourceFilePath, ref string namespaceName, ref string className, string line, int lineNumber, ref List<TestCase> allTestCases);
