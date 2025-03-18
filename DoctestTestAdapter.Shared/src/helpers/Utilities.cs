@@ -246,9 +246,9 @@ namespace DoctestTestAdapter.Shared.Helpers
 
             // Report so we know what tests passed, failed, skipped.
             string testReportFilePath = Directory.GetParent(executableFilePath).FullName + "\\" + Path.GetFileNameWithoutExtension(executableFilePath) + "_TestReport_" + batchNumber.ToString() + ".xml";
-            string doctestReporterCommandArgument = "--reporters=xml --out=" + testReportFilePath;
+            string doctestReporterCommandArgument = "--duration=true --reporters=xml --out=" + testReportFilePath;
 
-            // Full doctest arguments: --test-case=*"[TestDecorator] Test 1"*,*"[TestDecorator] Test 2"* --reporters=xml --out=AppTestReport.xml
+            // Full doctest arguments: --test-case=*"[TestDecorator] Test 1"*,*"[TestDecorator] Test 2"* --duration=true --reporters=xml --out=AppTestReport.xml
             string doctestArguments = doctestTestCaseCommandArgument + " " + doctestReporterCommandArgument;
 
             string fullCommandArguments = string.Empty;

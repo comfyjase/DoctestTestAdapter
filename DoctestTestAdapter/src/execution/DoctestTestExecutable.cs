@@ -127,6 +127,15 @@ namespace DoctestTestAdapter.Execution
                                 XmlNode resultsNode = testCaseNode.SelectSingleNode("OverallResultsAsserts");
                                 if (resultsNode != null)
                                 {
+                                    XmlAttribute durationAttribute = resultsNode.Attributes["duration"];
+                                    if (durationAttribute != null && !string.IsNullOrEmpty(durationAttribute.Value))
+                                    {
+                                        if (float.TryParse(durationAttribute.Value, out float testDurationInSeconds))
+                                        {
+                                            testResult.Duration = TimeSpan.FromSeconds(testDurationInSeconds);
+                                        }
+                                    }
+
                                     XmlAttribute testCaseSuccessAttribute = resultsNode.Attributes["test_case_success"];
                                     if (testCaseSuccessAttribute != null && !string.IsNullOrEmpty(testCaseSuccessAttribute.Value))
                                     {
