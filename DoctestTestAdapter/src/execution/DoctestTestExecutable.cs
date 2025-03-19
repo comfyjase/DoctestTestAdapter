@@ -8,6 +8,7 @@ using System.Diagnostics;
 using System.Linq;
 using System.IO;
 using System.Xml;
+using Microsoft.VisualStudio.TestPlatform.ObjectModel.Logging;
 
 namespace DoctestTestAdapter.Execution
 {
@@ -92,103 +93,106 @@ namespace DoctestTestAdapter.Execution
             {
                 XmlAttribute nameAttribute = testCaseNode.Attributes["name"];
                 XmlAttribute fileNameAttribute = testCaseNode.Attributes["filename"];
+                XmlAttribute lineNumberAttribute = testCaseNode.Attributes["line"];
                 if (nameAttribute != null && !string.IsNullOrWhiteSpace(nameAttribute.Value)
-                    && fileNameAttribute != null && !string.IsNullOrEmpty(fileNameAttribute.Value))
+                    && fileNameAttribute != null && !string.IsNullOrEmpty(fileNameAttribute.Value)
+                    && lineNumberAttribute != null && !string.IsNullOrEmpty(lineNumberAttribute.Value) && int.TryParse(lineNumberAttribute.Value, out int lineNumber))
                 {
-                    // Might need to do this to remove escape symbols: nameAttribute.Value.Replace("\,", ",");
                     string testCaseNameFromReport = nameAttribute.Value;
                     string testCaseFileNameFromReport = fileNameAttribute.Value;
 
-                    if (_currentTestBatch.Tests.Any(t => (t.DisplayName.Equals(testCaseNameFromReport) && t.CodeFilePath.Equals(testCaseFileNameFromReport.Replace("/", "\\")))))
+                    TestCase testCaseFromReport = _currentTestBatch.Tests.Find(t => 
+                        (
+                            t.DisplayName.Equals(testCaseNameFromReport)
+                            && t.CodeFilePath.Equals(testCaseFileNameFromReport.Replace("/", "\\"))
+                            && t.LineNumber == lineNumber
+                        ));
+
+                    if (testCaseFromReport != null)
                     {
-                        TestCase testCaseFromReport = _currentTestBatch.Tests
-                            .Single(t => (t.DisplayName.Equals(testCaseNameFromReport) && t.CodeFilePath.Equals(testCaseFileNameFromReport.Replace("/", "\\"))));
-
-                        if (testCaseFromReport != null)
+                        // TODO: Test if you still need this...
+                        if (reportedTestResults.TryGetValue(testCaseFromReport, out bool alreadyReported))
                         {
-                            if (reportedTestResults.TryGetValue(testCaseFromReport, out bool alreadyReported))
+                            if (alreadyReported)
                             {
-                                if (alreadyReported)
-                                {
-                                    continue;
-                                }
+                                continue;
                             }
+                        }
 
-                            TestResult testResult = new TestResult(testCaseFromReport);
-                            
-                            // Skipped.
-                            XmlAttribute skippedAttribute = testCaseNode.Attributes["skipped"];
-                            if (skippedAttribute != null && !string.IsNullOrEmpty(skippedAttribute.Value))
+                        TestResult testResult = new TestResult(testCaseFromReport);
+                        
+                        // Skipped.
+                        XmlAttribute skippedAttribute = testCaseNode.Attributes["skipped"];
+                        if (skippedAttribute != null && !string.IsNullOrEmpty(skippedAttribute.Value))
+                        {
+                            testResult.Outcome = TestOutcome.Skipped;
+                        }
+                        else
+                        {
+                            XmlNode resultsNode = testCaseNode.SelectSingleNode("OverallResultsAsserts");
+                            if (resultsNode != null)
                             {
-                                testResult.Outcome = TestOutcome.Skipped;
-                            }
-                            else
-                            {
-                                XmlNode resultsNode = testCaseNode.SelectSingleNode("OverallResultsAsserts");
-                                if (resultsNode != null)
+                                XmlAttribute durationAttribute = resultsNode.Attributes["duration"];
+                                if (durationAttribute != null && !string.IsNullOrEmpty(durationAttribute.Value))
                                 {
-                                    XmlAttribute durationAttribute = resultsNode.Attributes["duration"];
-                                    if (durationAttribute != null && !string.IsNullOrEmpty(durationAttribute.Value))
+                                    if (float.TryParse(durationAttribute.Value, out float testDurationInSeconds))
                                     {
-                                        if (float.TryParse(durationAttribute.Value, out float testDurationInSeconds))
-                                        {
-                                            testResult.Duration = TimeSpan.FromSeconds(testDurationInSeconds);
-                                        }
+                                        testResult.Duration = TimeSpan.FromSeconds(testDurationInSeconds);
                                     }
+                                }
 
-                                    XmlAttribute testCaseSuccessAttribute = resultsNode.Attributes["test_case_success"];
-                                    if (testCaseSuccessAttribute != null && !string.IsNullOrEmpty(testCaseSuccessAttribute.Value))
+                                XmlAttribute testCaseSuccessAttribute = resultsNode.Attributes["test_case_success"];
+                                if (testCaseSuccessAttribute != null && !string.IsNullOrEmpty(testCaseSuccessAttribute.Value))
+                                {
+                                    // Passed.
+                                    if (testCaseSuccessAttribute.Value.Equals("true"))
                                     {
-                                        // Passed.
-                                        if (testCaseSuccessAttribute.Value.Equals("true"))
-                                        {
-                                            testResult.Outcome = TestOutcome.Passed;
-                                        }
-                                        // Failed.
-                                        else
-                                        {
-                                            testResult.Outcome = TestOutcome.Failed;
+                                        testResult.Outcome = TestOutcome.Passed;
+                                    }
+                                    // Failed.
+                                    else
+                                    {
+                                        testResult.Outcome = TestOutcome.Failed;
 
-                                            string errorMessage = string.Empty;
+                                        string errorMessage = string.Empty;
 
-                                            XmlNodeList expressionNodes = testCaseNode.SelectNodes("Expression");
-                                            foreach (XmlNode expressionNode in expressionNodes)
+                                        XmlNodeList expressionNodes = testCaseNode.SelectNodes("Expression");
+                                        foreach (XmlNode expressionNode in expressionNodes)
+                                        {
+                                            XmlAttribute typeAttribute = expressionNode.Attributes["type"];
+                                            if (typeAttribute != null && !string.IsNullOrEmpty(typeAttribute.Value))
                                             {
-                                                XmlAttribute typeAttribute = expressionNode.Attributes["type"];
-                                                if (typeAttribute != null && !string.IsNullOrEmpty(typeAttribute.Value))
-                                                {
-                                                    errorMessage += typeAttribute.Value
-                                                        .Replace("\r", string.Empty)
-                                                        .Replace("\n", string.Empty);
-                                                }
-
-                                                XmlNode originalNode = expressionNode.SelectSingleNode("Original");
-                                                if (originalNode != null)
-                                                {
-                                                    errorMessage += ("( " + originalNode.InnerText
-                                                        .Replace("\r", string.Empty)
-                                                        .Replace("\n", string.Empty)
-                                                        .Replace(" ", string.Empty)
-                                                        + " ) is NOT correct!");
-                                                }
-
-                                                errorMessage += "\n";
+                                                errorMessage += typeAttribute.Value
+                                                    .Replace("\r", string.Empty)
+                                                    .Replace("\n", string.Empty);
                                             }
 
-                                            testResult.ErrorMessage = errorMessage;
+                                            XmlNode originalNode = expressionNode.SelectSingleNode("Original");
+                                            if (originalNode != null)
+                                            {
+                                                errorMessage += ("( " + originalNode.InnerText
+                                                    .Replace("\r", string.Empty)
+                                                    .Replace("\n", string.Empty)
+                                                    .Replace(" ", string.Empty)
+                                                    + " ) is NOT correct!");
+                                            }
+
+                                            errorMessage += "\n";
                                         }
+
+                                        testResult.ErrorMessage = errorMessage;
                                     }
                                 }
-                                // Not run.
-                                else
-                                {
-                                    testResult.Outcome = TestOutcome.None;
-                                }
                             }
-
-                            reportedTestResults.Add(testCaseFromReport, true);
-                            _frameworkHandle.RecordResult(testResult);
+                            // Not run.
+                            else
+                            {
+                                testResult.Outcome = TestOutcome.None;
+                            }
                         }
+
+                        reportedTestResults.Add(testCaseFromReport, true);
+                        _frameworkHandle.RecordResult(testResult);
                     }
                 }
             }
@@ -204,17 +208,37 @@ namespace DoctestTestAdapter.Execution
             string solutionDirectory = Utilities.GetSolutionDirectory(Directory.GetParent(testSource).FullName);
             if (settings != null && settings.ExecutorSettings != null && settings.ExecutorSettings.ExecutableOverrides.Count > 0)
             {
-                foreach (ExecutableOverride executableOverride in settings.ExecutorSettings.ExecutableOverrides)
+                if (settings.ExecutorSettings.AreExecutableOverridesValid(solutionDirectory, out string message))
                 {
-                    string key = executableOverride.Key;
-                    string value = executableOverride.Value;
-                    string keyFullPath = Path.Combine(solutionDirectory, key);
-
-                    if (Path.GetFileName(testSource).Equals(Path.GetFileName(keyFullPath)))
+                    foreach (ExecutableOverride executableOverride in settings.ExecutorSettings.ExecutableOverrides)
                     {
-                        testSource = Path.Combine(solutionDirectory, value);
-                        break;
+                        string key = executableOverride.Key;
+                        string value = executableOverride.Value;
+                        string keyFullPath = key;
+
+                        // Check to see if key is an absolute filepath.
+                        // If the key filepath doesn't exist that means it must be relative.
+                        if (!File.Exists(key))
+                        {
+                            keyFullPath = Path.Combine(solutionDirectory, key);
+                        }                          
+
+                        if (testSource.Equals(keyFullPath))
+                        {
+                            string valueFullPath = value;
+                            if (!File.Exists(value))
+                            {
+                                valueFullPath = Path.Combine(solutionDirectory, value);
+                            }
+
+                            testSource = Path.Combine(solutionDirectory, valueFullPath);
+                            break;
+                        }
                     }
+                }
+                else
+                {
+                    _frameworkHandle.SendMessage(TestMessageLevel.Warning, message);
                 }
             }
             
@@ -260,6 +284,8 @@ namespace DoctestTestAdapter.Execution
                     }
                 };
 
+                _frameworkHandle.SendMessage(TestMessageLevel.Informational, Shared.Helpers.Constants.InformationMessagePrefix + " - About to start exe " + Path.GetFileName(testSource) + " with command arguments: " + processStartInfo.Arguments);
+
                 // Start the executable now to run the doctests unit tests
                 bool executableStartedSuccessfully = _process.Start();
 
@@ -273,13 +299,8 @@ namespace DoctestTestAdapter.Execution
             if (_process != null)
             {
                 _process.Exited -= OnProcessExited;
-
-                // TODO: Check if launch with debugger automatically closes/cleans up the process class...
-                //if (!_runContext.IsBeingDebugged)
-                //{
-                    _process.Close();
-                    _process = null;
-                //}
+                _process.Close();
+                _process = null;
 
                 RecordTestFinish();
 

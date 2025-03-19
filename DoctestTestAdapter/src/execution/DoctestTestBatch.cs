@@ -1,4 +1,5 @@
 ﻿using Microsoft.VisualStudio.TestPlatform.ObjectModel;
+using System;
 using System.Collections.Generic;
 
 namespace DoctestTestAdapter.Execution
@@ -28,9 +29,9 @@ namespace DoctestTestAdapter.Execution
         public DoctestTestBatch() : this(null, null, -1, null)
         { }
 
-        public DoctestTestBatch(List<TestCase> _tests, string commandArguments, int batchNumber, string testReportFilePath)
+        public DoctestTestBatch(List<TestCase> tests, string commandArguments, int batchNumber, string testReportFilePath)
         {
-            Tests = _tests;
+            Tests = tests;
             CommandArguments = commandArguments;
             BatchNumber = batchNumber;
             TestReportFilePath = testReportFilePath;

@@ -23,7 +23,7 @@ namespace DoctestTestAdapter
 
                 foreach (string source in sources)
                 {
-                    List<TestCase> discoveredTestCases = Utilities.GetTestCases(source, settings);
+                    List<TestCase> discoveredTestCases = Utilities.GetTestCases(source, logger, settings);
                     discoveredTestCases.ForEach(testCase => discoverySink.SendTestCase(testCase));
                 }
             }

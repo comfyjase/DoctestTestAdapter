@@ -4,7 +4,6 @@ using DoctestTestAdapter.Shared.EqualityComparers;
 using DoctestTestAdapter.Shared.Helpers;
 using Microsoft.VisualStudio.TestPlatform.ObjectModel;
 using Microsoft.VisualStudio.TestPlatform.ObjectModel.Adapter;
-using Microsoft.VisualStudio.TestPlatform.ObjectModel.Logging;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -149,7 +148,6 @@ namespace DoctestTestAdapter
         public void RunTests(IEnumerable<string> sources, IRunContext runContext, IFrameworkHandle frameworkHandle)
         {
             IDiscoveryContext discoveryContext = runContext;
-            IMessageLogger logger = frameworkHandle;
 
             List<TestCase> tests = new List<TestCase>();
             foreach (string source in sources)
@@ -159,7 +157,7 @@ namespace DoctestTestAdapter
                     return;
                 }
 
-                List<TestCase> sourceTestCases = Utilities.GetTestCases(source);
+                List<TestCase> sourceTestCases = Utilities.GetTestCases(source, frameworkHandle);
                 if (sourceTestCases == null || sourceTestCases.Count == 0)
                     continue;
 

@@ -1,10 +1,14 @@
-﻿using DoctestTestAdapter.Shared.Helpers;
+﻿using DoctestTestAdapter.Settings;
+using DoctestTestAdapter.Shared.Helpers;
 using DoctestTestAdapter.Shared.Keywords;
+using FakeItEasy;
 using Microsoft.VisualStudio.TestPlatform.ObjectModel;
+using Microsoft.VisualStudio.TestPlatform.ObjectModel.Adapter;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Xml;
 
 namespace DoctestTestAdapter.Tests
 {
@@ -32,6 +36,112 @@ namespace DoctestTestAdapter.Tests
         internal static string UsingCustomMainTestHeaderFilePath = Utilities.GetSolutionDirectory() + "\\DoctestTestAdapter.Examples\\UsingCustomMain\\TestIsEvenUsingCustomMain.h";
         internal static string ExecutableUsingDLLTestHeaderFilePath = Utilities.GetSolutionDirectory() + "\\DoctestTestAdapter.Examples\\DLLExample\\ExecutableUsingDLL\\TestIsEvenExecutableUsingDLL.h";
         internal static string DLLTestHeaderFilePath = Utilities.GetSolutionDirectory() + "\\DoctestTestAdapter.Examples\\DLLExample\\DLL\\TestIsEvenDLL.h";
+
+        private static string RunSettingsStart =
+            "<?xml version=\"1.0\" encoding=\"utf-8\"?>\n"
+            + "<RunSettings>\n";
+        private static string DoctestRunSettingsStart = "\t<Doctest>\n";
+        private static string DiscoveryRunSettingsStart = "\t\t<DiscoverySettings>\n";
+        private static string DiscoveryRunSettingsSearchDirectoriesStart = "\t\t\t<SearchDirectories>\n";
+        private static string DiscoveryRunSettingsSearchDirectoriesEnd = "\t\t\t</SearchDirectories>\n";
+        private static string DiscoveryRunSettingsEnd = "\t\t</DiscoverySettings>\n";
+        private static string ExecutorRunSettingsStart = "\t\t<ExecutorSettings>\n";
+        private static string ExecutorRunSettingsExecutableOverrideStart = "\t\t\t<ExecutableOverrides>\n" + "\t\t\t\t<ExecutableOverride>\n";
+        private static string ExecutorRunSettingsExecutableOverrideEnd = "\t\t\t\t</ExecutableOverride>\n" + "\t\t\t</ExecutableOverrides>\n";
+        private static string ExecutorRunSettingsEnd = "\t\t</ExecutorSettings>\n";
+        private static string DoctestRunSettingsEnd = "\t</Doctest>\n";
+        private static string RunSettingsEnd = "</RunSettings>\n";
+
+        // General settings
+        internal static string GeneralRunSettingsExample =
+            RunSettingsStart +
+                DoctestRunSettingsStart +
+                    "\t\t<GeneralSettings>\n" +
+                        "\t\t\t<CommandArguments>--test</CommandArguments>\n" +
+                    "\t\t</GeneralSettings>\n" +
+                DoctestRunSettingsEnd +
+            RunSettingsEnd;
+
+        // Discovery settings
+        internal static string DiscoveryRunSettingsRelativeSearchDirectoryExample =
+            RunSettingsStart +
+                DoctestRunSettingsStart +
+                    DiscoveryRunSettingsStart +
+                        DiscoveryRunSettingsSearchDirectoriesStart +
+                            "\t\t\t\t<string>UsingDoctestMain</string>\n" +
+                        DiscoveryRunSettingsSearchDirectoriesEnd +
+                    DiscoveryRunSettingsEnd +
+                DoctestRunSettingsEnd +
+            RunSettingsEnd;
+
+        internal static string DiscoveryRunSettingsAbsoluteSearchDirectoryExample =
+            RunSettingsStart +
+                DoctestRunSettingsStart +
+                    DiscoveryRunSettingsStart +
+                        DiscoveryRunSettingsSearchDirectoriesStart +
+                            "\t\t\t\t<string>" + Utilities.GetSolutionDirectory(Directory.GetParent(TestCommon.UsingDoctestMainExecutableFilePath).FullName) + "\\UsingDoctestMain</string>\n" +
+                        DiscoveryRunSettingsSearchDirectoriesEnd +
+                    DiscoveryRunSettingsEnd +
+                DoctestRunSettingsEnd +
+            RunSettingsEnd;
+
+        internal static string DiscoveryRunSettingsInvalidSearchDirectoryExample =
+            RunSettingsStart +
+                DoctestRunSettingsStart +
+                    DiscoveryRunSettingsStart +
+                        DiscoveryRunSettingsSearchDirectoriesStart +
+                            "\t\t\t\t<string>NonExistentDirectory</string>\n" +
+                        DiscoveryRunSettingsSearchDirectoriesEnd +
+                    DiscoveryRunSettingsEnd +
+                DoctestRunSettingsEnd +
+            RunSettingsEnd;
+
+        // Executor settings
+        internal static string ExecutorRunSettingsRelativeExecutableOverrideExample =
+            RunSettingsStart +
+                DoctestRunSettingsStart +
+                    ExecutorRunSettingsStart +
+                        ExecutorRunSettingsExecutableOverrideStart +
+#if DEBUG
+                            "\t\t\t\t\t<Key>bin\\x64\\Debug\\UsingDoctestMain\\UsingDoctestMain.exe</Key>\n" +
+                            "\t\t\t\t\t<Value>bin\\x64\\Debug\\UsingCustomMain\\UsingCustomMain.exe</Value>\n" +
+#else
+                            "\t\t\t\t\t<Key>bin\\x64\\Release\\UsingDoctestMain\\UsingDoctestMain.exe</Key>\n" +
+                            "\t\t\t\t\t<Value>bin\\x64\\Release\\UsingCustomMain\\UsingCustomMain.exe</Value>\n" +
+#endif
+                        ExecutorRunSettingsExecutableOverrideEnd +
+                    ExecutorRunSettingsEnd +
+                DoctestRunSettingsEnd +
+            RunSettingsEnd;
+
+        internal static string ExecutorRunSettingsAbsoluteExecutableOverrideExample =
+            RunSettingsStart +
+                DoctestRunSettingsStart +
+                    ExecutorRunSettingsStart +
+                        ExecutorRunSettingsExecutableOverrideStart +
+#if DEBUG
+                            "\t\t\t\t\t<Key>" + Utilities.GetSolutionDirectory(Directory.GetParent(TestCommon.UsingDoctestMainExecutableFilePath).FullName) + "\\bin\\x64\\Debug\\UsingDoctestMain\\UsingDoctestMain.exe</Key>\n" +
+                            "\t\t\t\t\t<Value>" + Utilities.GetSolutionDirectory(Directory.GetParent(TestCommon.UsingDoctestMainExecutableFilePath).FullName) + "\\bin\\x64\\Debug\\UsingCustomMain\\UsingCustomMain.exe</Value>\n" +
+#else
+                            "\t\t\t\t\t<Key>" + Utilities.GetSolutionDirectory() + "\\DoctestTestAdapter.Examples\\bin\\x64\\Release\\UsingDoctestMain\\UsingDoctestMain.exe</Key>\n" +
+                            "\t\t\t\t\t<Value>" + Utilities.GetSolutionDirectory() + "\\DoctestTestAdapter.Examples\\bin\\x64\\Release\\UsingCustomMain\\UsingCustomMain.exe</Value>\n" +
+#endif
+                        ExecutorRunSettingsExecutableOverrideEnd +
+                    ExecutorRunSettingsEnd +
+                DoctestRunSettingsEnd +
+            RunSettingsEnd;
+
+        internal static string ExecutorRunSettingsInvalidExecutableOverrideExample =
+            RunSettingsStart +
+                DoctestRunSettingsStart +
+                    ExecutorRunSettingsStart +
+                        ExecutorRunSettingsExecutableOverrideStart +
+                            "\t\t\t\t\t<Key>NonExistentDirectoryA\\To\\NonExistentExecutableA.exe</Key>\n" +
+                            "\t\t\t\t\t<Value>NonExistentDirectoryB\\To\\NonExistentExecutableB.exe</Value>\n" +
+                        ExecutorRunSettingsExecutableOverrideEnd +
+                    ExecutorRunSettingsEnd +
+                DoctestRunSettingsEnd +
+            RunSettingsEnd;
 
         // Setup for convenience.
         private class ExampleTestCaseData
@@ -92,6 +202,40 @@ namespace DoctestTestAdapter.Tests
             new ExampleTestCaseData("NamespaceAndTestSuite_Namespace", "NamespaceAndTestSuite_TestSuite]", "Empty Class", "Testing IsEven With Test Adapter Escape Characters doctest:doctest doctest::doctest In Namespace And Test Suite", 423, TestOutcome.Passed),
             new ExampleTestCaseData("NamespaceAndTestSuite_Namespace", "NamespaceAndTestSuite_TestSuite]", "Empty Class", "Testing IsEven Is Compiled In #if CUSTOM_TEST_MACRO_TRUE In Namespace And Test Suite", 462, TestOutcome.Passed),
         };
+
+        internal static DoctestTestSettings LoadDoctestSettings(ISettingsProvider settingsProvider, string settingsAsString)
+        {
+            using (XmlReader xmlReader = XmlReader.Create(new StringReader(settingsAsString)))
+            {
+                xmlReader.MoveToContent();
+
+                using (XmlReader subXmlReader = XmlReader.Create(new StringReader(settingsAsString)))
+                {
+                    subXmlReader.MoveToContent();
+
+                    while (!xmlReader.EOF)
+                    {
+                        subXmlReader.Read();
+
+                        if (subXmlReader.Name == "Doctest")
+                        {
+                            // About to find doctest node so break so the settings can read the values correctly.
+                            break;
+                        }
+
+                        xmlReader.Read();
+                    }
+
+                    settingsProvider.Load(xmlReader);
+                }
+            }
+
+            IRunContext runContext = A.Fake<IRunContext>();
+            A.CallTo(() => runContext.RunSettings.GetSettings(DoctestTestSettings.RunSettingsXmlNode))
+                .Returns(settingsProvider);
+
+            return DoctestTestSettingsProvider.LoadSettings(runContext);
+        }
 
         internal static void AssertTestCase(TestCase testCase, string expectedSource, string expectedFullyQualifiedName, string expectedDisplayName, string expectedCodeFilePath, int expectedLineNumber)
         {

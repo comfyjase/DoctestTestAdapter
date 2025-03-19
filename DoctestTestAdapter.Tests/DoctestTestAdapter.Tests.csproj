@@ -53,6 +53,9 @@
     <Compile Include="test\keywords\DoctestTestSuiteKeywordTest.cs" />
     <Compile Include="test\keywords\DoctestTestCaseKeywordTest.cs" />
     <Compile Include="test\settings\DoctestTestSettingsTest.cs" />
+    <Compile Include="test\settings\DoctestGeneralSettingsTest.cs" />
+    <Compile Include="test\settings\DoctestDiscoverySettingsTest.cs" />
+    <Compile Include="test\settings\DoctestExecutorSettingsTest.cs" />
     <Compile Include="test\TestCommon.cs" />
   </ItemGroup>
   <ItemGroup>
@@ -72,6 +75,7 @@
       <Name>DoctestTestAdapter</Name>
     </ProjectReference>
   </ItemGroup>
+  <ItemGroup />
   <Import Project="..\DoctestTestAdapter.Shared\DoctestTestAdapter.Shared.projitems" Label="Shared" />
   <Import Project="$(VSToolsPath)\TeamTest\Microsoft.TestTools.targets" Condition="Exists('$(VSToolsPath)\TeamTest\Microsoft.TestTools.targets')" />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

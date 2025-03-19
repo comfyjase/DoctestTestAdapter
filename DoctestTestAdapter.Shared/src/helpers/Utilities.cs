@@ -10,6 +10,7 @@ using System.Globalization;
 using DoctestTestAdapter.Shared.Profiling;
 using System.Diagnostics;
 using DoctestTestAdapter.Shared.Keywords;
+using Microsoft.VisualStudio.TestPlatform.ObjectModel.Logging;
 
 namespace DoctestTestAdapter.Shared.Helpers
 {
@@ -166,7 +167,7 @@ namespace DoctestTestAdapter.Shared.Helpers
             return dependencies;
         }
 
-        internal static List<string> GetSourceFiles(string executableFilePath, string pdbFilePath, DoctestTestSettings settings = null)
+        internal static List<string> GetSourceFiles(string executableFilePath, string pdbFilePath, IMessageLogger logger, DoctestTestSettings settings = null)
         {
             List<string> sourceFiles = new List<string>();
 
@@ -206,13 +207,30 @@ namespace DoctestTestAdapter.Shared.Helpers
                 // User has given specific search directories to use, so make sure we only return source files from those directories.
                 if (settings != null && settings.DiscoverySettings != null && settings.DiscoverySettings.SearchDirectories.Count > 0)
                 {
-                    sourceFiles.AddRange
-                    (
-                        stringTableStr.Split('\n')
-                            .Select(s => s.Replace("\n", string.Empty).Replace("\r", string.Empty).Substring(s.IndexOf(" ") + 1))
-                            .Where(s => (settings.DiscoverySettings.SearchDirectories.Any(sd => s.Contains(solutionDirectory + "\\" + sd + "\\")) && !s.Contains("doctest.h") && s.EndsWith(".h") && File.Exists(s)))
-                            .ToList()
-                    );
+                    if (settings.DiscoverySettings.AreSearchDirectoriesValid(solutionDirectory, out string message))
+                    {
+                        sourceFiles.AddRange
+                        (
+                            stringTableStr.Split('\n')
+                                .Select(s => s.Replace("\n", string.Empty).Replace("\r", string.Empty).Substring(s.IndexOf(" ") + 1))
+                                .Where(s => (settings.DiscoverySettings.SearchDirectories.Any(sd => (s.Contains(solutionDirectory + "\\" + sd + "\\") || s.Contains(sd + "\\"))) && !s.Contains("doctest.h") && s.EndsWith(".h") && File.Exists(s)))
+                                .ToList()
+                        );
+                    }
+                    else
+                    {
+                        logger.SendMessage(TestMessageLevel.Warning, message);
+
+                        // Get all relevant source files under the solution directory since provided search directories were invalid.
+                        // Means the test adapter can continue in some way without having to stop everything and remaining in a bad state.
+                        sourceFiles.AddRange
+                        (
+                            stringTableStr.Split('\n')
+                                .Select(s => s.Replace("\n", string.Empty).Replace("\r", string.Empty).Substring(s.IndexOf(" ") + 1))
+                                .Where(s => (s.Contains(solutionDirectory) && !s.Contains("doctest.h") && s.EndsWith(".h") && File.Exists(s)))
+                                .ToList()
+                        );
+                    }
                 }
                 // Otherwise, just grab any relevant source file under the solution directory.
                 else
@@ -402,7 +420,7 @@ namespace DoctestTestAdapter.Shared.Helpers
             return testCaseNames;
         }
 
-        internal static List<TestCase> GetTestCases(string executableFilePath, DoctestTestSettings settings = null)
+        internal static List<TestCase> GetTestCases(string executableFilePath, IMessageLogger logger, DoctestTestSettings settings = null)
         {
             List<TestCase> testCases = new List<TestCase>();
 
@@ -431,11 +449,11 @@ namespace DoctestTestAdapter.Shared.Helpers
 
                 // Get all of the source files
                 string pdbFilePath = GetPDBFilePath(executableFilePath);
-                List<string> allSourceFilePaths = GetSourceFiles(executableFilePath, pdbFilePath, settings);
+                List<string> allSourceFilePaths = GetSourceFiles(executableFilePath, pdbFilePath, logger, settings);
                 foreach (string dependencyFilePath in dependencyFilePaths)
                 {
                     pdbFilePath = GetPDBFilePath(dependencyFilePath);
-                    allSourceFilePaths.AddRange(GetSourceFiles(dependencyFilePath, pdbFilePath, settings));
+                    allSourceFilePaths.AddRange(GetSourceFiles(dependencyFilePath, pdbFilePath, logger, settings));
                 }
                 
                 string testNamespace = string.Empty;

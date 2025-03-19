@@ -1,5 +1,8 @@
 ﻿using DoctestTestAdapter.Shared.Helpers;
+using FakeItEasy;
 using Microsoft.VisualStudio.TestPlatform.ObjectModel;
+using Microsoft.VisualStudio.TestPlatform.ObjectModel.Adapter;
+using Microsoft.VisualStudio.TestPlatform.ObjectModel.Logging;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System.Collections.Generic;
 using System.IO;
@@ -69,9 +72,18 @@ namespace DoctestTestAdapter.Tests.Helpers
         [TestMethod]
         public void SourceFiles()
         {
-            List<string> sourceFiles = Utilities.GetSourceFiles(TestCommon.DLLExecutableFilePath, TestCommon.DLLPdbFilePath);
+            IFrameworkHandle frameworkHandle = A.Fake<IFrameworkHandle>();
+            Captured<TestMessageLevel> capturedTestMessageLevels = A.Captured<TestMessageLevel>();
+            Captured<string> capturedTestMessages = A.Captured<string>();
+            A.CallTo(() => frameworkHandle.SendMessage(capturedTestMessageLevels._, capturedTestMessages._))
+               .DoesNothing();
+
+            List<string> sourceFiles = Utilities.GetSourceFiles(TestCommon.DLLExecutableFilePath, TestCommon.DLLPdbFilePath, frameworkHandle);
             Assert.IsNotEmpty(sourceFiles);
             Assert.HasCount(1, sourceFiles);
+
+            Assert.IsEmpty(capturedTestMessageLevels.Values);
+            Assert.IsEmpty(capturedTestMessages.Values);
 
             string sourceFile = sourceFiles[0];
             Assert.IsFalse(string.IsNullOrEmpty(sourceFile));
@@ -125,8 +137,17 @@ namespace DoctestTestAdapter.Tests.Helpers
         [TestMethod]
         public void TestCases()
         {
-            List<TestCase> testCases = Utilities.GetTestCases(TestCommon.ExecutableUsingDLLExecutableFilePath);
+            IFrameworkHandle frameworkHandle = A.Fake<IFrameworkHandle>();
+            Captured<TestMessageLevel> capturedTestMessageLevels = A.Captured<TestMessageLevel>();
+            Captured<string> capturedTestMessages = A.Captured<string>();
+            A.CallTo(() => frameworkHandle.SendMessage(capturedTestMessageLevels._, capturedTestMessages._))
+               .DoesNothing();
+
+            List<TestCase> testCases = Utilities.GetTestCases(TestCommon.ExecutableUsingDLLExecutableFilePath, frameworkHandle);
             Assert.HasCount(50, testCases);
+
+            Assert.IsEmpty(capturedTestMessageLevels.Values);
+            Assert.IsEmpty(capturedTestMessages.Values);
 
             List<TestCase> dllTestCases = testCases
                 .Where(t => t.DisplayName.Contains("[DLL]"))

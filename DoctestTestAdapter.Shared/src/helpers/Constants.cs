@@ -18,6 +18,9 @@ namespace DoctestTestAdapter.Shared.Helpers
         internal static readonly Uri ExecutorUri = new Uri(ExecutorUriString);
         internal static string EmptyNamespaceString = "Empty Namespace";
         internal static string EmptyClassString = "Empty Class";
+        internal static string ErrorMessagePrefix = "[Test Adapter for Doctest] [Error]";
+        internal static string WarningMessagePrefix = "[Test Adapter for Doctest] [Warning]";
+        internal static string InformationMessagePrefix = "[Test Adapter for Doctest] [Information]";
 
         // Command arguments
         // https://learn.microsoft.com/en-us/troubleshoot/windows-client/shell-experience/command-line-string-limitation
