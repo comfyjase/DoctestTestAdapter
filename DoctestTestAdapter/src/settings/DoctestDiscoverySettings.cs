@@ -9,16 +9,13 @@ namespace DoctestTestAdapter.Settings
     public class DoctestDiscoverySettings
     {
         /// <summary>
-        /// Each entry should be considered relative from the solution directory.
+        /// These can be absolute file paths or relative file paths from the solution directory.
         /// Test discovery will find any files and sub folder/files in these directories only.
         /// E.g. With an example .runsettings file with this in the discovery settings:
         /// <SearchDirectories>
 		///	    <string>tests</string>
 		/// </SearchDirectories>
-        /// And with a solution file located in: Path\To\Solution\
-        /// Test discovery will make sure only source code files under 
-        /// (and any sub folders within this directory): 
-        /// Path\To\Solution\tests\ will be considered.
+        /// This will check Path\To\Solution\tests\ and tests\ whichever is first found and valid.
         /// </summary>
         public List<string> SearchDirectories { get; set; } = new List<string>();
 

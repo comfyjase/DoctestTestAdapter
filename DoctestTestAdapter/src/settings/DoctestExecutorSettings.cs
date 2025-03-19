@@ -6,16 +6,15 @@ using System.Xml.Serialization;
 namespace DoctestTestAdapter.Settings
 {
     /// <summary>
-    /// Overrides should be relative from solution directory.
+    /// These can be absolute file paths or relative file paths from the solution directory.
     /// E.g. with settings:
     /// <ExecutableOverrides>
-	///		<ExecutableOverride>
-	///			<Key>bin\app.exe</Key>
-	///			<Value>bin\app.console.exe</Value>
-	///		</ExecutableOverride>
-	///	</ExecutableOverrides>
-    ///	And solution directory: Path\To\Solution\
-    ///	This assumes the executables are located Path\To\Solution\bin\app.exe and Path\To\Solution\bin\app.console.exe
+    ///		<ExecutableOverride>
+    ///			<Key>bin\app.exe</Key>
+    ///			<Value>bin\app.console.exe</Value>
+    ///		</ExecutableOverride>
+    ///	</ExecutableOverrides>
+    ///	Will check for Path\To\Solution\bin\app.exe and bin\app.exe - whichever is first found and valid.
     /// </summary>
     [XmlType]
     public struct ExecutableOverride
