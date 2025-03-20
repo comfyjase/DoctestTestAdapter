@@ -11,11 +11,18 @@ using DoctestTestAdapter.Shared.Profiling;
 using System.Diagnostics;
 using DoctestTestAdapter.Shared.Keywords;
 using Microsoft.VisualStudio.TestPlatform.ObjectModel.Logging;
+using System.Runtime.CompilerServices;
 
 namespace DoctestTestAdapter.Shared.Helpers
 {
     internal static class Utilities
     {
+        /// <summary>
+        /// GetSolutionDirectory.
+        /// </summary>
+        /// <param name="startingDirectoryPath">Starting path to work out where the parent solution directory is. Uses Environment.CurrentDirectory if nothing is provided.</param>
+        /// <returns>string - Full path to the solution directory.</returns>
+        /// <exception cref="FileNotFoundException">Thrown if no solution file is found.</exception>
         internal static string GetSolutionDirectory(string startingDirectoryPath = null)
         {
             if (startingDirectoryPath == null)
@@ -33,13 +40,14 @@ namespace DoctestTestAdapter.Shared.Helpers
             }
             profiler.End();
 
-            return directory?.FullName ?? throw new FileNotFoundException($"Could not find solution directory {directory}");
+            return directory?.FullName ?? throw new FileNotFoundException($"Could not find solution file in {directory}, abort!");
         }
-        
+
         /// <summary>
         /// Gets the general install directory for any of the supported and installed visual studio versions.
         /// </summary>
         /// <returns>string - Full directory path for the vs install directory.</returns>
+        /// <exception cref="DirectoryNotFoundException">Thrown if foundInstances is empty or if no vsInstallDirectory is found.</exception>
         public static string GetVSInstallDirectory()
         {
             string vsInstallDirectory = string.Empty;
@@ -48,6 +56,8 @@ namespace DoctestTestAdapter.Shared.Helpers
             profiler.Start();
             {
                 List<string> foundInstances = Directory.GetDirectories("C:\\ProgramData\\Microsoft\\VisualStudio\\Packages\\_Instances\\").ToList();
+                if (foundInstances.Count == 0)
+                    throw new DirectoryNotFoundException("Could not find VS instance directories under \"C:\\ProgramData\\Microsoft\\VisualStudio\\Packages\\_Instances\\\", abort!");
 
                 foreach (string instance in foundInstances)
                 {
@@ -70,16 +80,28 @@ namespace DoctestTestAdapter.Shared.Helpers
 
                             // This will find whatever the first valid VS install location is and then base the directory from that.
                             vsInstallDirectory = (string)key.GetValue("InstallLocation");
-                            break;
+                            if (!string.IsNullOrEmpty(vsInstallDirectory))
+                            {
+                                break;
+                            }
                         }
                     }
                 }
             }
             profiler.End();
 
+            if (!Directory.Exists(vsInstallDirectory))
+                throw new DirectoryNotFoundException("Could not find any valid VS install locations... (somehow?!), abort!");
+
             return vsInstallDirectory;
         }
 
+        /// <summary>
+        /// GetPDBFilePath
+        /// </summary>
+        /// <param name="executableFilePath">Full file path to the discovered executable.</param>
+        /// <returns>string - Full file path to the pdb file for executableFilePath</returns>
+        /// <exception cref="FileNotFoundException">Thrown if unable to find VsDevCmd.bat or if the found pdb file path doesn't exist.</exception>
         internal static string GetPDBFilePath(string executableFilePath)
         {
             string pdbFilePath = null;
@@ -87,7 +109,9 @@ namespace DoctestTestAdapter.Shared.Helpers
             Profiler profiler = new Profiler();
             profiler.Start();
             {
-                string batFilePath = "\"" + GetVSInstallDirectory() + "\\Common7\\Tools\\VsDevCmd.bat\"";
+                string batFilePath = GetVSInstallDirectory() + "\\Common7\\Tools\\VsDevCmd.bat";
+                if (!File.Exists(batFilePath))
+                    throw new FileNotFoundException($"Could not find file {batFilePath}, abort!");
 
                 System.Diagnostics.ProcessStartInfo processStartInfo = new System.Diagnostics.ProcessStartInfo();
                 processStartInfo.CreateNoWindow = true;
@@ -95,7 +119,7 @@ namespace DoctestTestAdapter.Shared.Helpers
                 processStartInfo.RedirectStandardOutput = true;
                 processStartInfo.RedirectStandardError = true;
                 processStartInfo.FileName = @"cmd.exe";
-                processStartInfo.Arguments = "/c call " + batFilePath + " & dumpbin /PDBPATH " + "\"" + executableFilePath + "\"";
+                processStartInfo.Arguments = "/c call " + string.Format("\"{0}\"", batFilePath) + " & dumpbin /PDBPATH " + "\"" + executableFilePath + "\"";
 
                 System.Diagnostics.Process dumpBinProcess = new System.Diagnostics.Process();
                 dumpBinProcess.StartInfo = processStartInfo;
@@ -118,9 +142,18 @@ namespace DoctestTestAdapter.Shared.Helpers
             }
             profiler.End();
 
-            return pdbFilePath ?? throw new FileNotFoundException($"Could not find pdb file for executable file {executableFilePath}");
+            if (!File.Exists(pdbFilePath))
+                throw new FileNotFoundException($"Could not find pdb file for executable file {executableFilePath}, abort!");
+
+            return pdbFilePath;
         }
 
+        /// <summary>
+        /// GetDependencies - Returns any dependencies that executableFilePath relies on (.dlls).
+        /// </summary>
+        /// <param name="executableFilePath">Full path to the discovered executable.</param>
+        /// <returns>List<string> - List of file names for all dependencies.</returns>
+        /// <exception cref="FileNotFoundException">Thrown if unable to find VsDevCmd.bat.</exception>
         internal static List<string> GetDependencies(string executableFilePath)
         {
             List<string> dependencies = new List<string>();
@@ -128,7 +161,9 @@ namespace DoctestTestAdapter.Shared.Helpers
             Profiler profiler = new Profiler();
             profiler.Start();
             {
-                string batFilePath = "\"" + GetVSInstallDirectory() + "\\Common7\\Tools\\VsDevCmd.bat\"";
+                string batFilePath = GetVSInstallDirectory() + "\\Common7\\Tools\\VsDevCmd.bat";
+                if (!File.Exists(batFilePath))
+                    throw new FileNotFoundException($"Could not find file {batFilePath}, abort!");
 
                 System.Diagnostics.ProcessStartInfo processStartInfo = new System.Diagnostics.ProcessStartInfo();
                 processStartInfo.CreateNoWindow = true;
@@ -136,7 +171,7 @@ namespace DoctestTestAdapter.Shared.Helpers
                 processStartInfo.RedirectStandardOutput = true;
                 processStartInfo.RedirectStandardError = true;
                 processStartInfo.FileName = @"cmd.exe";
-                processStartInfo.Arguments = "/c call " + batFilePath + " & dumpbin /dependents " + "\"" + executableFilePath + "\"";
+                processStartInfo.Arguments = "/c call " + string.Format("\"{0}\"", batFilePath) + " & dumpbin /dependents " + "\"" + executableFilePath + "\"";
 
                 System.Diagnostics.Process dumpBinProcess = new System.Diagnostics.Process();
                 dumpBinProcess.StartInfo = processStartInfo;
@@ -167,6 +202,15 @@ namespace DoctestTestAdapter.Shared.Helpers
             return dependencies;
         }
 
+        /// <summary>
+        /// GetSourceFiles - Returns a list of full file paths to relevant source files from executableFilePath.
+        /// </summary>
+        /// <param name="executableFilePath">The full file path the discovered executable.</param>
+        /// <param name="pdbFilePath">The full file path to the discovered executable's pdb file.</param>
+        /// <param name="logger">Logger for sending test messages.</param>
+        /// <param name="settings">Doctest test adapter settings.</param>
+        /// <returns>List<string> - List of full file paths of source files.</returns>
+        /// <exception cref="FileNotFoundException">Thrown if unable to find the cvdump.exe file.</exception>
         internal static List<string> GetSourceFiles(string executableFilePath, string pdbFilePath, IMessageLogger logger, DoctestTestSettings settings = null)
         {
             List<string> sourceFiles = new List<string>();
@@ -176,6 +220,8 @@ namespace DoctestTestAdapter.Shared.Helpers
             {
                 string solutionDirectory = GetSolutionDirectory(Directory.GetParent(executableFilePath).FullName);
                 string cvDumpFilePath = Directory.GetParent(Assembly.GetExecutingAssembly().CodeBase.Replace(@"file:///", string.Empty)) + "\\thirdparty\\cvdump\\cvdump.exe";
+                if (!File.Exists(cvDumpFilePath))
+                    throw new FileNotFoundException($"Could not find file {cvDumpFilePath}, abort!");
 
                 System.Diagnostics.ProcessStartInfo processStartInfo = new System.Diagnostics.ProcessStartInfo();
                 processStartInfo.CreateNoWindow = true;
@@ -422,6 +468,8 @@ namespace DoctestTestAdapter.Shared.Helpers
 
         internal static List<TestCase> GetTestCases(string executableFilePath, IMessageLogger logger, DoctestTestSettings settings = null)
         {
+            Utilities.CheckFilePath(executableFilePath, nameof(executableFilePath));
+
             List<TestCase> testCases = new List<TestCase>();
 
             Profiler profiler = new Profiler();
@@ -483,6 +531,66 @@ namespace DoctestTestAdapter.Shared.Helpers
             profiler.End();
 
             return testCases;
+        }
+
+        /// <summary>
+        /// CheckNull - checks if arg == null.
+        /// </summary>
+        /// <param name="arg">Argument to check.</param>
+        /// <param name="nameOfArg">Name of the argument to check from the calling function.</param>
+        /// <param name="memberName">Name of the function that called this.</param>
+        /// <exception cref="ArgumentNullException">Thrown if arg is null.</exception>
+        internal static void CheckNull<T>(T arg, string nameOfArg, [CallerMemberName] string memberName = "")
+        {
+            if (arg == null)
+                throw new ArgumentNullException(nameOfArg, Constants.ErrorMessagePrefix + " " + memberName + ": Argument '" + nameOfArg + "' is null, abort!");
+        }
+
+        /// <summary>
+        /// CheckString - Checks if arg == null and if arg == string.Empty.
+        /// </summary>
+        /// <param name="arg">String argument to check.</param>
+        /// <param name="nameOfArg">Name of the string argument from the calling class.</param>
+        /// <param name="memberName">Name of the function that called this validate function.</param>
+        /// <exception cref="ArgumentNullException">Thrown if arg is null.</exception>
+        /// <exception cref="ArgumentException">Thrown if arg is empty.</exception>
+        internal static void CheckString(string arg, string nameOfArg, [CallerMemberName] string memberName = "")
+        {
+            CheckNull(arg, nameOfArg, memberName);
+            if (arg == string.Empty)
+                throw new ArgumentException(Constants.ErrorMessagePrefix + " " + memberName + ": Argument '" + nameOfArg + "' cannot be empty, abort!", nameOfArg);
+        }
+
+        /// <summary>
+        /// CheckFilePath - Checks if filePathArg == null and if filePathArg == string.Empty and if File.Exists(filePathArg)
+        /// </summary>
+        /// <param name="filePathArg"></param>
+        /// <param name="nameOfFilePathArg"></param>
+        /// <param name="memberName"></param>
+        /// <exception cref="ArgumentNullException">Thrown if filePathArg is null.</exception>
+        /// <exception cref="ArgumentException">Thrown if filePathArg is empty.</exception>
+        /// <exception cref="FileNotFoundException"></exception>
+        internal static void CheckFilePath(string filePathArg, string nameOfFilePathArg, [CallerMemberName] string memberName = "")
+        {
+            CheckString(filePathArg, nameOfFilePathArg, memberName);
+            if (!File.Exists(filePathArg))
+                throw new FileNotFoundException(Constants.ErrorMessagePrefix + " " + memberName + ": Argument '" + nameOfFilePathArg + "' file does not exist, abort!", filePathArg);
+        }
+
+        /// <summary>
+        /// CheckEnumerable - Checks if arg == null and if arg.Count() == 0.
+        /// </summary>
+        /// <typeparam name="T">Type of enumerable used.</typeparam>
+        /// <param name="arg">Enumerable argument to check.</param>
+        /// <param name="nameOfArg">Name of the enumerable argument from the calling class.</param>
+        /// <param name="memberName">Name of the function that called this validate function.</param>
+        /// <exception cref="ArgumentNullException">Thrown if arg is null.</exception>
+        /// <exception cref="ArgumentException">Thrown if arg is empty.</exception>
+        internal static void CheckEnumerable<T>(IEnumerable<T> arg, string nameOfArg, [CallerMemberName] string memberName = "")
+        {
+            CheckNull(arg, nameOfArg, memberName); 
+            if (arg.Count() == 0)
+                throw new ArgumentException(Constants.ErrorMessagePrefix + " " + memberName + ": Argument '" + nameOfArg + "' cannot be empty, abort!", nameOfArg);
         }
     }
 }

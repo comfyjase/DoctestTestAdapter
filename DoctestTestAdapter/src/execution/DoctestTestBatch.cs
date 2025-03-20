@@ -1,5 +1,5 @@
-﻿using Microsoft.VisualStudio.TestPlatform.ObjectModel;
-using System;
+﻿using DoctestTestAdapter.Shared.Helpers;
+using Microsoft.VisualStudio.TestPlatform.ObjectModel;
 using System.Collections.Generic;
 
 namespace DoctestTestAdapter.Execution
@@ -26,11 +26,12 @@ namespace DoctestTestAdapter.Execution
             get; private set;
         }
 
-        public DoctestTestBatch() : this(null, null, -1, null)
-        { }
-
         public DoctestTestBatch(List<TestCase> tests, string commandArguments, int batchNumber, string testReportFilePath)
         {
+            Utilities.CheckEnumerable(tests, nameof(tests));
+            Utilities.CheckString(commandArguments, nameof(commandArguments));
+            Utilities.CheckString(testReportFilePath, nameof(testReportFilePath));
+
             Tests = tests;
             CommandArguments = commandArguments;
             BatchNumber = batchNumber;

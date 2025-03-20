@@ -4,6 +4,7 @@ using DoctestTestAdapter.Shared.EqualityComparers;
 using DoctestTestAdapter.Shared.Helpers;
 using Microsoft.VisualStudio.TestPlatform.ObjectModel;
 using Microsoft.VisualStudio.TestPlatform.ObjectModel.Adapter;
+using Microsoft.VisualStudio.TestPlatform.ObjectModel.Logging;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -108,45 +109,65 @@ namespace DoctestTestAdapter
 
         public void RunTests(IEnumerable<TestCase> tests, IRunContext runContext, IFrameworkHandle frameworkHandle)
         {
+            Utilities.CheckEnumerable(tests, nameof(tests));
+            Utilities.CheckNull(runContext, nameof(runContext));
+            Utilities.CheckNull(frameworkHandle, nameof(frameworkHandle));
+
             _waitingForTestResults = true;
             _currentNumberOfTestBatches = 0;
             _testExecutables.Clear();
-            
-            DoctestTestSettings settings = DoctestTestSettingsProvider.LoadSettings(runContext);
 
-            foreach (TestCase test in tests)
+            try
             {
-                bool hasTestExeAlreadyBeenSetup = _testExecutables.Any(t => t.FilePath.Equals(test.Source));
-                if (hasTestExeAlreadyBeenSetup)
+                DoctestTestSettings settings = DoctestTestSettingsProvider.LoadSettings(runContext);
+
+                foreach (TestCase test in tests)
                 {
-                    DoctestTestExecutable existingTestExecutable = _testExecutables.Single(t => t.FilePath.Equals(test.Source));
-                    existingTestExecutable.TrackTestCase(test);
+                    DoctestTestExecutable existingTestExecutable = _testExecutables.Find(t => (t.FilePath.Equals(test.Source)));
+                    if (existingTestExecutable != null)
+                    {
+                        existingTestExecutable.TrackTestCase(test);
+                    }
+                    else
+                    {
+                        DoctestTestExecutable newTestExecutable = new DoctestTestExecutable(test.Source, runContext, frameworkHandle);
+                        newTestExecutable.TrackTestCase(test);
+                        _testExecutables.Add(newTestExecutable);
+                    }
                 }
-                else
+
+                foreach (DoctestTestExecutable testExecutable in _testExecutables)
                 {
-                    DoctestTestExecutable newTestExecutable = new DoctestTestExecutable(test.Source, runContext, frameworkHandle);
-                    newTestExecutable.TrackTestCase(test);
-                    _testExecutables.Add(newTestExecutable);
+                    SetupTestExecutableWithTestBatches(testExecutable, tests, settings);
+
+                    testExecutable.Finished += OnTestExecutableFinished;
+                    testExecutable.Start();
+                }
+
+                //TODO_comfyjase_03/02/2025: Check if you still need this.
+                while (_waitingForTestResults)
+                {
+                    System.Threading.Thread.Sleep(100);
                 }
             }
-
-            foreach (DoctestTestExecutable testExecutable in _testExecutables)
+            catch(Exception ex)
             {
-                SetupTestExecutableWithTestBatches(testExecutable, tests, settings);
-
-                testExecutable.Finished += OnTestExecutableFinished;
-                testExecutable.Start();
+                frameworkHandle.SendMessage(TestMessageLevel.Error, Helpers.Constants.ErrorMessagePrefix + $"[Test Executing]: {ex}");
             }
-
-            //TODO_comfyjase_03/02/2025: Check if you still need this.
-            while (_waitingForTestResults)
+            finally
             {
-                System.Threading.Thread.Sleep(100);
+                _waitingForTestResults = false;
+                _currentNumberOfTestBatches = 0;
+                _testExecutables.Clear();
             }
         }
 
         public void RunTests(IEnumerable<string> sources, IRunContext runContext, IFrameworkHandle frameworkHandle)
         {
+            Utilities.CheckEnumerable(sources, nameof(sources));
+            Utilities.CheckNull(runContext, nameof(runContext));
+            Utilities.CheckNull(frameworkHandle, nameof(frameworkHandle));
+
             IDiscoveryContext discoveryContext = runContext;
 
             List<TestCase> tests = new List<TestCase>();

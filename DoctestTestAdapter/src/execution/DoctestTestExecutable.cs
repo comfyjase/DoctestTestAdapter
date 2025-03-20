@@ -45,11 +45,12 @@ namespace DoctestTestAdapter.Execution
 
         public event EventHandler<EventArgs> Finished = null;
 
-        public DoctestTestExecutable() : this(null, null, null)
-        { }
-
         public DoctestTestExecutable(string filePath, IRunContext runContext, IFrameworkHandle frameworkHandle)
         {
+            Utilities.CheckString(filePath, nameof(filePath));
+            Utilities.CheckNull(runContext, nameof(runContext));
+            Utilities.CheckNull(frameworkHandle, nameof(frameworkHandle));
+
             _filePath = filePath;
             _runContext = runContext;
             _frameworkHandle = frameworkHandle;
@@ -57,6 +58,8 @@ namespace DoctestTestAdapter.Execution
 
         public void TrackTestCase(TestCase testCase)
         {
+            Utilities.CheckNull(testCase, nameof(testCase));
+
             if (!_allTestCases.Contains(testCase))
                 _allTestCases.Add(testCase);
         }
@@ -83,6 +86,9 @@ namespace DoctestTestAdapter.Execution
         private void RecordTestFinish()
         {
             Dictionary<TestCase, bool> reportedTestResults = new Dictionary<TestCase, bool>();
+
+            if (!File.Exists(_currentTestBatch.TestReportFilePath))
+                throw new FileNotFoundException($"Could not find file {_currentTestBatch.TestReportFilePath}, abort!");
 
             XmlDocument testReportDocument = new XmlDocument();
             testReportDocument.Load(_currentTestBatch.TestReportFilePath);
@@ -198,6 +204,10 @@ namespace DoctestTestAdapter.Execution
             }
         }
 
+        /// <summary>
+        /// Start - Sets up the test executable process.
+        /// </summary>
+        /// <exception cref="NullReferenceException">Thrown if debugging unit tests and the process fails to start with the debugger attached.</exception>
         public void Start()
         {
             // Correct executable file path if needed.
@@ -247,7 +257,7 @@ namespace DoctestTestAdapter.Execution
             if (_runContext.IsBeingDebugged)
             {
                 int processId = _frameworkHandle.LaunchProcessWithDebuggerAttached(testSource, solutionDirectory, _currentTestBatch.CommandArguments, null);
-                _process = Process.GetProcessById(processId);
+                _process = Process.GetProcessById(processId) ?? throw new NullReferenceException($"Failed to start process {testSource} with debugger attached - _process is null, abort!");
                 _process.EnableRaisingEvents = true;
                 _process.Exited += OnProcessExited;
             }
@@ -300,6 +310,7 @@ namespace DoctestTestAdapter.Execution
             {
                 _process.Exited -= OnProcessExited;
                 _process.Close();
+                _process.Dispose();
                 _process = null;
 
                 RecordTestFinish();
