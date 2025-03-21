@@ -1,0 +1,3 @@
+[submodule "DoctestTestAdapter.Examples/ThirdParty/doctest"]
+	path = DoctestTestAdapter.Examples/ThirdParty/doctest
+	url = https://github.com/doctest/doctest.git
