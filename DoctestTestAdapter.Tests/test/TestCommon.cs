@@ -58,6 +58,16 @@ namespace DoctestTestAdapter.Tests
                 DoctestRunSettingsStart +
                     "\t\t<GeneralSettings>\n" +
                         "\t\t\t<CommandArguments>--test</CommandArguments>\n" +
+                        "\t\t\t<PrintStandardOutput>true</PrintStandardOutput>\n" +
+                    "\t\t</GeneralSettings>\n" +
+                DoctestRunSettingsEnd +
+            RunSettingsEnd;
+
+        internal static string GeneralRunSettingsPrintStandardOutputExample =
+            RunSettingsStart +
+                DoctestRunSettingsStart +
+                    "\t\t<GeneralSettings>\n" +
+                        "\t\t\t<PrintStandardOutput>true</PrintStandardOutput>\n" +
                     "\t\t</GeneralSettings>\n" +
                 DoctestRunSettingsEnd +
             RunSettingsEnd;
@@ -235,6 +245,20 @@ namespace DoctestTestAdapter.Tests
                 .Returns(settingsProvider);
 
             return DoctestTestSettingsProvider.LoadSettings(runContext);
+        }
+
+        internal static void AssertStandardOutputSettingOutput(string output, string expectedHeaderFilePath)
+        {
+            Assert.IsFalse(string.IsNullOrEmpty(output));
+            Assert.IsTrue(output.Contains("Image has the following dependencies:"));
+            Assert.IsTrue(output.Contains("[doctest] listing all test suites"));
+            Assert.IsTrue(output.Contains("[UsingDoctestMainTestSuite]"));
+            Assert.IsTrue(output.Contains("[UsingDoctestMainNamespaceAndTestSuite_TestSuite]"));
+            Assert.IsTrue(output.Contains("[doctest] listing all test case names"));
+            Assert.IsTrue(output.Contains("[UsingDoctestMain] Testing IsEven Always Pass In No Namespace Or Test Suite"));
+            Assert.IsTrue(output.Contains("PDB file found at "));
+            Assert.IsTrue(output.Contains("*** STRINGTABLE"));
+            Assert.IsTrue(output.Contains(expectedHeaderFilePath));
         }
 
         internal static void AssertTestCase(TestCase testCase, string expectedSource, string expectedFullyQualifiedName, string expectedDisplayName, string expectedCodeFilePath, int expectedLineNumber)

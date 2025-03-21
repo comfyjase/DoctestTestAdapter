@@ -278,21 +278,27 @@ namespace DoctestTestAdapter.Execution
 
                 _process.Exited += OnProcessExited;
 
-                _process.OutputDataReceived += (object _sender, DataReceivedEventArgs _e) =>
+                // This is a bit misleading at the moment since I'm dumping any output into an xml file using the --reporter=xml argument.
+                // So this won't actually print any doctest output at all.
+                // See DoctestGeneralSettings.cs for more info.
+                _process.OutputDataReceived += new DataReceivedEventHandler((sender, e) =>
                 {
-                    if (_e.Data != null && _e.Data.Count() > 0)
+                    if (settings != null && settings.GeneralSettings != null && settings.GeneralSettings.PrintStandardOutput)
                     {
-                        Console.WriteLine(_e.Data);
+                        if (!string.IsNullOrEmpty(e.Data))
+                        {
+                            Console.WriteLine(e.Data);
+                        }
                     }
-                };
+                });
 
-                _process.ErrorDataReceived += (object _sender, DataReceivedEventArgs _e) =>
+                _process.ErrorDataReceived += new DataReceivedEventHandler((sender, e) =>
                 {
-                    if (_e.Data != null && _e.Data.Count() > 0)
+                    if (!string.IsNullOrEmpty(e.Data))
                     {
-                        Console.WriteLine(_e.Data);
+                        Console.WriteLine(e.Data);
                     }
-                };
+                });
 
                 _frameworkHandle.SendMessage(TestMessageLevel.Informational, Shared.Helpers.Constants.InformationMessagePrefix + " - About to start exe " + Path.GetFileName(testSource) + " with command arguments: " + processStartInfo.Arguments);
 

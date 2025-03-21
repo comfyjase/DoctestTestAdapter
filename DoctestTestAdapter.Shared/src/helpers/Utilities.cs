@@ -100,9 +100,10 @@ namespace DoctestTestAdapter.Shared.Helpers
         /// GetPDBFilePath
         /// </summary>
         /// <param name="executableFilePath">Full file path to the discovered executable.</param>
+        /// <param name="settings">Doctest test adapter settings.</param>
         /// <returns>string - Full file path to the pdb file for executableFilePath</returns>
         /// <exception cref="FileNotFoundException">Thrown if unable to find VsDevCmd.bat or if the found pdb file path doesn't exist.</exception>
-        internal static string GetPDBFilePath(string executableFilePath)
+        internal static string GetPDBFilePath(string executableFilePath, DoctestTestSettings settings = null)
         {
             string pdbFilePath = null;
 
@@ -125,10 +126,9 @@ namespace DoctestTestAdapter.Shared.Helpers
                 dumpBinProcess.StartInfo = processStartInfo;
                 dumpBinProcess.Start();
 
-                //TODO_comfyjase_25/02/2025: Wrap this in an option for the user to toggle on/off debug test output?
                 string output = dumpBinProcess.StandardOutput.ReadToEnd();
-                //if (!string.IsNullOrEmpty(output))
-                //    Console.WriteLine("dumpbin output: \n" + output);
+                if (settings != null && settings.GeneralSettings != null && settings.GeneralSettings.PrintStandardOutput)
+                    Console.WriteLine("dumpbin output: \n" + output);
                 string errors = dumpBinProcess.StandardError.ReadToEnd();
                 if (!string.IsNullOrEmpty(errors))
                     Console.WriteLine("dumpbin errors: \n\t" + errors);
@@ -152,9 +152,10 @@ namespace DoctestTestAdapter.Shared.Helpers
         /// GetDependencies - Returns any dependencies that executableFilePath relies on (.dlls).
         /// </summary>
         /// <param name="executableFilePath">Full path to the discovered executable.</param>
+        /// <param name="settings">Doctest test adapter settings.</param>
         /// <returns>List<string> - List of file names for all dependencies.</returns>
         /// <exception cref="FileNotFoundException">Thrown if unable to find VsDevCmd.bat.</exception>
-        internal static List<string> GetDependencies(string executableFilePath)
+        internal static List<string> GetDependencies(string executableFilePath, DoctestTestSettings settings = null)
         {
             List<string> dependencies = new List<string>();
 
@@ -177,10 +178,9 @@ namespace DoctestTestAdapter.Shared.Helpers
                 dumpBinProcess.StartInfo = processStartInfo;
                 dumpBinProcess.Start();
 
-                //TODO_comfyjase_25/02/2025: Wrap this in an option for the user to toggle on/off debug test output?
                 string output = dumpBinProcess.StandardOutput.ReadToEnd();
-                //if (!string.IsNullOrEmpty(output))
-                //    Console.WriteLine("dumpbin output: \n" + output);
+                if (settings != null && settings.GeneralSettings != null && settings.GeneralSettings.PrintStandardOutput)
+                    Console.WriteLine("dumpbin output: \n" + output);
                 string errors = dumpBinProcess.StandardError.ReadToEnd();
                 if (!string.IsNullOrEmpty(errors))
                     Console.WriteLine("dumpbin errors: \n\t" + errors);
@@ -235,10 +235,9 @@ namespace DoctestTestAdapter.Shared.Helpers
                 cvDumpProcess.StartInfo = processStartInfo;
                 cvDumpProcess.Start();
 
-                //TODO_comfyjase_25/02/2025: Wrap this in an option for the user to toggle on/off debug test output?
                 string output = cvDumpProcess.StandardOutput.ReadToEnd();
-                //if (!string.IsNullOrEmpty(output))
-                //    Console.WriteLine("cvdumpbin output: \n" + output);
+                if (settings != null && settings.GeneralSettings != null && settings.GeneralSettings.PrintStandardOutput)
+                    Console.WriteLine("cvdumpbin output: \n" + output);
                 string errors = cvDumpProcess.StandardError.ReadToEnd();
                 if (!string.IsNullOrEmpty(errors))
                     Console.WriteLine("cvdumpbin errors: \n\t" + errors);
@@ -382,13 +381,12 @@ namespace DoctestTestAdapter.Shared.Helpers
             exeProcess.StartInfo = processStartInfo;
             exeProcess.Start();
 
-            //TODO_comfyjase_25/02/2025: Wrap this in an option for the user to toggle on/off debug test output?
             string output = exeProcess.StandardOutput.ReadToEnd();
-            //if (!string.IsNullOrEmpty(output))
-            //    Console.WriteLine("exeProcess output: \n" + output);
+            if (settings != null && settings.GeneralSettings != null && settings.GeneralSettings.PrintStandardOutput)
+                Console.WriteLine(Path.GetFileName(executableFilePath) + " output: \n" + output);
             string errors = exeProcess.StandardError.ReadToEnd();
             if (!string.IsNullOrEmpty(errors))
-                Console.WriteLine("exeProcess errors: \n\t" + errors);
+                Console.WriteLine(Path.GetFileName(executableFilePath) + " errors: \n\t" + errors);
 
             exeProcess.WaitForExit();
 
@@ -435,18 +433,14 @@ namespace DoctestTestAdapter.Shared.Helpers
             exeProcess.StartInfo = processStartInfo;
             exeProcess.Start();
 
-            //TODO_comfyjase_25/02/2025: Wrap this in an option for the user to toggle on/off debug test output?
             string output = exeProcess.StandardOutput.ReadToEnd();
-            //if (!string.IsNullOrEmpty(output))
-            //    Console.WriteLine("exeProcess output: \n" + output);
+            if (settings != null && settings.GeneralSettings != null && settings.GeneralSettings.PrintStandardOutput)
+                Console.WriteLine(Path.GetFileName(executableFilePath) + " output: \n" + output);
             string errors = exeProcess.StandardError.ReadToEnd();
             if (!string.IsNullOrEmpty(errors))
-                Console.WriteLine("exeProcess errors: \n\t" + errors);
+                Console.WriteLine(Path.GetFileName(executableFilePath) + " errors: \n\t" + errors);
 
             exeProcess.WaitForExit();
-
-            // TODO: Process string to get only test suite names.
-            //Console.WriteLine(output);
 
             string startSearchString = "===============================================================================\r\n";
             string endSearchString = "\r\n===============================================================================";
@@ -476,7 +470,7 @@ namespace DoctestTestAdapter.Shared.Helpers
             profiler.Start();
             {
                 List<string> dependencyFilePaths = new List<string>();
-                List<string> dependencies = GetDependencies(executableFilePath);
+                List<string> dependencies = GetDependencies(executableFilePath, settings);
                 string executableDirectory = Directory.GetParent(executableFilePath).FullName;
                 foreach (string dependency in dependencies)
                 {
@@ -496,11 +490,11 @@ namespace DoctestTestAdapter.Shared.Helpers
                 List<string> allTestCaseNames = GetAllTestCaseNames(executableFilePath, settings);
 
                 // Get all of the source files
-                string pdbFilePath = GetPDBFilePath(executableFilePath);
+                string pdbFilePath = GetPDBFilePath(executableFilePath, settings);
                 List<string> allSourceFilePaths = GetSourceFiles(executableFilePath, pdbFilePath, logger, settings);
                 foreach (string dependencyFilePath in dependencyFilePaths)
                 {
-                    pdbFilePath = GetPDBFilePath(dependencyFilePath);
+                    pdbFilePath = GetPDBFilePath(dependencyFilePath, settings);
                     allSourceFilePaths.AddRange(GetSourceFiles(dependencyFilePath, pdbFilePath, logger, settings));
                 }
                 

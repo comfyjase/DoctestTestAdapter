@@ -15,5 +15,14 @@ namespace DoctestTestAdapter.Tests.Settings
             Assert.IsFalse(string.IsNullOrEmpty(doctestSettings.GeneralSettings.CommandArguments));
             Assert.AreEqual("--test", doctestSettings.GeneralSettings.CommandArguments);
         }
+
+        [TestMethod]
+        public void PrintStandardOutput()
+        {
+            DoctestTestSettings doctestSettings = TestCommon.LoadDoctestSettings(new DoctestTestSettingsProvider(), TestCommon.GeneralRunSettingsExample);
+            Assert.IsNotNull(doctestSettings);
+            Assert.IsNotNull(doctestSettings.GeneralSettings);
+            Assert.IsTrue(doctestSettings.GeneralSettings.PrintStandardOutput);
+        }
     }
 }
