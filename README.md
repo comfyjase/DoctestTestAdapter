@@ -27,6 +27,7 @@ There is also [continuous integration](https://github.com/comfyjase/DoctestTestA
 ## Contributing
 * Feel free to head over to the discussions to ask questions and share ideas [here](https://github.com/comfyjase/DoctestTestAdapter/discussions).
 * If you notice a bug please report using this form [here](https://github.com/comfyjase/DoctestTestAdapter/issues/new?template=bug_report.yml).
-* For suggesting improvements please fill out this form [here](https://github.com/comfyjase/DoctestTestAdapter/issues/new?template=feature_proposal.yml) or feel free to create a pull request for review.
+* For suggesting improvements please fill out this form [here](https://github.com/comfyjase/DoctestTestAdapter/issues/new?template=feature_proposal.yml).
+* You can create pull requests for bug fixes or new features for review.  
 
 ## Thank you!
