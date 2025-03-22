@@ -44,10 +44,12 @@
   <ItemGroup>
     <Compile Include="test\discovery\DoctestTestDiscovererTest.cs" />
     <Compile Include="test\equality_comparers\TestCaseComparerTest.cs" />
+    <Compile Include="test\executables\DumpBinExecutableTest.cs" />
+    <Compile Include="test\executables\CVDumpExecutableTest.cs" />
+    <Compile Include="test\executables\DoctestExecutableTest.cs" />
     <Compile Include="test\execution\DoctestTestExecutorTest.cs" />
+    <Compile Include="test\factory\TestCaseFactoryTest.cs" />
     <Compile Include="test\helpers\UtilitiesTest.cs" />
-    <Compile Include="test\helpers\UtilitiesDLLTest.cs" />
-    <Compile Include="test\helpers\UtilitiesExeTest.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="test\keywords\NamespaceKeywordTest.cs" />
     <Compile Include="test\keywords\DoctestTestSuiteKeywordTest.cs" />

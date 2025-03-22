@@ -41,7 +41,7 @@ namespace DoctestTestAdapter.Shared.Keywords
 
         protected abstract string Word { get; }
 
-        public Keyword()
+        internal Keyword()
         {
             _regexSearchPattern = new Regex(@"(^|[\t])\b" + Word + @"\b");
         }
@@ -50,7 +50,7 @@ namespace DoctestTestAdapter.Shared.Keywords
 
         protected abstract void OnExitKeywordScope(string executableFilePath, string sourceFilePath, ref string namespaceName, ref string className, string line, int lineNumber, ref List<TestCase> allTestCases);
 
-        public void Check(string executableFilePath, string sourceFilePath, ref string namespaceName, ref string className, string line, int lineNumber, ref List<TestCase> allTestCases)
+        internal void Check(string executableFilePath, string sourceFilePath, ref string namespaceName, ref string className, string line, int lineNumber, ref List<TestCase> allTestCases)
         {
             Match keywordRegexMatch = _regexSearchPattern.Match(line);
             bool validMatch = keywordRegexMatch.Success && !line.EndsWith(";");

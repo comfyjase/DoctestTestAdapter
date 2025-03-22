@@ -23,6 +23,7 @@
 // SOFTWARE.
 
 using DoctestTestAdapter.Settings;
+using DoctestTestAdapter.Shared.Factory;
 using DoctestTestAdapter.Shared.Helpers;
 using DoctestTestAdapter.Shared.Profiling;
 using Microsoft.VisualStudio.TestPlatform.ObjectModel;
@@ -55,8 +56,9 @@ namespace DoctestTestAdapter
 
                     foreach (string source in sources)
                     {
-                        List<TestCase> discoveredTestCases = Utilities.GetTestCases(source, logger, settings);
-                        discoveredTestCases.ForEach(testCase => discoverySink.SendTestCase(testCase));
+                        new TestCaseFactory(source, settings, null, logger)
+                            .CreateTestCases()
+                            .ForEach(testCase => discoverySink.SendTestCase(testCase));
                     }
                 }
                 catch(Exception ex)

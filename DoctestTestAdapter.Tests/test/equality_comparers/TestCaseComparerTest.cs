@@ -23,7 +23,7 @@
 // SOFTWARE.
 
 using DoctestTestAdapter.Shared.EqualityComparers;
-using DoctestTestAdapter.Shared.Helpers;
+using DoctestTestAdapter.Shared.Factory;
 using Microsoft.VisualStudio.TestPlatform.ObjectModel;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
@@ -35,7 +35,7 @@ namespace DoctestTestAdapter.Tests.EqualityComparers
         [TestMethod]
         public void CompareSameTestCases()
         {
-            TestCase testCase = Utilities.CreateTestCase(TestCommon.UsingDoctestMainExecutableFilePath,
+            TestCase testCase = TestCaseFactory.CreateTestCase(TestCommon.UsingDoctestMainExecutableFilePath,
                     "TestUsingDoctestMain",
                     "Empty Class",
                     "[UsingDoctestMain] Testing IsEven Always Pass",
@@ -53,14 +53,14 @@ namespace DoctestTestAdapter.Tests.EqualityComparers
         [TestMethod]
         public void CompareDifferentTestCases()
         {
-            TestCase testCaseA = Utilities.CreateTestCase(TestCommon.UsingDoctestMainExecutableFilePath,
+            TestCase testCaseA = TestCaseFactory.CreateTestCase(TestCommon.UsingDoctestMainExecutableFilePath,
                     "TestUsingDoctestMain",
                     "Empty Class",
                     "[UsingDoctestMain] Testing IsEven Always Pass",
                     TestCommon.UsingDoctestMainTestHeaderFilePath,
                     50);
             Assert.IsNotNull(testCaseA);
-            TestCase testCaseB = Utilities.CreateTestCase(TestCommon.UsingDoctestMainExecutableFilePath,
+            TestCase testCaseB = TestCaseFactory.CreateTestCase(TestCommon.UsingDoctestMainExecutableFilePath,
                     "TestUsingDoctestMain",
                     "Empty Class",
                     "[UsingDoctestMain] Testing IsEven Always Fail",
@@ -75,7 +75,7 @@ namespace DoctestTestAdapter.Tests.EqualityComparers
         [TestMethod]
         public void CompareTestCaseAgainstNull()
         {
-            TestCase testCaseA = Utilities.CreateTestCase(TestCommon.UsingDoctestMainExecutableFilePath,
+            TestCase testCaseA = TestCaseFactory.CreateTestCase(TestCommon.UsingDoctestMainExecutableFilePath,
                     "TestUsingDoctestMain",
                     "Empty Class",
                     "[UsingDoctestMain] Testing IsEven Always Pass",

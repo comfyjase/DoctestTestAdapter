@@ -38,28 +38,30 @@ namespace DoctestTestAdapter.Tests
 {
     internal static class TestCommon
     {
+        internal static string ExamplesSolutionDirectory = Utilities.GetSolutionDirectory() + "\\DoctestTestAdapter.Examples\\";
+
 #if DEBUG
-        internal static string UsingDoctestMainExecutableFilePath = Utilities.GetSolutionDirectory() + "\\DoctestTestAdapter.Examples\\bin\\x64\\Debug\\UsingDoctestMain\\UsingDoctestMain.exe";
-        internal static string ExecutableUsingDLLExecutableFilePath = Utilities.GetSolutionDirectory() + "\\DoctestTestAdapter.Examples\\bin\\x64\\Debug\\ExecutableUsingDLL\\ExecutableUsingDLL.exe";
-        internal static string DLLExecutableFilePath = Utilities.GetSolutionDirectory() + "\\DoctestTestAdapter.Examples\\bin\\x64\\Debug\\ExecutableUsingDLL\\DLL.dll";
+        internal static string UsingDoctestMainExecutableFilePath = ExamplesSolutionDirectory + "bin\\x64\\Debug\\UsingDoctestMain\\UsingDoctestMain.exe";
+        internal static string ExecutableUsingDLLExecutableFilePath = ExamplesSolutionDirectory + "bin\\x64\\Debug\\ExecutableUsingDLL\\ExecutableUsingDLL.exe";
+        internal static string DLLExecutableFilePath = ExamplesSolutionDirectory + "bin\\x64\\Debug\\ExecutableUsingDLL\\DLL.dll";
 
-        internal static string UsingDoctestMainPdbFilePath = Utilities.GetSolutionDirectory() + "\\DoctestTestAdapter.Examples\\bin\\x64\\Debug\\UsingDoctestMain\\UsingDoctestMain.pdb";
-        internal static string ExecutableUsingDLLPdbFilePath = Utilities.GetSolutionDirectory() + "\\DoctestTestAdapter.Examples\\bin\\x64\\Debug\\ExecutableUsingDLL\\ExecutableUsingDLL.pdb";
-        internal static string DLLPdbFilePath = Utilities.GetSolutionDirectory() + "\\DoctestTestAdapter.Examples\\bin\\x64\\Debug\\DLL\\DLL.pdb";
+        internal static string UsingDoctestMainPdbFilePath = ExamplesSolutionDirectory + "bin\\x64\\Debug\\UsingDoctestMain\\UsingDoctestMain.pdb";
+        internal static string ExecutableUsingDLLPdbFilePath = ExamplesSolutionDirectory + "bin\\x64\\Debug\\ExecutableUsingDLL\\ExecutableUsingDLL.pdb";
+        internal static string DLLPdbFilePath = ExamplesSolutionDirectory + "bin\\x64\\Debug\\DLL\\DLL.pdb";
 #else
-        internal static string UsingDoctestMainExecutableFilePath = Utilities.GetSolutionDirectory() + "\\DoctestTestAdapter.Examples\\bin\\x64\\Release\\UsingDoctestMain\\UsingDoctestMain.exe";
-        internal static string ExecutableUsingDLLExecutableFilePath = Utilities.GetSolutionDirectory() + "\\DoctestTestAdapter.Examples\\bin\\x64\\Release\\ExecutableUsingDLL\\ExecutableUsingDLL.exe";
-        internal static string DLLExecutableFilePath = Utilities.GetSolutionDirectory() + "\\DoctestTestAdapter.Examples\\bin\\x64\\Release\\ExecutableUsingDLL\\DLL.dll";
+        internal static string UsingDoctestMainExecutableFilePath = ExamplesSolutionDirectory + "bin\\x64\\Release\\UsingDoctestMain\\UsingDoctestMain.exe";
+        internal static string ExecutableUsingDLLExecutableFilePath = ExamplesSolutionDirectory + "bin\\x64\\Release\\ExecutableUsingDLL\\ExecutableUsingDLL.exe";
+        internal static string DLLExecutableFilePath = ExamplesSolutionDirectory + "bin\\x64\\Release\\ExecutableUsingDLL\\DLL.dll";
 
-        internal static string UsingDoctestMainPdbFilePath = Utilities.GetSolutionDirectory() + "\\DoctestTestAdapter.Examples\\bin\\x64\\Release\\UsingDoctestMain\\UsingDoctestMain.pdb";
-        internal static string ExecutableUsingDLLPdbFilePath = Utilities.GetSolutionDirectory() + "\\DoctestTestAdapter.Examples\\bin\\x64\\Release\\ExecutableUsingDLL\\ExecutableUsingDLL.pdb";
-        internal static string DLLPdbFilePath = Utilities.GetSolutionDirectory() + "\\DoctestTestAdapter.Examples\\bin\\x64\\Release\\DLL\\DLL.pdb";
+        internal static string UsingDoctestMainPdbFilePath = ExamplesSolutionDirectory + "bin\\x64\\Release\\UsingDoctestMain\\UsingDoctestMain.pdb";
+        internal static string ExecutableUsingDLLPdbFilePath = ExamplesSolutionDirectory + "bin\\x64\\Release\\ExecutableUsingDLL\\ExecutableUsingDLL.pdb";
+        internal static string DLLPdbFilePath = ExamplesSolutionDirectory + "bin\\x64\\Release\\DLL\\DLL.pdb";
 #endif
 
-        internal static string UsingDoctestMainTestHeaderFilePath = Utilities.GetSolutionDirectory() + "\\DoctestTestAdapter.Examples\\UsingDoctestMain\\TestIsEvenUsingDoctestMain.h";
-        internal static string UsingCustomMainTestHeaderFilePath = Utilities.GetSolutionDirectory() + "\\DoctestTestAdapter.Examples\\UsingCustomMain\\TestIsEvenUsingCustomMain.h";
-        internal static string ExecutableUsingDLLTestHeaderFilePath = Utilities.GetSolutionDirectory() + "\\DoctestTestAdapter.Examples\\DLLExample\\ExecutableUsingDLL\\TestIsEvenExecutableUsingDLL.h";
-        internal static string DLLTestHeaderFilePath = Utilities.GetSolutionDirectory() + "\\DoctestTestAdapter.Examples\\DLLExample\\DLL\\TestIsEvenDLL.h";
+        internal static string UsingDoctestMainTestHeaderFilePath = ExamplesSolutionDirectory + "UsingDoctestMain\\TestIsEvenUsingDoctestMain.h";
+        internal static string UsingCustomMainTestHeaderFilePath = ExamplesSolutionDirectory + "UsingCustomMain\\TestIsEvenUsingCustomMain.h";
+        internal static string ExecutableUsingDLLTestHeaderFilePath = ExamplesSolutionDirectory + "DLLExample\\ExecutableUsingDLL\\TestIsEvenExecutableUsingDLL.h";
+        internal static string DLLTestHeaderFilePath = ExamplesSolutionDirectory + "DLLExample\\DLL\\TestIsEvenDLL.h";
 
         private static string RunSettingsStart =
             "<?xml version=\"1.0\" encoding=\"utf-8\"?>\n"
@@ -113,7 +115,7 @@ namespace DoctestTestAdapter.Tests
                 DoctestRunSettingsStart +
                     DiscoveryRunSettingsStart +
                         DiscoveryRunSettingsSearchDirectoriesStart +
-                            "\t\t\t\t<string>" + Utilities.GetSolutionDirectory(Directory.GetParent(TestCommon.UsingDoctestMainExecutableFilePath).FullName) + "\\UsingDoctestMain</string>\n" +
+                            "\t\t\t\t<string>" + ExamplesSolutionDirectory + "UsingDoctestMain</string>\n" +
                         DiscoveryRunSettingsSearchDirectoriesEnd +
                     DiscoveryRunSettingsEnd +
                 DoctestRunSettingsEnd +
@@ -154,11 +156,11 @@ namespace DoctestTestAdapter.Tests
                     ExecutorRunSettingsStart +
                         ExecutorRunSettingsExecutableOverrideStart +
 #if DEBUG
-                            "\t\t\t\t\t<Key>" + Utilities.GetSolutionDirectory(Directory.GetParent(TestCommon.UsingDoctestMainExecutableFilePath).FullName) + "\\bin\\x64\\Debug\\UsingDoctestMain\\UsingDoctestMain.exe</Key>\n" +
-                            "\t\t\t\t\t<Value>" + Utilities.GetSolutionDirectory(Directory.GetParent(TestCommon.UsingDoctestMainExecutableFilePath).FullName) + "\\bin\\x64\\Debug\\UsingCustomMain\\UsingCustomMain.exe</Value>\n" +
+                            "\t\t\t\t\t<Key>" + ExamplesSolutionDirectory + "bin\\x64\\Debug\\UsingDoctestMain\\UsingDoctestMain.exe</Key>\n" +
+                            "\t\t\t\t\t<Value>" + ExamplesSolutionDirectory + "bin\\x64\\Debug\\UsingCustomMain\\UsingCustomMain.exe</Value>\n" +
 #else
-                            "\t\t\t\t\t<Key>" + Utilities.GetSolutionDirectory() + "\\DoctestTestAdapter.Examples\\bin\\x64\\Release\\UsingDoctestMain\\UsingDoctestMain.exe</Key>\n" +
-                            "\t\t\t\t\t<Value>" + Utilities.GetSolutionDirectory() + "\\DoctestTestAdapter.Examples\\bin\\x64\\Release\\UsingCustomMain\\UsingCustomMain.exe</Value>\n" +
+                            "\t\t\t\t\t<Key>" + ExamplesSolutionDirectory + "bin\\x64\\Release\\UsingDoctestMain\\UsingDoctestMain.exe</Key>\n" +
+                            "\t\t\t\t\t<Value>" + ExamplesSolutionDirectory + "bin\\x64\\Release\\UsingCustomMain\\UsingCustomMain.exe</Value>\n" +
 #endif
                         ExecutorRunSettingsExecutableOverrideEnd +
                     ExecutorRunSettingsEnd +

@@ -26,14 +26,14 @@ using DoctestTestAdapter.Shared.Keywords;
 using Microsoft.VisualStudio.TestPlatform.ObjectModel;
 using System.Collections.Generic;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using DoctestTestAdapter.Shared.Helpers;
+using DoctestTestAdapter.Shared.Executables;
 
 namespace DoctestTestAdapter.Tests.Keywords
 {
 	[TestClass]
 	public class DoctestTestSuiteKeywordTest
 	{
-        private List<string> _allTestSuiteNames = Utilities.GetAllTestSuiteNames(TestCommon.UsingDoctestMainExecutableFilePath);
+        private List<string> _allTestSuiteNames = new DoctestExecutable(TestCommon.UsingDoctestMainExecutableFilePath, TestCommon.ExamplesSolutionDirectory, null, null, null, null).GetTestSuiteNames();
 
         [TestMethod]
 		public void FindSingle()

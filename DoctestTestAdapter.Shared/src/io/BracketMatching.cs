@@ -33,17 +33,17 @@ namespace DoctestTestAdapter.Shared.IO
         private Stack<int> _bracketCounter = new Stack<int>();
         private Action _onLeaveBracketScope = null;
 
-        public bool IsInside
+        internal bool IsInside
         {
             get { return _isInside; }
         }
 
-        public BracketMatching(Action onLeaveBracketScope) 
+        internal BracketMatching(Action onLeaveBracketScope) 
         {
             _onLeaveBracketScope = onLeaveBracketScope;
         }
 
-        public void Check(string line)
+        internal void Check(string line)
         {
             foreach (char letter in line)
             {

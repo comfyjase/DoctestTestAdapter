@@ -10,6 +10,11 @@
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="$(MSBuildThisFileDirectory)src\equality_comparers\TestCaseComparer.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)src\executables\CVDumpExecutable.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)src\executables\DoctestExecutable.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)src\executables\DoctestExecutableTestBatch.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)src\executables\DumpBinExecutable.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)src\executables\Executable.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)src\helpers\Constants.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)src\helpers\Utilities.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)src\io\BracketMatching.cs" />
@@ -19,6 +24,7 @@
     <Compile Include="$(MSBuildThisFileDirectory)src\keywords\Keyword.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)src\keywords\NamespaceKeyword.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)src\profiling\Profiler.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)src\factory\TestCaseFactory.cs" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="$(MSBuildThisFileDirectory)thirdparty\cvdump\cvdump.exe">

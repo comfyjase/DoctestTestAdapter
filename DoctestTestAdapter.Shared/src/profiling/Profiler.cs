@@ -33,10 +33,10 @@ namespace DoctestTestAdapter.Shared.Profiling
     {
         private Stopwatch _watch = new Stopwatch();
 
-        public Profiler()
+        internal Profiler()
         { }
 
-        public void Start([CallerMemberName] string memberName = "", [CallerFilePath] string sourceFilePath = "", [CallerLineNumber] int sourceLineNumber = 0)
+        internal void Start([CallerMemberName] string memberName = "", [CallerFilePath] string sourceFilePath = "", [CallerLineNumber] int sourceLineNumber = 0)
         {
             if (Helpers.Constants.ProfilingEnabled)
             {
@@ -47,7 +47,7 @@ namespace DoctestTestAdapter.Shared.Profiling
             }
         }
 
-        public void End([CallerMemberName] string memberName = "", [CallerFilePath] string sourceFilePath = "", [CallerLineNumber] int sourceLineNumber = 0)
+        internal void End([CallerMemberName] string memberName = "", [CallerFilePath] string sourceFilePath = "", [CallerLineNumber] int sourceLineNumber = 0)
         {
             if (Helpers.Constants.ProfilingEnabled)
             {

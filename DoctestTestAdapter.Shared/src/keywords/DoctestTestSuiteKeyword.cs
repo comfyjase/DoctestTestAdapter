@@ -34,7 +34,7 @@ namespace DoctestTestAdapter.Shared.Keywords
 
         protected override string Word => "TEST_SUITE";
 
-        public DoctestTestSuiteKeyword(List<string> allTestSuiteNames)
+        internal DoctestTestSuiteKeyword(List<string> allTestSuiteNames)
         {
             _allTestSuiteNames = allTestSuiteNames;
         }

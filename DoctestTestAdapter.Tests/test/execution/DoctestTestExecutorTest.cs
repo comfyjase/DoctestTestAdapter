@@ -23,7 +23,7 @@
 // SOFTWARE.
 
 using DoctestTestAdapter.Settings;
-using DoctestTestAdapter.Shared.Helpers;
+using DoctestTestAdapter.Shared.Factory;
 using FakeItEasy;
 using Microsoft.VisualStudio.TestPlatform.ObjectModel;
 using Microsoft.VisualStudio.TestPlatform.ObjectModel.Adapter;
@@ -54,6 +54,8 @@ namespace DoctestTestAdapter.Tests.Execution
                 .DoesNothing();
             A.CallTo(() => frameworkHandle.RecordResult(capturedTestResults._))
                 .DoesNothing();
+            A.CallTo(() => runContext.IsBeingDebugged)
+                .Returns(false);
 
             DoctestTestSettings doctestTestSettings = null;
             if (!string.IsNullOrEmpty(settingsAsString))
@@ -74,7 +76,7 @@ namespace DoctestTestAdapter.Tests.Execution
 
                 Console.SetOut(stringWriter);
 
-                testCases = Utilities.GetTestCases(TestCommon.UsingDoctestMainExecutableFilePath, frameworkHandle, doctestTestSettings);
+                testCases = new TestCaseFactory(TestCommon.UsingDoctestMainExecutableFilePath, doctestTestSettings, runContext, frameworkHandle).CreateTestCases();
 
                 output = stringWriter.ToString();
 
@@ -128,7 +130,7 @@ namespace DoctestTestAdapter.Tests.Execution
             A.CallTo(() => frameworkHandle.SendMessage(capturedTestMessageLevels._, capturedTestMessages._))
                .DoesNothing();
 
-            List<TestCase> testCases = Utilities.GetTestCases(TestCommon.ExecutableUsingDLLExecutableFilePath, frameworkHandle);
+            List<TestCase> testCases = new TestCaseFactory(TestCommon.ExecutableUsingDLLExecutableFilePath, null, null, null).CreateTestCases();
             Assert.HasCount(50, testCases);
 
             Assert.IsEmpty(capturedTestMessageLevels.Values);

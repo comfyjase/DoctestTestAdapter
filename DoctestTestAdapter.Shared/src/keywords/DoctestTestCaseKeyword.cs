@@ -22,10 +22,10 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-using DoctestTestAdapter.Shared.Helpers;
 using Microsoft.VisualStudio.TestPlatform.ObjectModel;
 using System.Collections.Generic;
 using System.Text.RegularExpressions;
+using DoctestTestAdapter.Shared.Factory;
 using Constants = DoctestTestAdapter.Shared.Helpers.Constants;
 
 namespace DoctestTestAdapter.Shared.Keywords
@@ -36,7 +36,7 @@ namespace DoctestTestAdapter.Shared.Keywords
 
         protected override string Word => "TEST_CASE";
 
-        public DoctestTestCaseKeyword(List<string> allTestCaseNames)
+        internal DoctestTestCaseKeyword(List<string> allTestCaseNames)
         {
             _allTestCaseNames = allTestCaseNames;
         }
@@ -61,7 +61,7 @@ namespace DoctestTestAdapter.Shared.Keywords
             if (string.IsNullOrEmpty(testClassName))
                 testClassName = Constants.EmptyClassString;
 
-            TestCase testCase = Utilities.CreateTestCase(testOwner,
+            TestCase testCase = TestCaseFactory.CreateTestCase(testOwner,
                 testNamespace,
                 testClassName,
                 testCaseName,

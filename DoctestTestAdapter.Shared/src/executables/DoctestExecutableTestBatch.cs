@@ -1,4 +1,4 @@
-﻿// DoctestTestBatch.cs
+﻿// DoctestExecutableTestBatch.cs
 //
 // Copyright (c) 2025-present Jase Mottershead
 //
@@ -26,31 +26,31 @@ using DoctestTestAdapter.Shared.Helpers;
 using Microsoft.VisualStudio.TestPlatform.ObjectModel;
 using System.Collections.Generic;
 
-namespace DoctestTestAdapter.Execution
+namespace DoctestTestAdapter.Shared.Executables
 {
-    internal class DoctestTestBatch
+    internal class DoctestExecutableTestBatch
     {
-        public List<TestCase> Tests
+        internal List<TestCase> Tests
         {
             get; private set;
         }
 
-        public string CommandArguments
+        internal string CommandArguments
         {
             get; private set;
         }
 
-        public int BatchNumber
+        internal int BatchNumber
         {
             get; private set;
         }
 
-        public string TestReportFilePath
+        internal string TestReportFilePath
         {
             get; private set;
         }
 
-        public DoctestTestBatch(List<TestCase> tests, string commandArguments, int batchNumber, string testReportFilePath)
+        internal DoctestExecutableTestBatch(List<TestCase> tests, string commandArguments, int batchNumber, string testReportFilePath)
         {
             Utilities.CheckEnumerable(tests, nameof(tests));
             Utilities.CheckString(commandArguments, nameof(commandArguments));
@@ -60,11 +60,6 @@ namespace DoctestTestAdapter.Execution
             CommandArguments = commandArguments;
             BatchNumber = batchNumber;
             TestReportFilePath = testReportFilePath;
-        }
-
-        public override string ToString()
-        {
-            return "TestBatch: Number = " + BatchNumber + " Number of Tests = " + Tests.Count + " Command Argument Length = " + CommandArguments.Length + " Test Report File Path: " + TestReportFilePath;
         }
     }
 }

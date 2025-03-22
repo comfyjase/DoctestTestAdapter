@@ -47,8 +47,6 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="src\DoctestTestDiscoverer.cs" />
     <Compile Include="src\DoctestTestExecutor.cs" />
-    <Compile Include="src\execution\DoctestTestBatch.cs" />
-    <Compile Include="src\execution\DoctestTestExecutable.cs" />
     <Compile Include="src\settings\DoctestDiscoverySettings.cs" />
     <Compile Include="src\settings\DoctestExecutorSettings.cs" />
     <Compile Include="src\settings\DoctestGeneralSettings.cs" />

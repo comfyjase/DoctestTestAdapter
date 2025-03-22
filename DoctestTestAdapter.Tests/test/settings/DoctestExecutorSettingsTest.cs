@@ -25,14 +25,13 @@
 using DoctestTestAdapter.Settings;
 using DoctestTestAdapter.Shared.Helpers;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using System.IO;
 
 namespace DoctestTestAdapter.Tests.Settings
 {
     [TestClass]
     public class DoctestExecutorSettingsTest
     {
-        private string _solutionDirectory = Utilities.GetSolutionDirectory(Directory.GetParent(TestCommon.UsingDoctestMainExecutableFilePath).FullName);
+        private string _solutionDirectory = Utilities.GetSolutionDirectory(TestCommon.UsingDoctestMainExecutableFilePath);
 
         [TestMethod]
         public void ExecutableOverrideRelative()
