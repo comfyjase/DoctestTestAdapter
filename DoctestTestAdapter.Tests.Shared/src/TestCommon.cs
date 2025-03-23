@@ -38,7 +38,11 @@ namespace DoctestTestAdapter.Tests
 {
     internal static class TestCommon
     {
-        internal static string ExamplesSolutionDirectory = Utilities.GetSolutionDirectory() + "\\DoctestTestAdapter.Examples\\";
+        internal static string SolutionDirectory = Utilities.GetSolutionDirectory();
+        internal static string ExamplesSolutionDirectory = SolutionDirectory + "\\DoctestTestAdapter.Examples\\";
+        internal static string GodotExamplesSolutionDirectory = SolutionDirectory + "\\DoctestTestAdapter.Examples.Godot\\";
+        
+        internal static string GodotExecutableFilePath = GodotExamplesSolutionDirectory + "bin\\godot.windows.editor.dev.x86_64.exe";
 
 #if DEBUG
         internal static string UsingDoctestMainExecutableFilePath = ExamplesSolutionDirectory + "bin\\x64\\Debug\\UsingDoctestMain\\UsingDoctestMain.exe";
@@ -67,6 +71,8 @@ namespace DoctestTestAdapter.Tests
             "<?xml version=\"1.0\" encoding=\"utf-8\"?>\n"
             + "<RunSettings>\n";
         private static string DoctestRunSettingsStart = "\t<Doctest>\n";
+        private static string GeneralRunSettingsStart = "\t\t<GeneralSettings>\n";
+        private static string GeneralRunSettingsEnd = "\t\t</GeneralSettings>\n";
         private static string DiscoveryRunSettingsStart = "\t\t<DiscoverySettings>\n";
         private static string DiscoveryRunSettingsSearchDirectoriesStart = "\t\t\t<SearchDirectories>\n";
         private static string DiscoveryRunSettingsSearchDirectoriesEnd = "\t\t\t</SearchDirectories>\n";
@@ -82,19 +88,19 @@ namespace DoctestTestAdapter.Tests
         internal static string GeneralRunSettingsExample =
             RunSettingsStart +
                 DoctestRunSettingsStart +
-                    "\t\t<GeneralSettings>\n" +
+                    GeneralRunSettingsStart +
                         "\t\t\t<CommandArguments>--test</CommandArguments>\n" +
                         "\t\t\t<PrintStandardOutput>true</PrintStandardOutput>\n" +
-                    "\t\t</GeneralSettings>\n" +
+                    GeneralRunSettingsEnd +
                 DoctestRunSettingsEnd +
             RunSettingsEnd;
 
         internal static string GeneralRunSettingsPrintStandardOutputExample =
             RunSettingsStart +
                 DoctestRunSettingsStart +
-                    "\t\t<GeneralSettings>\n" +
+                    GeneralRunSettingsStart +
                         "\t\t\t<PrintStandardOutput>true</PrintStandardOutput>\n" +
-                    "\t\t</GeneralSettings>\n" +
+                    GeneralRunSettingsEnd +
                 DoctestRunSettingsEnd +
             RunSettingsEnd;
 
@@ -176,6 +182,21 @@ namespace DoctestTestAdapter.Tests
                             "\t\t\t\t\t<Value>NonExistentDirectoryB\\To\\NonExistentExecutableB.exe</Value>\n" +
                         ExecutorRunSettingsExecutableOverrideEnd +
                     ExecutorRunSettingsEnd +
+                DoctestRunSettingsEnd +
+            RunSettingsEnd;
+
+        internal static string GodotRunSettingsExample =
+            RunSettingsStart +
+                DoctestRunSettingsStart +
+                    GeneralRunSettingsStart +
+                        "\t\t\t<CommandArguments>--headless --test</CommandArguments>\n" +
+                    GeneralRunSettingsEnd +
+                    DiscoveryRunSettingsStart +
+                        DiscoveryRunSettingsSearchDirectoriesStart +
+                            "\t\t\t\t<string>modules</string>\n" +
+                            "\t\t\t\t<string>tests</string>\n" +
+                        DiscoveryRunSettingsSearchDirectoriesEnd +
+                    DiscoveryRunSettingsEnd +
                 DoctestRunSettingsEnd +
             RunSettingsEnd;
 

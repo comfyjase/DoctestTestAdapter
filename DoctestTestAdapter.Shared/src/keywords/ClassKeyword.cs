@@ -23,6 +23,7 @@
 // SOFTWARE.
 
 using Microsoft.VisualStudio.TestPlatform.ObjectModel;
+using System;
 using System.Collections.Generic;
 
 namespace DoctestTestAdapter.Shared.Keywords
@@ -46,17 +47,24 @@ namespace DoctestTestAdapter.Shared.Keywords
                 return testClassName;
             }
 
+            int firstSpaceAfterClassKeyword = line.IndexOf(" ");
+            int lastSpaceAfterClassKeyword = line.IndexOf(" ", firstSpaceAfterClassKeyword + 1);
             int endIndex = -1;
 
-            // Need to get the string before the colon because this class inherits from something.
-            if (line.Contains(@":"))
+            // Means it must be declared like so: "class Example"
+            if (firstSpaceAfterClassKeyword == lastSpaceAfterClassKeyword)
             {
-                endIndex = line.IndexOf(@":");
+                endIndex = line.Length;
             }
-            // A class that doesn't inherit from anything.
+            // Means it is declared like so: "class Example "
             else
             {
-                endIndex = (line.Contains(@"{") ? line.IndexOf(@"{") : line.Length);
+                endIndex = lastSpaceAfterClassKeyword;
+            }
+
+            if (endIndex == -1)
+            {
+                throw new InvalidOperationException($"ClassKeyword from {line} 'endIndex' is still '-1' which is unexpected at this point, abort!");
             }
 
             testClassName = line.Substring(startIndex, endIndex - startIndex).Trim();

@@ -35,6 +35,15 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 		.editorconfig = .editorconfig
 	EndProjectSection
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "DoctestTestAdapter.Examples.Godot", "DoctestTestAdapter.Examples.Godot", "{98625BA0-9FE6-4CD4-9D6C-B3724A207C62}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "godot", "DoctestTestAdapter.Examples.Godot\godot.vcxproj", "{202BDE13-CB9B-4B85-AF21-97CEC22CF142}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DoctestTestAdapter.Tests.Godot", "DoctestTestAdapter.Tests.Godot\DoctestTestAdapter.Tests.Godot.csproj", "{707AD23F-1C3B-436E-828F-5CD1214F59FC}"
+	ProjectSection(ProjectDependencies) = postProject
+		{202BDE13-CB9B-4B85-AF21-97CEC22CF142} = {202BDE13-CB9B-4B85-AF21-97CEC22CF142}
+	EndProjectSection
+EndProject
 Project("{D954291E-2A0B-460D-934E-DC6B0785DB48}") = "DoctestTestAdapter.Tests.Shared", "DoctestTestAdapter.Tests.Shared\DoctestTestAdapter.Tests.Shared.shproj", "{42CDA255-8F4B-4221-8305-16D075287EA7}"
 EndProject
 Global
@@ -161,6 +170,38 @@ Global
 		{8B219F49-D892-41EE-B07F-65BDDCB5191C}.Release|x64.Build.0 = Release|x64
 		{8B219F49-D892-41EE-B07F-65BDDCB5191C}.Release|x86.ActiveCfg = Release|Win32
 		{8B219F49-D892-41EE-B07F-65BDDCB5191C}.Release|x86.Build.0 = Release|Win32
+		{202BDE13-CB9B-4B85-AF21-97CEC22CF142}.Debug|Any CPU.ActiveCfg = editor|x64
+		{202BDE13-CB9B-4B85-AF21-97CEC22CF142}.Debug|Any CPU.Build.0 = editor|x64
+		{202BDE13-CB9B-4B85-AF21-97CEC22CF142}.Debug|arm64.ActiveCfg = editor|x64
+		{202BDE13-CB9B-4B85-AF21-97CEC22CF142}.Debug|arm64.Build.0 = editor|x64
+		{202BDE13-CB9B-4B85-AF21-97CEC22CF142}.Debug|x64.ActiveCfg = editor|x64
+		{202BDE13-CB9B-4B85-AF21-97CEC22CF142}.Debug|x64.Build.0 = editor|x64
+		{202BDE13-CB9B-4B85-AF21-97CEC22CF142}.Debug|x86.ActiveCfg = editor|Win32
+		{202BDE13-CB9B-4B85-AF21-97CEC22CF142}.Debug|x86.Build.0 = editor|Win32
+		{202BDE13-CB9B-4B85-AF21-97CEC22CF142}.Release|Any CPU.ActiveCfg = editor|x64
+		{202BDE13-CB9B-4B85-AF21-97CEC22CF142}.Release|Any CPU.Build.0 = editor|x64
+		{202BDE13-CB9B-4B85-AF21-97CEC22CF142}.Release|arm64.ActiveCfg = editor|x64
+		{202BDE13-CB9B-4B85-AF21-97CEC22CF142}.Release|arm64.Build.0 = editor|x64
+		{202BDE13-CB9B-4B85-AF21-97CEC22CF142}.Release|x64.ActiveCfg = editor|x64
+		{202BDE13-CB9B-4B85-AF21-97CEC22CF142}.Release|x64.Build.0 = editor|x64
+		{202BDE13-CB9B-4B85-AF21-97CEC22CF142}.Release|x86.ActiveCfg = editor|Win32
+		{202BDE13-CB9B-4B85-AF21-97CEC22CF142}.Release|x86.Build.0 = editor|Win32
+		{707AD23F-1C3B-436E-828F-5CD1214F59FC}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{707AD23F-1C3B-436E-828F-5CD1214F59FC}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{707AD23F-1C3B-436E-828F-5CD1214F59FC}.Debug|arm64.ActiveCfg = Debug|Any CPU
+		{707AD23F-1C3B-436E-828F-5CD1214F59FC}.Debug|arm64.Build.0 = Debug|Any CPU
+		{707AD23F-1C3B-436E-828F-5CD1214F59FC}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{707AD23F-1C3B-436E-828F-5CD1214F59FC}.Debug|x64.Build.0 = Debug|Any CPU
+		{707AD23F-1C3B-436E-828F-5CD1214F59FC}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{707AD23F-1C3B-436E-828F-5CD1214F59FC}.Debug|x86.Build.0 = Debug|Any CPU
+		{707AD23F-1C3B-436E-828F-5CD1214F59FC}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{707AD23F-1C3B-436E-828F-5CD1214F59FC}.Release|Any CPU.Build.0 = Release|Any CPU
+		{707AD23F-1C3B-436E-828F-5CD1214F59FC}.Release|arm64.ActiveCfg = Release|Any CPU
+		{707AD23F-1C3B-436E-828F-5CD1214F59FC}.Release|arm64.Build.0 = Release|Any CPU
+		{707AD23F-1C3B-436E-828F-5CD1214F59FC}.Release|x64.ActiveCfg = Release|Any CPU
+		{707AD23F-1C3B-436E-828F-5CD1214F59FC}.Release|x64.Build.0 = Release|Any CPU
+		{707AD23F-1C3B-436E-828F-5CD1214F59FC}.Release|x86.ActiveCfg = Release|Any CPU
+		{707AD23F-1C3B-436E-828F-5CD1214F59FC}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -171,6 +212,7 @@ Global
 		{41E1E5CA-1423-47BF-84AA-5B7B57F2DFA6} = {02EA681E-C7D8-13C7-8484-4AC65E1B71E8}
 		{0725F71F-C027-4FD5-A0F7-B904EC6DF977} = {41E1E5CA-1423-47BF-84AA-5B7B57F2DFA6}
 		{8B219F49-D892-41EE-B07F-65BDDCB5191C} = {41E1E5CA-1423-47BF-84AA-5B7B57F2DFA6}
+		{202BDE13-CB9B-4B85-AF21-97CEC22CF142} = {98625BA0-9FE6-4CD4-9D6C-B3724A207C62}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {1B206DFE-F8D1-40F1-BC3B-D975324F0BC1}
@@ -178,6 +220,8 @@ Global
 	GlobalSection(SharedMSBuildProjectFiles) = preSolution
 		DoctestTestAdapter.Shared\DoctestTestAdapter.Shared.projitems*{1d259455-c177-428c-9cb3-a77f3682cbed}*SharedItemsImports = 4
 		DoctestTestAdapter.Tests.Shared\DoctestTestAdapter.Tests.Shared.projitems*{42cda255-8f4b-4221-8305-16d075287ea7}*SharedItemsImports = 13
+		DoctestTestAdapter.Shared\DoctestTestAdapter.Shared.projitems*{707ad23f-1c3b-436e-828f-5cd1214f59fc}*SharedItemsImports = 4
+		DoctestTestAdapter.Tests.Shared\DoctestTestAdapter.Tests.Shared.projitems*{707ad23f-1c3b-436e-828f-5cd1214f59fc}*SharedItemsImports = 4
 		DoctestTestAdapter.Shared\DoctestTestAdapter.Shared.projitems*{71b847a1-9201-422a-9503-9af4bbb328f0}*SharedItemsImports = 13
 		DoctestTestAdapter.Shared\DoctestTestAdapter.Shared.projitems*{b0f139f7-e906-4e8d-a831-8956c5cda523}*SharedItemsImports = 4
 		DoctestTestAdapter.Tests.Shared\DoctestTestAdapter.Tests.Shared.projitems*{b0f139f7-e906-4e8d-a831-8956c5cda523}*SharedItemsImports = 4

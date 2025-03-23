@@ -85,10 +85,14 @@ namespace DoctestTestAdapter.Shared.Keywords
             {
                 BracketMatching currentBracketMatcher = _bracketMatching.Peek();
                 currentBracketMatcher.Check(line);
-                if (!currentBracketMatcher.IsInside)
+
+                if (currentBracketMatcher.HasFoundFirstOpenBracket)
                 {
-                    _bracketMatching.Pop();
-                    OnExitKeywordScope(executableFilePath, sourceFilePath, ref namespaceName, ref className, line, lineNumber, ref allTestCases);
+                    if (!currentBracketMatcher.IsInside)
+                    {
+                        _bracketMatching.Pop();
+                        OnExitKeywordScope(executableFilePath, sourceFilePath, ref namespaceName, ref className, line, lineNumber, ref allTestCases);
+                    }
                 }
             }
         }

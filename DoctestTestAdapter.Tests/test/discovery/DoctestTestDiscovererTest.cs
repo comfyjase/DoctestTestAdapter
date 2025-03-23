@@ -46,6 +46,8 @@ namespace DoctestTestAdapter.Tests.Discovery
             IRunContext discoveryContext = A.Fake<IRunContext>();
             IMessageLogger messageLogger = A.Fake<IMessageLogger>();
             ITestCaseDiscoverySink testCaseDiscoverySink = A.Fake<ITestCaseDiscoverySink>();
+            A.CallTo(() => discoveryContext.IsBeingDebugged)
+                .Returns(false);
             A.CallTo(() => testCaseDiscoverySink.SendTestCase(capturedTestCases._))
                 .DoesNothing();
 

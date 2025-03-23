@@ -59,17 +59,11 @@ namespace DoctestTestAdapter.Shared.Factory
 
         internal static TestCase CreateTestCase(string testOwner, string testNamespace, string testClassName, string testCaseName, string sourceCodeFilePath, int lineNumber)
         {
-            // Here we escape any characters used by the test explorer.
-            // This makes sure to display the test case names correctly in the test explorer window.
-            // Note: Can't escape the '.' character, this is used as a separator for the fully qualified name.
-            // Anything with a '.' in won't be valid - this is a VS thing.
-            // However, we can escape '::' separator.
-            // Apparently we only need to do this for the test case name. Namespace works fine as is.
             string[] parts = new string[]
             {
                 testNamespace,
                 testClassName,
-                testCaseName.Replace(@"::", @"\:\:")
+                testCaseName.Replace(@"::", @"\:\:").Replace(@".", "\u2024")
             };
 
             string fullyQualifiedName = string.Join(@"::", parts);

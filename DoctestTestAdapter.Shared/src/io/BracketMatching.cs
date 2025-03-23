@@ -29,9 +29,15 @@ namespace DoctestTestAdapter.Shared.IO
 {
     internal class BracketMatching
     {
+        private bool _hasFoundFirstOpenBracket = false;
         private bool _isInside = false;
         private Stack<int> _bracketCounter = new Stack<int>();
         private Action _onLeaveBracketScope = null;
+
+        internal bool HasFoundFirstOpenBracket
+        {
+            get { return _hasFoundFirstOpenBracket; }
+        }
 
         internal bool IsInside
         {
@@ -53,6 +59,7 @@ namespace DoctestTestAdapter.Shared.IO
                     {
                         _bracketCounter.Push(_bracketCounter.Count + 1);
                         _isInside = true;
+                        _hasFoundFirstOpenBracket = true;
                         break;
                     }
                     case '}':
