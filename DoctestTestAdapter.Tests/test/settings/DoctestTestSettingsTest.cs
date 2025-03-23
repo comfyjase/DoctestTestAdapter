@@ -26,6 +26,7 @@ using DoctestTestAdapter.Settings;
 using FakeItEasy;
 using Microsoft.VisualStudio.TestPlatform.ObjectModel.Adapter;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using System.Collections.Generic;
 
 namespace DoctestTestAdapter.Tests.Settings
 {
@@ -35,5 +36,56 @@ namespace DoctestTestAdapter.Tests.Settings
 		[TestMethod]
 		public void Load() =>
             Assert.IsNotNull(DoctestTestSettingsProvider.LoadSettings(A.Fake<IRunContext>()));
+
+        [TestMethod]
+        public void CommandArgumentsHelper()
+        {
+            DoctestTestSettings doctestSettings = TestCommon.LoadDoctestSettings(new DoctestTestSettingsProvider(), TestCommon.GeneralRunSettingsExample);
+            Assert.IsNotNull(doctestSettings);
+            Assert.IsTrue(doctestSettings.TryGetCommandArguments(out string commandArguments));
+            Assert.IsFalse(string.IsNullOrEmpty(commandArguments));
+            Assert.AreEqual("--test", commandArguments);
+        }
+
+        [TestMethod]
+        public void PrintStandardOutputHelper()
+        {
+            DoctestTestSettings doctestSettings = TestCommon.LoadDoctestSettings(new DoctestTestSettingsProvider(), TestCommon.GeneralRunSettingsExample);
+            Assert.IsNotNull(doctestSettings);
+            Assert.IsTrue(doctestSettings.TryGetPrintStandardOutput(out bool printStandardOutput));
+            Assert.IsTrue(printStandardOutput);
+        }
+
+        [TestMethod]
+        public void SearchDirectoriesHelper()
+        {
+            DoctestTestSettings doctestSettings = TestCommon.LoadDoctestSettings(new DoctestTestSettingsProvider(), TestCommon.DiscoveryRunSettingsRelativeSearchDirectoryExample);
+
+            Assert.IsNotNull(doctestSettings);
+            Assert.IsTrue(doctestSettings.TryGetSearchDirectories(out List<string> searchDirectories));
+            Assert.IsNotNull(searchDirectories);
+            Assert.IsNotEmpty(searchDirectories);
+            Assert.HasCount(1, searchDirectories);
+            Assert.AreEqual("UsingDoctestMain", searchDirectories[0]);
+        }
+
+        [TestMethod]
+        public void ExecutableOverridesHelper()
+        {
+            DoctestTestSettings doctestSettings = TestCommon.LoadDoctestSettings(new DoctestTestSettingsProvider(), TestCommon.ExecutorRunSettingsRelativeExecutableOverrideExample);
+
+            Assert.IsNotNull(doctestSettings);
+            Assert.IsTrue(doctestSettings.TryGetExecutableOverrides(out List<ExecutableOverride> executableOverrides));
+            Assert.IsNotNull(executableOverrides);
+            Assert.IsNotEmpty(executableOverrides);
+            Assert.HasCount(1, executableOverrides);
+#if DEBUG
+            Assert.AreEqual("bin\\x64\\Debug\\UsingDoctestMain\\UsingDoctestMain.exe", executableOverrides[0].Key);
+            Assert.AreEqual("bin\\x64\\Debug\\UsingCustomMain\\UsingCustomMain.exe", executableOverrides[0].Value);
+#else
+            Assert.AreEqual("bin\\x64\\Release\\UsingDoctestMain\\UsingDoctestMain.exe", executableOverrides[0].Key);
+            Assert.AreEqual("bin\\x64\\Release\\UsingCustomMain\\UsingCustomMain.exe", executableOverrides[0].Value);
+#endif
+        }
     }
 }

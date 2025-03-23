@@ -89,7 +89,7 @@ namespace DoctestTestAdapter.Shared.Executables
                     _process.Start();
 
                     Output = _process.StandardOutput.ReadToEnd();
-                    if (Settings != null && Settings.GeneralSettings != null && Settings.GeneralSettings.PrintStandardOutput)
+                    if (Settings != null && Settings.TryGetPrintStandardOutput(out bool printStandardOutput) && printStandardOutput)
                         Console.WriteLine(Path.GetFileName(FilePath) + " output: \n" + Output);
                     string errors = _process.StandardError.ReadToEnd();
                     if (!string.IsNullOrEmpty(errors))
@@ -115,7 +115,7 @@ namespace DoctestTestAdapter.Shared.Executables
 
                 _process.OutputDataReceived += new DataReceivedEventHandler((sender, e) =>
                 {
-                    if (Settings != null && Settings.GeneralSettings != null && Settings.GeneralSettings.PrintStandardOutput)
+                    if (Settings != null && Settings.TryGetPrintStandardOutput(out bool printStandardOutput) && printStandardOutput)
                     {
                         if (!string.IsNullOrEmpty(e.Data))
                         {

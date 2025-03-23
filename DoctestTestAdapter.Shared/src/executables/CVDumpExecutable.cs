@@ -65,7 +65,7 @@ namespace DoctestTestAdapter.Shared.Executables
             string stringTableStr = Output.Substring(startIndex, endIndex - startIndex);
 
             // User has given specific search directories to use, so make sure we only return source files from those directories.
-            if (Settings != null && Settings.DiscoverySettings != null && Settings.DiscoverySettings.SearchDirectories.Count > 0)
+            if (Settings != null && Settings.TryGetSearchDirectories(out List<string> searchDirectories))
             {
                 if (Settings.DiscoverySettings.AreSearchDirectoriesValid(SolutionDirectory, out string message))
                 {
@@ -74,7 +74,7 @@ namespace DoctestTestAdapter.Shared.Executables
                         stringTableStr.Split('\n')
                             // TODO: Check if s.Trim is enough?
                             .Select(s => s.Replace("\n", string.Empty).Replace("\r", string.Empty).Substring(s.IndexOf(" ") + 1))
-                            .Where(s => (Settings.DiscoverySettings.SearchDirectories.Any(sd => (s.Contains(SolutionDirectory + "\\" + sd + "\\") || s.Contains(sd + "\\"))) && !s.Contains("doctest.h") && s.EndsWith(".h") && File.Exists(s)))
+                            .Where(s => (searchDirectories.Any(sd => (s.Contains(SolutionDirectory + "\\" + sd + "\\") || s.Contains(sd + "\\"))) && !s.Contains("doctest.h") && s.EndsWith(".h") && File.Exists(s)))
                             .ToList()
                     );
                 }

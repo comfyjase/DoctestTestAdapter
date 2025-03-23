@@ -23,6 +23,7 @@
 // SOFTWARE.
 
 using Microsoft.VisualStudio.TestPlatform.ObjectModel;
+using System.Collections.Generic;
 using System.IO;
 using System.Xml;
 using System.Xml.Serialization;
@@ -57,6 +58,57 @@ namespace DoctestTestAdapter.Settings
             }
 
             throw new XmlException("Failed to serialize DoctestTestSettings to xml, aborting!");
+        }
+
+        //
+        // Settings Helper Functions
+        //
+
+        // General Settings
+        public bool TryGetCommandArguments(out string commandArguments)
+        {
+            if (GeneralSettings != null && !string.IsNullOrEmpty(GeneralSettings.CommandArguments))
+            {
+                commandArguments = GeneralSettings.CommandArguments;
+                return true;
+            }
+            commandArguments = null;
+            return false;
+        }
+
+        public bool TryGetPrintStandardOutput(out bool printStandardOutput)
+        {
+            if (GeneralSettings != null)
+            {
+                printStandardOutput = GeneralSettings.PrintStandardOutput;
+                return true;
+            }
+            printStandardOutput = false;
+            return false;
+        }
+
+        // Discovery Settings
+        public bool TryGetSearchDirectories(out List<string> searchDirectories)
+        {
+            if (DiscoverySettings != null && DiscoverySettings.SearchDirectories != null && DiscoverySettings.SearchDirectories.Count > 0)
+            {
+                searchDirectories = DiscoverySettings.SearchDirectories;
+                return true;
+            }
+            searchDirectories = null;
+            return false;
+        }
+
+        // Executor Settings
+        public bool TryGetExecutableOverrides(out List<ExecutableOverride> executableOverrides)
+        {
+            if (ExecutorSettings != null && ExecutorSettings.ExecutableOverrides != null && ExecutorSettings.ExecutableOverrides.Count > 0)
+            {
+                executableOverrides = ExecutorSettings.ExecutableOverrides;
+                return true;
+            }
+            executableOverrides = null;
+            return false;
         }
     }
 }

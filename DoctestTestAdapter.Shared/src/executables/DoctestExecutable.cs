@@ -74,9 +74,9 @@ namespace DoctestTestAdapter.Shared.Executables
                 default:                                { throw new InvalidEnumArgumentException($"Undefined DoctestKeywordNameType {nameType}, abort!"); }
             }
 
-            if (Settings != null && Settings.GeneralSettings != null && !string.IsNullOrEmpty(Settings.GeneralSettings.CommandArguments))
+            if (Settings != null && Settings.TryGetCommandArguments(out string commandArguments))
             {
-                Arguments = Settings.GeneralSettings.CommandArguments + " --no-intro=true --no-version=true " + listArgument;
+                Arguments = commandArguments + " --no-intro=true --no-version=true " + listArgument;
             }
             else
             {
@@ -274,9 +274,9 @@ namespace DoctestTestAdapter.Shared.Executables
             string fullCommandArguments = string.Empty;
 
             // User defined command arguments: --test
-            if (Settings != null && Settings.GeneralSettings != null && !string.IsNullOrEmpty(Settings.GeneralSettings.CommandArguments))
+            if (Settings != null && Settings.TryGetCommandArguments(out string commandArguments))
             {
-                fullCommandArguments = Settings.GeneralSettings.CommandArguments + " " + doctestArguments;
+                fullCommandArguments = commandArguments + " " + doctestArguments;
             }
             // Otherwise, just use regular doctest arguments
             else
@@ -352,11 +352,11 @@ namespace DoctestTestAdapter.Shared.Executables
             // Done in case a separate exe is generated but not by project output and is preferred for running tests against.
             // E.g. any .console.exe versions of a regular .exe file to run command line stuff.
             string testSource = FilePath;
-            if (Settings != null && Settings.ExecutorSettings != null && Settings.ExecutorSettings.ExecutableOverrides.Count > 0)
+            if (Settings != null && Settings.TryGetExecutableOverrides(out List<ExecutableOverride> executableOverrides))
             {
                 if (Settings.ExecutorSettings.AreExecutableOverridesValid(SolutionDirectory, out string message))
                 {
-                    foreach (ExecutableOverride executableOverride in Settings.ExecutorSettings.ExecutableOverrides)
+                    foreach (ExecutableOverride executableOverride in executableOverrides)
                     {
                         string key = executableOverride.Key;
                         string value = executableOverride.Value;
