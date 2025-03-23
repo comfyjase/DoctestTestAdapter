@@ -221,19 +221,13 @@ namespace DoctestTestAdapter.Shared.Executables
                                             XmlAttribute typeAttribute = expressionNode.Attributes["type"];
                                             if (typeAttribute != null && !string.IsNullOrEmpty(typeAttribute.Value))
                                             {
-                                                errorMessage += typeAttribute.Value
-                                                    .Replace("\r", string.Empty)
-                                                    .Replace("\n", string.Empty);
+                                                errorMessage += typeAttribute.Value.Trim();
                                             }
 
                                             XmlNode originalNode = expressionNode.SelectSingleNode("Original");
                                             if (originalNode != null)
                                             {
-                                                errorMessage += ("( " + originalNode.InnerText
-                                                    .Replace("\r", string.Empty)
-                                                    .Replace("\n", string.Empty)
-                                                    .Replace(" ", string.Empty)
-                                                    + " ) is NOT correct!");
+                                                errorMessage += ("( " + originalNode.InnerText.Trim() + " ) is NOT correct!");
                                             }
 
                                             errorMessage += "\n";

@@ -78,7 +78,7 @@ namespace DoctestTestAdapter.Shared.Executables
 
             dependencies = outputSubstring.Split('\n')
                 .Where(s => s.Contains(".dll"))
-                .Select(s => s.Trim().Replace(" ", ""))
+                .Select(s => s.Trim())
                 .ToList();
             
             return dependencies;
