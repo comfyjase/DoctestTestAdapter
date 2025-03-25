@@ -27,51 +27,59 @@ using System.Collections.Generic;
 
 namespace DoctestTestAdapter.Shared.IO
 {
+    internal class BracketMatchingEventArgs : EventArgs
+    {
+        internal int BracketNumber { get; private set; }
+
+        internal BracketMatchingEventArgs(int bracketNumber)
+        {
+            BracketNumber = bracketNumber;
+        }
+    }
+
     internal class BracketMatching
     {
-        private bool _hasFoundFirstOpenBracket = false;
-        private bool _isInside = false;
         private Stack<int> _bracketCounter = new Stack<int>();
-        private Action _onLeaveBracketScope = null;
 
-        internal bool HasFoundFirstOpenBracket
+        internal event EventHandler<BracketMatchingEventArgs> OnFoundOpenBracket;
+        internal event EventHandler<BracketMatchingEventArgs> OnFoundCloseBracket;
+        internal event EventHandler<BracketMatchingEventArgs> OnLeaveBracketScope;
+
+        internal int NumberOfBrackets
         {
-            get { return _hasFoundFirstOpenBracket; }
+            get { return _bracketCounter.Count; }
         }
 
-        internal bool IsInside
-        {
-            get { return _isInside; }
-        }
+        internal BracketMatching() 
+        { }
 
-        internal BracketMatching(Action onLeaveBracketScope) 
+        internal int Check(string line)
         {
-            _onLeaveBracketScope = onLeaveBracketScope;
-        }
+            int bracketNumber = -1;
 
-        internal void Check(string line)
-        {
             foreach (char letter in line)
             {
                 switch (letter)
                 {
                     case '{':
                     {
-                        _bracketCounter.Push(_bracketCounter.Count + 1);
-                        _isInside = true;
-                        _hasFoundFirstOpenBracket = true;
+                        bracketNumber = _bracketCounter.Count;
+                        _bracketCounter.Push(bracketNumber);
+                        OnFoundOpenBracket?.Invoke(this, new BracketMatchingEventArgs(bracketNumber));
                         break;
                     }
                     case '}':
                     {
                         if (_bracketCounter.Count > 0)
-                            _bracketCounter.Pop();
-
-                        if (_bracketCounter.Count == 0)
                         {
-                            _isInside = false;
-                            if (_onLeaveBracketScope != null)
-                                _onLeaveBracketScope();
+                            bracketNumber = _bracketCounter.Pop();
+                            
+                            OnFoundCloseBracket?.Invoke(this, new BracketMatchingEventArgs(bracketNumber));
+
+                            if (_bracketCounter.Count == 0)
+                            {
+                                OnLeaveBracketScope?.Invoke(this, new BracketMatchingEventArgs(bracketNumber));
+                            }
                         }
 
                         break;
@@ -82,6 +90,8 @@ namespace DoctestTestAdapter.Shared.IO
                     }
                 }
             }
+
+            return bracketNumber;
         }
     }
 }

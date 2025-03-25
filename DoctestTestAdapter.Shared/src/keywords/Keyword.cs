@@ -31,7 +31,9 @@ namespace DoctestTestAdapter.Shared.Keywords
 {
     internal abstract class Keyword
     {
-        private Stack<BracketMatching> _bracketMatching = new Stack<BracketMatching>();
+        private BracketMatching _bracketMatching = new BracketMatching();
+        private Stack<int> _relevantBracketIndexForKeywordScope = new Stack<int>();
+        private bool _hasPairedBracketsForKeywordScope = false;
         private bool _isInKeywordScope = false;
         private Regex _regexSearchPattern = null;
 
@@ -44,6 +46,25 @@ namespace DoctestTestAdapter.Shared.Keywords
         internal Keyword()
         {
             _regexSearchPattern = new Regex(@"(^|[\t])\b" + Word + @"\b");
+            _bracketMatching.OnFoundCloseBracket += OnFoundCloseBracket;
+            _bracketMatching.OnLeaveBracketScope += OnLeaveBracketScope;
+        }
+
+        private void OnLeaveBracketScope(object sender, BracketMatchingEventArgs e)
+        {
+            _isInKeywordScope = false;
+        }
+
+        private void OnFoundCloseBracket(object sender, BracketMatchingEventArgs e)
+        {
+            if (_relevantBracketIndexForKeywordScope.Count > 0)
+            {
+                if (_relevantBracketIndexForKeywordScope.Peek() == e.BracketNumber)
+                {
+                    _relevantBracketIndexForKeywordScope.Pop();
+                    _hasPairedBracketsForKeywordScope = true;
+                }
+            }
         }
 
         protected abstract void OnEnterKeywordScope(string executableFilePath, string sourceFilePath, ref string namespaceName, ref string className, string line, int lineNumber, ref List<TestCase> allTestCases);
@@ -56,43 +77,29 @@ namespace DoctestTestAdapter.Shared.Keywords
             bool validMatch = keywordRegexMatch.Success && !line.EndsWith(";");
             if (validMatch)
             {
-                // This is the very first occurance of this keyword.
-                // Takes into account nested keywords.
-                // E.g.
-                //  namespace A
-                //  {
-                //      namespace B
-                //      ...
-                //  }
                 if (!_isInKeywordScope)
                 {
                     _isInKeywordScope = true;
-                    _bracketMatching.Push(new BracketMatching(() => { _isInKeywordScope = false; }));
-                }
-                // Otherwise, we are already inside the keyword scope - so this has become a nested keyword
-                // Don't want to exit the keyword scope when all of the brackets have been matched inside of this scope.
-                // Should only exit once the most outer keyword has finished matching all brackets.
-                else
-                {
-                    _bracketMatching.Push(new BracketMatching(null));
                 }
 
-                _bracketMatching.Peek().Check(line);
+                // Important that this is done before the _bracketMatching.Check(line).
+                // Guaranteed to be entering some kind of keyword scope now.
+                // So track the relevant index of what bracket we expect to open/close this keyword scope.
+                _relevantBracketIndexForKeywordScope.Push(_bracketMatching.NumberOfBrackets);
+                
+                _bracketMatching.Check(line);
                 OnEnterKeywordScope(executableFilePath, sourceFilePath, ref namespaceName, ref className, line, lineNumber, ref allTestCases);
             }
             // Even if the regex match fails, we might already be inside of a keyword scope - so check brackets to update inside state.
             else if (_isInKeywordScope)
             {
-                BracketMatching currentBracketMatcher = _bracketMatching.Peek();
-                currentBracketMatcher.Check(line);
+                _hasPairedBracketsForKeywordScope = false;
 
-                if (currentBracketMatcher.HasFoundFirstOpenBracket)
+                int bracketNumber = _bracketMatching.Check(line);
+
+                if (_hasPairedBracketsForKeywordScope)
                 {
-                    if (!currentBracketMatcher.IsInside)
-                    {
-                        _bracketMatching.Pop();
-                        OnExitKeywordScope(executableFilePath, sourceFilePath, ref namespaceName, ref className, line, lineNumber, ref allTestCases);
-                    }
+                    OnExitKeywordScope(executableFilePath, sourceFilePath, ref namespaceName, ref className, line, lineNumber, ref allTestCases);
                 }
             }
         }

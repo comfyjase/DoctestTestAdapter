@@ -76,6 +76,8 @@ namespace DoctestTestAdapter.Shared.Keywords
 
                 namespaceName = namespaceName.Substring(0, separatorIndex);
             }
+
+            _currentTestSuiteName = namespaceName;
         }
     }
 }
