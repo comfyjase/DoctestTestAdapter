@@ -34,16 +34,15 @@ using DoctestTestAdapter.Shared.Factory;
 namespace DoctestTestAdapter.Tests.Godot.Execution
 {
     [TestClass]
-    public class GodotDoctestTestExecutorTest
+    public class GodotDoctestTestExecutorTest : GodotTest
     {
         [TestMethod]
         public void ExecuteExe()
         {
             IEnumerable<string> sources = new List<string>() { TestCommon.GodotExecutableFilePath };
 
-            DoctestTestSettingsProvider settingsProvider = new DoctestTestSettingsProvider();
-            DoctestTestSettings settings = TestCommon.LoadDoctestSettings(settingsProvider, TestCommon.GodotRunSettingsExample);
-            Assert.IsNotNull(settings);
+            DoctestTestSettingsProvider doctestTestSettingsProvider = new DoctestTestSettingsProvider();
+            AssertAndLoadExampleRunSettings(doctestTestSettingsProvider);
 
             IRunContext runContext = A.Fake<IRunContext>();
             IFrameworkHandle frameworkHandle = A.Fake<IFrameworkHandle>();
@@ -52,7 +51,7 @@ namespace DoctestTestAdapter.Tests.Godot.Execution
             Captured<TestCase> capturedTestCasesFromExecutor = A.Captured<TestCase>();
             Captured<Microsoft.VisualStudio.TestPlatform.ObjectModel.TestResult> capturedTestResults = A.Captured<Microsoft.VisualStudio.TestPlatform.ObjectModel.TestResult>();
             A.CallTo(() => runContext.RunSettings.GetSettings(DoctestTestSettings.RunSettingsXmlNode))
-                .Returns(settingsProvider);
+                .Returns(doctestTestSettingsProvider);
             A.CallTo(() => runContext.IsBeingDebugged)
                 .Returns(false);
             A.CallTo(() => frameworkHandle.SendMessage(capturedTestMessageLevels._, capturedTestMessages._))
@@ -62,19 +61,10 @@ namespace DoctestTestAdapter.Tests.Godot.Execution
             A.CallTo(() => frameworkHandle.RecordResult(capturedTestResults._))
                 .DoesNothing();
 
-            Assert.IsNotNull(settings.GeneralSettings);
-            Assert.IsFalse(string.IsNullOrEmpty(settings.GeneralSettings.CommandArguments));
-            Assert.AreEqual("--headless --test", settings.GeneralSettings.CommandArguments);
-
-            Assert.IsNotNull(settings.DiscoverySettings);
-            Assert.HasCount(2, settings.DiscoverySettings.SearchDirectories);
-            Assert.IsFalse(string.IsNullOrEmpty(settings.DiscoverySettings.SearchDirectories[0]));
-            Assert.IsFalse(string.IsNullOrEmpty(settings.DiscoverySettings.SearchDirectories[1]));
-            Assert.AreEqual("modules", settings.DiscoverySettings.SearchDirectories[0]);
-            Assert.AreEqual("tests", settings.DiscoverySettings.SearchDirectories[1]);
-
             List<TestCase> testCases = new TestCaseFactory(TestCommon.GodotExecutableFilePath, settings, runContext, frameworkHandle).CreateTestCases();
-            Assert.HasCount(1105, testCases);
+            Assert.IsNotEmpty(testCases);
+
+            AssertMissingTestCases(runContext, testCases);
 
             ITestExecutor doctestTestExecutor = new DoctestTestExecutor();
             doctestTestExecutor.RunTests(testCases, runContext, frameworkHandle);

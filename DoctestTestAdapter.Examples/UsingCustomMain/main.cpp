@@ -1,7 +1,15 @@
 #define DOCTEST_CONFIG_IMPLEMENT
 #include <doctest.h>
 
+#pragma warning(push)
+
+// Want to keep all warnings enabled but seeing "function not inlined" for TEST_CASE_FIXTURE code 
+// so ignoring this specific warning for the examples
+#pragma warning(disable : 4710)
+
 #include "TestIsEvenUsingCustomMain.h"
+
+#pragma warning(pop)
 
 int main(int argc, char** argv)
 {

@@ -1,4 +1,4 @@
-﻿// GodotDoctestTestDiscovererTest.cs
+﻿// DoctestTestCaseMayFailKeywordTest.cs
 //
 // Copyright (c) 2025-present Jase Mottershead
 //
@@ -23,24 +23,24 @@
 // SOFTWARE.
 
 using DoctestTestAdapter.Settings;
+using DoctestTestAdapter.Shared.Executables;
+using DoctestTestAdapter.Shared.Keywords;
 using FakeItEasy;
+using Microsoft.VisualStudio.TestPlatform.ObjectModel;
 using Microsoft.VisualStudio.TestPlatform.ObjectModel.Adapter;
 using Microsoft.VisualStudio.TestPlatform.ObjectModel.Logging;
-using Microsoft.VisualStudio.TestPlatform.ObjectModel;
-using System.Collections.Generic;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using System.Collections.Generic;
+using System.Linq;
 
-namespace DoctestTestAdapter.Tests.Godot.Discovery
+namespace DoctestTestAdapter.Tests.Godot.Keywords
 {
-	[TestClass]
-	public class GodotDoctestTestDiscovererTest : GodotTest
+    [TestClass]
+    public class DoctestTestCaseMayFailKeywordTest : GodotTest
     {
         [TestMethod]
-		public void DiscoverExe()
-		{
-            IEnumerable<string> sources = new List<string>() { TestCommon.GodotExecutableFilePath };
-
-            // Run settings.
+        public void Find()
+        {
             DoctestTestSettingsProvider doctestTestSettingsProvider = new DoctestTestSettingsProvider();
             AssertAndLoadExampleRunSettings(doctestTestSettingsProvider);
 
@@ -55,11 +55,36 @@ namespace DoctestTestAdapter.Tests.Godot.Discovery
             A.CallTo(() => testCaseDiscoverySink.SendTestCase(capturedTestCasesFromDiscovery._))
                 .DoesNothing();
 
-            ITestDiscoverer doctestTestDiscoverer = new DoctestTestDiscoverer();
-            doctestTestDiscoverer.DiscoverTests(sources, runContext, messageLogger, testCaseDiscoverySink);
+            List<string> _allTestCaseNames = new DoctestExecutable(TestCommon.GodotExecutableFilePath, TestCommon.GodotExamplesSolutionDirectory, settings, runContext, null, null).GetTestCaseNames();
 
-            Assert.IsNotEmpty(capturedTestCasesFromDiscovery.Values);
-            AssertMissingTestCases(runContext, capturedTestCasesFromDiscovery.Values);
+            Assert.IsNotEmpty(_allTestCaseNames);
+
+            List<IKeyword> keywords = new List<IKeyword>()
+            {
+                new NamespaceKeyword(),
+                new DoctestTestCaseMayFailKeyword(_allTestCaseNames)
+            };
+
+            string relevantHeaderFile = TestCommon.GodotExamplesSolutionDirectory + "\\tests\\core\\math\\test_random_number_generator.h";
+            TestCommon.AssertKeywords(TestCommon.GodotExecutableFilePath,
+                relevantHeaderFile,
+                keywords,
+                (int lineNumber, string testNamespace, List<TestCase> testCases) =>
+                {
+                    if (lineNumber == 62)
+                    {
+                        TestCommon.AssertTestCase(testCases.Last(),
+                            TestCommon.GodotExecutableFilePath,
+                            "TestRandomNumberGenerator::Empty Class::[RandomNumberGenerator] Integer 32 bit",
+                            "[RandomNumberGenerator] Integer 32 bit",
+                            relevantHeaderFile,
+                            62);
+
+                        return true;
+                    }
+
+                    return false;
+                });
         }
     }
 }

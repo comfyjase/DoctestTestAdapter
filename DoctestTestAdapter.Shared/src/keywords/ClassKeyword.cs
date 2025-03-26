@@ -32,7 +32,7 @@ namespace DoctestTestAdapter.Shared.Keywords
     {
         private string _currentClassName = string.Empty;
 
-        protected override string Word => "class";
+        internal override string Word => "class";
 
         private string GetClassNameSubstring(string line)
         {
@@ -47,19 +47,19 @@ namespace DoctestTestAdapter.Shared.Keywords
                 return testClassName;
             }
 
-            int firstSpaceAfterClassKeyword = line.IndexOf(" ");
-            int lastSpaceAfterClassKeyword = line.IndexOf(" ", firstSpaceAfterClassKeyword + 1);
+            int firstSpaceAfterClassKeywordIndex = line.IndexOf(" ");
+            int lastSpaceAfterFirstSpaceIndex = line.IndexOf(" ", firstSpaceAfterClassKeywordIndex + 1);
             int endIndex = -1;
 
             // Means it must be declared like so: "class Example"
-            if (firstSpaceAfterClassKeyword == lastSpaceAfterClassKeyword)
+            if (lastSpaceAfterFirstSpaceIndex == -1)
             {
                 endIndex = line.Length;
             }
             // Means it is declared like so: "class Example "
             else
             {
-                endIndex = lastSpaceAfterClassKeyword;
+                endIndex = lastSpaceAfterFirstSpaceIndex;
             }
 
             if (endIndex == -1)
@@ -72,7 +72,7 @@ namespace DoctestTestAdapter.Shared.Keywords
             return testClassName;
         }
 
-        protected override void OnEnterKeywordScope(string executableFilePath, string sourceFilePath, ref string namespaceName, ref string className, string line, int lineNumber, ref List<TestCase> allTestCases)
+        internal override void OnEnterKeywordScope(string executableFilePath, string sourceFilePath, ref string namespaceName, ref string className, string line, int lineNumber, ref List<TestCase> allTestCases)
         {
             _currentClassName = GetClassNameSubstring(line);
             if (string.IsNullOrEmpty(_currentClassName))
@@ -90,7 +90,7 @@ namespace DoctestTestAdapter.Shared.Keywords
             }
         }
 
-        protected override void OnExitKeywordScope(string executableFilePath, string sourceFilePath, ref string namespaceName, ref string className, string line, int lineNumber, ref List<TestCase> allTestCases)
+        internal override void OnExitKeywordScope(string executableFilePath, string sourceFilePath, ref string namespaceName, ref string className, string line, int lineNumber, ref List<TestCase> allTestCases)
         {
             if (string.IsNullOrEmpty(_currentClassName))
             {

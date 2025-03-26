@@ -56,7 +56,7 @@ namespace DoctestTestAdapter.Tests.Executables
         {
             List<string> testCaseNames = _doctestExecutableExe.GetTestCaseNames();
             Assert.IsNotEmpty(testCaseNames);
-            Assert.HasCount(25, testCaseNames);
+            Assert.HasCount(50, testCaseNames);
             TestCommon.AssertTestCaseNames(testCaseNames, "[UsingDoctestMain]");
         }
 
@@ -90,7 +90,7 @@ namespace DoctestTestAdapter.Tests.Executables
             // Same as the TestSuiteNamesDLL unit test - can't just run a DLL file, so use the exe that loads the DLL.
             List<string> testCaseNames = _doctestExecutableExeAndDLL.GetTestCaseNames();
             Assert.IsNotEmpty(testCaseNames);
-            Assert.HasCount(50, testCaseNames);
+            Assert.HasCount(100, testCaseNames);
 
             List<string> testCaseNamesFromDLL = testCaseNames
                 .Where(s => s.StartsWith("[DLL]"))

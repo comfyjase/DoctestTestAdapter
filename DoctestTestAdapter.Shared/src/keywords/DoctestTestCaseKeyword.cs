@@ -30,22 +30,23 @@ using Constants = DoctestTestAdapter.Shared.Helpers.Constants;
 
 namespace DoctestTestAdapter.Shared.Keywords
 {
-    internal sealed class DoctestTestCaseKeyword : Keyword
+    internal class DoctestTestCaseKeyword : Keyword
     {
         private List<string> _allTestCaseNames = new List<string>();
 
-        protected override string Word => "TEST_CASE";
+        internal override string Word => "TEST_CASE";
 
         internal DoctestTestCaseKeyword(List<string> allTestCaseNames)
         {
             _allTestCaseNames = allTestCaseNames;
         }
 
-        protected override void OnEnterKeywordScope(string executableFilePath, string sourceFilePath, ref string namespaceName, ref string className, string line, int lineNumber, ref List<TestCase> allTestCases)
+        internal override void OnEnterKeywordScope(string executableFilePath, string sourceFilePath, ref string namespaceName, ref string className, string line, int lineNumber, ref List<TestCase> allTestCases)
         {
             // Found the keyword, but need to check this test case is compiled into the executable.
             // Can do that by checking if it's in allTestCaseNames.
-            string testCaseName = _allTestCaseNames.Find(s => Regex.Unescape(line).Contains("\"" + s + "\""));
+            string lineUnescaped = Regex.Unescape(line);
+            string testCaseName = _allTestCaseNames.Find(s => lineUnescaped.Contains("\"" + s + "\""));
             if (string.IsNullOrEmpty(testCaseName))
             {
                 return;
@@ -71,7 +72,7 @@ namespace DoctestTestAdapter.Shared.Keywords
             allTestCases.Add(testCase);
         }
 
-        protected override void OnExitKeywordScope(string executableFilePath, string sourceFilePath, ref string namespaceName, ref string className, string line, int lineNumber, ref List<TestCase> allTestCases)
+        internal override void OnExitKeywordScope(string executableFilePath, string sourceFilePath, ref string namespaceName, ref string className, string line, int lineNumber, ref List<TestCase> allTestCases)
         {
             // Don't need to do anything for this keyword implementation...
         }

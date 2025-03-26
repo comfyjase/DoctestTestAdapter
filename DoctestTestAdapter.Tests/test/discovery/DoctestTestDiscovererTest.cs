@@ -85,7 +85,7 @@ namespace DoctestTestAdapter.Tests.Discovery
                 Assert.IsTrue(string.IsNullOrEmpty(output));
             }
 
-            Assert.HasCount(25, capturedTestCases.Values);
+            Assert.HasCount(50, capturedTestCases.Values);
 
             TestCommon.AssertTestCases(capturedTestCases.Values.ToList(),
                 TestCommon.UsingDoctestMainExecutableFilePath,
@@ -112,7 +112,7 @@ namespace DoctestTestAdapter.Tests.Discovery
 
             ITestDiscoverer doctestTestDiscoverer = new DoctestTestDiscoverer();
             doctestTestDiscoverer.DiscoverTests(sources, discoveryContext, messageLogger, testCaseDiscoverySink);
-            Assert.HasCount(50, capturedTestCases.Values);
+            Assert.HasCount(100, capturedTestCases.Values);
 
             List<TestCase> dllTestCases = capturedTestCases.Values
                 .ToList()

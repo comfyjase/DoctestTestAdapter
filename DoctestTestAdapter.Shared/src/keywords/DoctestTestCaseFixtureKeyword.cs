@@ -1,4 +1,4 @@
-﻿// DoctestTestSuiteKeyword.cs
+﻿// DoctestTestCaseFixtureKeyword.cs
 //
 // Copyright (c) 2025-present Jase Mottershead
 //
@@ -27,57 +27,60 @@ using System.Collections.Generic;
 
 namespace DoctestTestAdapter.Shared.Keywords
 {
-    internal sealed class DoctestTestSuiteKeyword : Keyword
+    internal class DoctestTestCaseFixtureKeyword : DoctestTestCaseKeyword
     {
-        private List<string> _allTestSuiteNames = new List<string>();
-        private string _currentTestSuiteName = string.Empty;
+        private string _currentTestCaseFixtureClassName = null;
 
-        internal override string Word => "TEST_SUITE";
+        internal override string Word => "TEST_CASE_FIXTURE";
 
-        internal DoctestTestSuiteKeyword(List<string> allTestSuiteNames)
+        internal DoctestTestCaseFixtureKeyword(List<string> allTestCaseNames) : base(allTestCaseNames)
+        { }
+
+        private string GetClassName(string line)
         {
-            _allTestSuiteNames = allTestSuiteNames;
+            string className = null;
+
+            int startIndex = line.IndexOf(@"(") + 1;
+            int endIndex = line.IndexOf(@",", startIndex);
+            className = line.Substring(startIndex, endIndex - startIndex);
+
+            return className;
         }
 
         internal override void OnEnterKeywordScope(string executableFilePath, string sourceFilePath, ref string namespaceName, ref string className, string line, int lineNumber, ref List<TestCase> allTestCases)
         {
-            string testSuiteName = _allTestSuiteNames.Find(s => line.Contains("\"" + s + "\""));
-            _currentTestSuiteName = testSuiteName;
-            if (string.IsNullOrEmpty(_currentTestSuiteName))
+            _currentTestCaseFixtureClassName = GetClassName(line);
+            if (string.IsNullOrEmpty(_currentTestCaseFixtureClassName))
             {
                 return;
             }
 
-            if (string.IsNullOrEmpty(namespaceName))
+            if (string.IsNullOrEmpty(className))
             {
-                namespaceName = _currentTestSuiteName;
+                className = _currentTestCaseFixtureClassName;
             }
             else
             {
-                namespaceName += (doubleColonSeparator + _currentTestSuiteName);
+                className += (doubleColonSeparator + _currentTestCaseFixtureClassName);
             }
+
+            base.OnEnterKeywordScope(executableFilePath, sourceFilePath, ref namespaceName, ref className, line, lineNumber, ref allTestCases);
         }
 
         internal override void OnExitKeywordScope(string executableFilePath, string sourceFilePath, ref string namespaceName, ref string className, string line, int lineNumber, ref List<TestCase> allTestCases)
         {
-            if (string.IsNullOrEmpty(_currentTestSuiteName))
+            if (string.IsNullOrEmpty(_currentTestCaseFixtureClassName))
             {
                 return;
             }
 
-            if (_currentTestSuiteName == namespaceName)
+            if (_currentTestCaseFixtureClassName == className)
             {
-                namespaceName = string.Empty;
-            }
-            else
-            {
-                int testSuiteSubstringIndex = namespaceName.LastIndexOf(_currentTestSuiteName);
-                int separatorIndex = namespaceName.LastIndexOf(doubleColonSeparator, testSuiteSubstringIndex);
-
-                namespaceName = namespaceName.Substring(0, separatorIndex);
+                className = string.Empty;
+                _currentTestCaseFixtureClassName = string.Empty;
             }
 
-            _currentTestSuiteName = namespaceName;
+            base.OnExitKeywordScope(executableFilePath, sourceFilePath, ref namespaceName, ref className, line, lineNumber, ref allTestCases);
         }
     }
 }

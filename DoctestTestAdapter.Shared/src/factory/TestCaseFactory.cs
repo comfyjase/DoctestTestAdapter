@@ -110,13 +110,20 @@ namespace DoctestTestAdapter.Shared.Factory
                 string testNamespace = string.Empty;
                 string testClassName = string.Empty;
 
-                List<Keyword> keywords = new List<Keyword>()
+                List<Keyword> mainKeywords = new List<Keyword>()
                 {
                     new NamespaceKeyword(),
                     new ClassKeyword(),
                     new DoctestTestSuiteKeyword(testSuiteNames),
                     new DoctestTestCaseKeyword(testCaseNames),
+                    new DoctestTestCaseMayFailKeyword(testCaseNames),
+                    new DoctestTestCaseFixtureKeyword(testCaseNames),
+                    new DoctestTestCaseTemplateKeyword(testCaseNames),
                 };
+
+                List<IKeyword> allKeywords = new List<IKeyword>();
+                allKeywords.AddRange(mainKeywords);
+                allKeywords.Add(new CustomMacroKeyword(mainKeywords));
 
                 // Loop over all of the source files and read them line by line
                 foreach (string sourceFilePath in allSourceFilePaths)
@@ -127,7 +134,7 @@ namespace DoctestTestAdapter.Shared.Factory
                     foreach (string line in allLines)
                     {
                         ++currentLineNumber;
-                        keywords.ForEach(k => k.Check(_executableFilePath, sourceFilePath, ref testNamespace, ref testClassName, line, currentLineNumber, ref testCases));
+                        allKeywords.ForEach(k => k.Check(_executableFilePath, sourceFilePath, ref testNamespace, ref testClassName, line, currentLineNumber, ref testCases));
                     }
                 }
             }

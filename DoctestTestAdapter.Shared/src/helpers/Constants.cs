@@ -53,5 +53,39 @@ namespace DoctestTestAdapter.Shared.Helpers
 
         // Profiling
         internal static readonly bool ProfilingEnabled = false;
+
+        // CPP - stdint.h
+        internal static readonly Dictionary<string, string> MappedTypedefs = new Dictionary<string, string>()
+        {
+            { "int8_t",         "signed char" },
+            { "int16_t",        "short" },
+            { "int32_t",        "int" },
+            { "int64_t",        "__int64" },
+            { "uint8_t",        "unsigned char" },
+            { "uint16_t",       "unsigned short" },
+            { "uint32_t",       "unsigned int" },
+            { "uint64_t",       "unsigned __int64" },
+
+            { "int_least8_t",   "signed char" },
+            { "int_least16_t",  "short" },
+            { "int_least32_t",  "int" },
+            { "int_least64_t",  "__int64" },
+            { "uint_least8_t",  "unsigned char" },
+            { "uint_least16_t", "unsigned short" },
+            { "uint_least32_t", "unsigned int" },
+            { "uint_least64_t", "unsigned __int64" },
+
+            { "int_fast8_t",    "signed char" },
+            { "int_fast16_t",   "int" },
+            { "int_fast32_t",   "int" },
+            { "int_fast64_t",   "__int64" },
+            { "uint_fast8_t",   "unsigned char" },
+            { "uint_fast16_t",  "unsigned int" },
+            { "uint_fast32_t",  "unsigned int" },
+            { "uint_fast64_t",  "unsigned __int64" },
+
+            { "intmax_t",       "__int64" },
+            { "uintmax_t",      "unsigned __int64" },
+        };
     }
 }

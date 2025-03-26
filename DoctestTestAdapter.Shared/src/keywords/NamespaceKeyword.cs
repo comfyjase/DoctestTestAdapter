@@ -31,7 +31,7 @@ namespace DoctestTestAdapter.Shared.Keywords
     {
         private string _currentNamespace = string.Empty;
 
-        protected override string Word => "namespace";
+        internal override string Word => "namespace";
 
         private string GetNamespaceSubstring(string line)
         {
@@ -53,7 +53,7 @@ namespace DoctestTestAdapter.Shared.Keywords
             return testFileNamespace;
         }
 
-        protected override void OnEnterKeywordScope(string executableFilePath, string sourceFilePath, ref string namespaceName, ref string className, string line, int lineNumber, ref List<TestCase> allTestCases)
+        internal override void OnEnterKeywordScope(string executableFilePath, string sourceFilePath, ref string namespaceName, ref string className, string line, int lineNumber, ref List<TestCase> allTestCases)
         {
             _currentNamespace = GetNamespaceSubstring(line);
             if (string.IsNullOrEmpty(_currentNamespace))
@@ -71,7 +71,7 @@ namespace DoctestTestAdapter.Shared.Keywords
             }
         }
 
-        protected override void OnExitKeywordScope(string executableFilePath, string sourceFilePath, ref string namespaceName, ref string className, string line, int lineNumber, ref List<TestCase> allTestCases)
+        internal override void OnExitKeywordScope(string executableFilePath, string sourceFilePath, ref string namespaceName, ref string className, string line, int lineNumber, ref List<TestCase> allTestCases)
         {
             if (string.IsNullOrEmpty(_currentNamespace))
             {

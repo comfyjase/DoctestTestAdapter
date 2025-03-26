@@ -48,7 +48,7 @@ namespace DoctestTestAdapter.Tests.Factory
             TestCaseFactory testCaseFactory = new TestCaseFactory(TestCommon.UsingDoctestMainExecutableFilePath, null, null, null);
             List<TestCase> testCases = testCaseFactory.CreateTestCases();
             Assert.IsNotNull(testCases);
-            Assert.HasCount(25, testCases);
+            Assert.HasCount(50, testCases);
 
             Assert.IsEmpty(capturedTestMessageLevels.Values);
             Assert.IsEmpty(capturedTestMessages.Values);
@@ -72,7 +72,7 @@ namespace DoctestTestAdapter.Tests.Factory
             TestCaseFactory testCaseFactory = new TestCaseFactory(TestCommon.ExecutableUsingDLLExecutableFilePath, null, null, null);
             List<TestCase> testCases = testCaseFactory.CreateTestCases();
             Assert.IsNotNull(testCases);
-            Assert.HasCount(50, testCases);
+            Assert.HasCount(100, testCases);
 
             Assert.IsEmpty(capturedTestMessageLevels.Values);
             Assert.IsEmpty(capturedTestMessages.Values);

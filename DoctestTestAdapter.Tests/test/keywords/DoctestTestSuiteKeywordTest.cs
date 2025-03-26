@@ -41,7 +41,7 @@ namespace DoctestTestAdapter.Tests.Keywords
             Assert.IsNotEmpty(_allTestSuiteNames);
             Assert.HasCount(2, _allTestSuiteNames);
 
-            List<Keyword> keywords = new List<Keyword>()
+            List<IKeyword> keywords = new List<IKeyword>()
             {
                 new DoctestTestSuiteKeyword(_allTestSuiteNames)
             };
@@ -50,12 +50,12 @@ namespace DoctestTestAdapter.Tests.Keywords
                 TestCommon.UsingDoctestMainTestHeaderFilePath,
                 keywords, (int lineNumber, string testNamespace, List<TestCase> testCases) =>
                 {
-                    if (lineNumber == 92)
+                    if (lineNumber == 137)
                     {
                         Assert.IsFalse(string.IsNullOrEmpty(testNamespace));
                         Assert.AreEqual("[UsingDoctestMainTestSuite]", testNamespace);
                     }
-                    else if (lineNumber == 158)
+                    else if (lineNumber == 219)
                     {
                         Assert.IsTrue(string.IsNullOrEmpty(testNamespace));
                         return true;
@@ -72,7 +72,7 @@ namespace DoctestTestAdapter.Tests.Keywords
             Assert.IsNotEmpty(_allTestSuiteNames);
             Assert.HasCount(2, _allTestSuiteNames);
 
-            List<Keyword> keywords = new List<Keyword>()
+            List<IKeyword> keywords = new List<IKeyword>()
             {
                 new NamespaceKeyword(),
                 new DoctestTestSuiteKeyword(_allTestSuiteNames)
@@ -82,22 +82,22 @@ namespace DoctestTestAdapter.Tests.Keywords
                 TestCommon.UsingDoctestMainTestHeaderFilePath,
                 keywords, (int lineNumber, string testNamespace, List<TestCase> testCases) =>
                 {
-                    if (lineNumber == 399)
+                    if (lineNumber == 508)
                     {
                         Assert.IsFalse(string.IsNullOrEmpty(testNamespace));
                         Assert.AreEqual("UsingDoctestMainNamespaceAndTestSuite_Namespace", testNamespace);
                     }
-                    else if (lineNumber == 401)
+                    else if (lineNumber == 510)
                     {
                         Assert.IsFalse(string.IsNullOrEmpty(testNamespace));
                         Assert.AreEqual("UsingDoctestMainNamespaceAndTestSuite_Namespace::[UsingDoctestMainNamespaceAndTestSuite_TestSuite]", testNamespace);
                     }
-                    else if (lineNumber == 467)
+                    else if (lineNumber == 592)
                     {
                         Assert.IsFalse(string.IsNullOrEmpty(testNamespace));
                         Assert.AreEqual("UsingDoctestMainNamespaceAndTestSuite_Namespace", testNamespace);
                     }
-                    else if (lineNumber == 468)
+                    else if (lineNumber == 593)
                     {
                         Assert.IsTrue(string.IsNullOrEmpty(testNamespace));
                         return true;

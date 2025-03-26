@@ -5,10 +5,39 @@
 #define CUSTOM_TEST_MACRO_TRUE true
 #define CUSTOM_TEST_MACRO_FALSE false
 
-bool IsEven(int number)
+inline bool IsEven(int number)
 {
 	return (number % 2 == 0);
 }
+
+class UniqueTestsFixture
+{
+public:
+	UniqueTestsFixture() {}
+protected:
+	inline bool FixtureIsEven(int number)
+	{
+		return IsEven(number);
+	}
+};
+
+#define CUSTOM_TEST_CASE_MACRO_EXE(name, number)										\
+	TEST_CASE("[ExecutableUsingDLL] Testing IsEven From Custom Test Case Macro " name)	\
+	{																					\
+		CHECK(IsEven(number));															\
+	}
+
+#define CUSTOM_TEST_CASE_FIXTURE_MACRO_EXE(fixtureClass, name, number)												\
+	TEST_CASE_FIXTURE(fixtureClass, "[ExecutableUsingDLL] Testing IsEven From Custom Test Fixture Macro " name)		\
+	{																												\
+		CHECK(FixtureIsEven(number));																				\
+	}
+
+#define CUSTOM_TEST_CASE_TEMPLATE_MACRO_EXE(name, templateTypeName, templateType)															\
+	TEST_CASE_TEMPLATE("[ExecutableUsingDLL] Testing IsEven From Custom Test Case Template Macro " name, templateTypeName, templateType)	\
+	{																																		\
+		CHECK(IsEven((templateTypeName)2));																									\
+	}
 
 // =====================================================================================================
 //
@@ -36,7 +65,7 @@ TEST_CASE("[ExecutableUsingDLL] Testing IsEven With Doctest Escape Characters do
 	CHECK(IsEven(2));
 }
 
-TEST_CASE("[ExecutableUsingDLL] Testing IsEven With Test Adapter Escape Characters doctest:doctest doctest::doctest In No Namespace Or Test Suite")
+TEST_CASE("[ExecutableUsingDLL] Testing IsEven With Test Adapter Escape Characters doctest:doctest doctest::doctest doctest.doctest In No Namespace Or Test Suite")
 {
 	CHECK(IsEven(2));
 }
@@ -81,6 +110,22 @@ TEST_CASE("[ExecutableUsingDLL] Testing IsEven Is Compiled In #if CUSTOM_TEST_MA
 }
 #endif // CUSTOM_TEST_MACRO_TRUE
 
+TEST_CASE_FIXTURE(UniqueTestsFixture, "[ExecutableUsingDLL] Testing IsEven Test Case Fixture In No Namespace Or Test Suite")
+{
+	CHECK(FixtureIsEven(2));
+}
+
+TEST_CASE_TEMPLATE("[ExecutableUsingDLL] Testing IsEven Test Case Template In No Namespace Or Test Suite", T, int)
+{
+	CHECK(IsEven((T)2));
+}
+
+CUSTOM_TEST_CASE_MACRO_EXE("In No Namespace Or Test Suite", 2);
+
+CUSTOM_TEST_CASE_FIXTURE_MACRO_EXE(UniqueTestsFixture, "In No Namespace Or Test Suite", 2);
+
+CUSTOM_TEST_CASE_TEMPLATE_MACRO_EXE("In No Namespace Or Test Suite", T, int);
+
 #pragma endregion
 
 // =====================================================================================================
@@ -111,7 +156,7 @@ TEST_SUITE("[ExecutableUsingDLLTestSuite]")
 		CHECK(IsEven(2));
 	}
 
-	TEST_CASE("[ExecutableUsingDLL] Testing IsEven With Test Adapter Escape Characters doctest:doctest doctest::doctest In Test Suite")
+	TEST_CASE("[ExecutableUsingDLL] Testing IsEven With Test Adapter Escape Characters doctest:doctest doctest::doctest doctest.doctest In Test Suite")
 	{
 		CHECK(IsEven(2));
 	}
@@ -155,6 +200,22 @@ TEST_SUITE("[ExecutableUsingDLLTestSuite]")
 		CHECK(IsEven(2));
 	}
 #endif
+
+	TEST_CASE_FIXTURE(UniqueTestsFixture, "[ExecutableUsingDLL] Testing IsEven Test Case Fixture In Test Suite")
+	{
+		CHECK(FixtureIsEven(2));
+	}
+
+	TEST_CASE_TEMPLATE("[ExecutableUsingDLL] Testing IsEven Test Case Template In Test Suite", T, int)
+	{
+		CHECK(IsEven((T)2));
+	}
+
+	CUSTOM_TEST_CASE_MACRO_EXE("In Test Suite", 2);
+
+	CUSTOM_TEST_CASE_FIXTURE_MACRO_EXE(UniqueTestsFixture, "In Test Suite", 2);
+
+	CUSTOM_TEST_CASE_TEMPLATE_MACRO_EXE("In Test Suite", T, int);
 }
 
 #pragma endregion
@@ -187,7 +248,7 @@ TEST_SUITE("[ExecutableUsingDLLSkippedTestSuite]" * doctest::skip())
 		CHECK(IsEven(2));
 	}
 
-	TEST_CASE("[ExecutableUsingDLL] Testing IsEven With Test Adapter Escape Characters doctest:doctest doctest::doctest In Skipped Test Suite")
+	TEST_CASE("[ExecutableUsingDLL] Testing IsEven With Test Adapter Escape Characters doctest:doctest doctest::doctest doctest.doctest In Skipped Test Suite")
 	{
 		CHECK(IsEven(2));
 	}
@@ -231,6 +292,22 @@ TEST_SUITE("[ExecutableUsingDLLSkippedTestSuite]" * doctest::skip())
 		CHECK(IsEven(2));
 	}
 #endif
+
+	TEST_CASE_FIXTURE(UniqueTestsFixture, "[ExecutableUsingDLL] Testing IsEven Test Case Fixture In Skipped Test Suite")
+	{
+		CHECK(FixtureIsEven(2));
+	}
+
+	TEST_CASE_TEMPLATE("[ExecutableUsingDLL] Testing IsEven Test Case Template In Skipped Test Suite", T, int)
+	{
+		CHECK(IsEven((T)2));
+	}
+
+	CUSTOM_TEST_CASE_MACRO_EXE("In Skipped Test Suite", 2);
+
+	CUSTOM_TEST_CASE_FIXTURE_MACRO_EXE(UniqueTestsFixture, "In Skipped Test Suite", 2);
+
+	CUSTOM_TEST_CASE_TEMPLATE_MACRO_EXE("In Skipped Test Suite", T, int);
 }
 
 #pragma endregion
@@ -263,7 +340,7 @@ namespace ExecutableUsingDLLNamespace
 		CHECK(IsEven(2));
 	}
 
-	TEST_CASE("[ExecutableUsingDLL] Testing IsEven With Test Adapter Escape Characters doctest:doctest doctest::doctest In Namespace")
+	TEST_CASE("[ExecutableUsingDLL] Testing IsEven With Test Adapter Escape Characters doctest:doctest doctest::doctest doctest.doctest In Namespace")
 	{
 		CHECK(IsEven(2));
 	}
@@ -307,6 +384,22 @@ namespace ExecutableUsingDLLNamespace
 		CHECK(IsEven(2));
 	}
 #endif
+
+	TEST_CASE_FIXTURE(UniqueTestsFixture, "[ExecutableUsingDLL] Testing IsEven Test Case Fixture In Namespace")
+	{
+		CHECK(FixtureIsEven(2));
+	}
+
+	TEST_CASE_TEMPLATE("[ExecutableUsingDLL] Testing IsEven Test Case Template In Namespace", T, int)
+	{
+		CHECK(IsEven((T)2));
+	}
+
+	CUSTOM_TEST_CASE_MACRO_EXE("In Namespace", 2);
+
+	CUSTOM_TEST_CASE_FIXTURE_MACRO_EXE(UniqueTestsFixture, "In Namespace", 2);
+
+	CUSTOM_TEST_CASE_TEMPLATE_MACRO_EXE("In Namespace", T, int);
 }
 
 #pragma endregion
@@ -341,7 +434,7 @@ namespace ExecutableUsingDLLNestedNamespaceOne
 			CHECK(IsEven(2));
 		}
 
-		TEST_CASE("[ExecutableUsingDLL] Testing IsEven With Test Adapter Escape Characters doctest:doctest doctest::doctest In Nested Namespace")
+		TEST_CASE("[ExecutableUsingDLL] Testing IsEven With Test Adapter Escape Characters doctest:doctest doctest::doctest doctest.doctest In Nested Namespace")
 		{
 			CHECK(IsEven(2));
 		}
@@ -385,6 +478,22 @@ namespace ExecutableUsingDLLNestedNamespaceOne
 			CHECK(IsEven(2));
 		}
 #endif
+
+		TEST_CASE_FIXTURE(UniqueTestsFixture, "[ExecutableUsingDLL] Testing IsEven Test Case Fixture In Nested Namespace")
+		{
+			CHECK(FixtureIsEven(2));
+		}
+
+		TEST_CASE_TEMPLATE("[ExecutableUsingDLL] Testing IsEven Test Case Template In Nested Namespace", T, int)
+		{
+			CHECK(IsEven((T)2));
+		}
+
+		CUSTOM_TEST_CASE_MACRO_EXE("In Nested Namespace", 2);
+
+		CUSTOM_TEST_CASE_FIXTURE_MACRO_EXE(UniqueTestsFixture, "In Nested Namespace", 2);
+
+		CUSTOM_TEST_CASE_TEMPLATE_MACRO_EXE("In Nested Namespace", T, int);
 	}
 }
 
@@ -420,7 +529,7 @@ namespace ExecutableUsingDLLNamespaceAndTestSuite_Namespace
 			CHECK(IsEven(2));
 		}
 
-		TEST_CASE("[ExecutableUsingDLL] Testing IsEven With Test Adapter Escape Characters doctest:doctest doctest::doctest In Namespace And Test Suite")
+		TEST_CASE("[ExecutableUsingDLL] Testing IsEven With Test Adapter Escape Characters doctest:doctest doctest::doctest doctest.doctest In Namespace And Test Suite")
 		{
 			CHECK(IsEven(2));
 		}
@@ -464,6 +573,22 @@ namespace ExecutableUsingDLLNamespaceAndTestSuite_Namespace
 			CHECK(IsEven(2));
 		}
 #endif
+
+		TEST_CASE_FIXTURE(UniqueTestsFixture, "[ExecutableUsingDLL] Testing IsEven Test Case Fixture In Namespace And Test Suite")
+		{
+			CHECK(FixtureIsEven(2));
+		}
+
+		TEST_CASE_TEMPLATE("[ExecutableUsingDLL] Testing IsEven Test Case Template In Namespace And Test Suite", T, int)
+		{
+			CHECK(IsEven((T)2));
+		}
+
+		CUSTOM_TEST_CASE_MACRO_EXE("In Namespace And Test Suite", 2);
+
+		CUSTOM_TEST_CASE_FIXTURE_MACRO_EXE(UniqueTestsFixture, "In Namespace And Test Suite", 2);
+
+		CUSTOM_TEST_CASE_TEMPLATE_MACRO_EXE("In Namespace And Test Suite", T, int);
 	}
 }
 

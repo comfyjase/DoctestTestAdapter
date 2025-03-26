@@ -45,6 +45,8 @@
     <Compile Include="test\discovery\GodotDoctestTestDiscovererTest.cs" />
     <Compile Include="test\execution\GodotDoctestTestExecutorTest.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="test\GodotTest.cs" />
+    <Compile Include="test\keywords\DoctestTestCaseMayFailKeywordTest.cs" />
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="FakeItEasy">

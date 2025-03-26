@@ -17,12 +17,17 @@
     <Compile Include="$(MSBuildThisFileDirectory)src\executables\Executable.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)src\helpers\Constants.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)src\helpers\Utilities.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)src\io\BracketMatching.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)src\keywords\ClassKeyword.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)src\keywords\CustomMacroKeyword.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)src\keywords\DoctestTestCaseFixtureKeyword.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)src\keywords\DoctestTestCaseKeyword.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)src\keywords\DoctestTestCaseMayFailKeyword.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)src\keywords\DoctestTestCaseTemplateKeyword.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)src\keywords\DoctestTestSuiteKeyword.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)src\keywords\IKeyword.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)src\keywords\Keyword.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)src\keywords\NamespaceKeyword.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)src\pattern_searcher\BracketSearcher.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)src\profiling\Profiler.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)src\factory\TestCaseFactory.cs" />
   </ItemGroup>

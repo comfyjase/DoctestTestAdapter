@@ -1,4 +1,4 @@
-﻿// DoctestTestCaseKeywordTest.cs
+﻿// DoctestTestCaseFixtureKeywordTest.cs
 //
 // Copyright (c) 2025-present Jase Mottershead
 //
@@ -22,56 +22,56 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-using System.Collections.Generic;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
+using DoctestTestAdapter.Shared.Executables;
 using DoctestTestAdapter.Shared.Keywords;
 using Microsoft.VisualStudio.TestPlatform.ObjectModel;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
+using System.Collections.Generic;
 using System.Linq;
-using DoctestTestAdapter.Shared.Executables;
 
 namespace DoctestTestAdapter.Tests.Keywords
 {
     [TestClass]
-	public class DoctestTestCaseKeywordTest
-	{
+    public class DoctestTestCaseFixtureKeywordTest
+    {
         private List<string> _allTestSuiteNames = new DoctestExecutable(TestCommon.UsingDoctestMainExecutableFilePath, TestCommon.ExamplesSolutionDirectory, null, null, null, null).GetTestSuiteNames();
         private List<string> _allTestCaseNames = new DoctestExecutable(TestCommon.UsingDoctestMainExecutableFilePath, TestCommon.ExamplesSolutionDirectory, null, null, null, null).GetTestCaseNames();
 
         [TestMethod]
-		public void FindInNoNamespaceOrTestSuite()
-		{
+        public void FindInNoNamespaceOrTestSuite()
+        {
             Assert.IsNotEmpty(_allTestCaseNames);
             Assert.HasCount(50, _allTestCaseNames);
 
-			List<IKeyword> keywords = new List<IKeyword>()
-			{
-				new DoctestTestCaseKeyword(_allTestCaseNames)
-			};
+            List<IKeyword> keywords = new List<IKeyword>()
+            {
+                new DoctestTestCaseFixtureKeyword(_allTestCaseNames)
+            };
 
-			TestCommon.AssertKeywords(TestCommon.UsingDoctestMainExecutableFilePath, 
-				TestCommon.UsingDoctestMainTestHeaderFilePath,
-				keywords, 
-				(int lineNumber, string testNamespace, List<TestCase> testCases) =>
-				{
-					if (lineNumber == 48)
-					{
-						TestCommon.AssertTestCase(testCases.Last(),
-							TestCommon.UsingDoctestMainExecutableFilePath,
-					        "Empty Namespace::Empty Class::[UsingDoctestMain] Testing IsEven Always Pass In No Namespace Or Test Suite",
-					        "[UsingDoctestMain] Testing IsEven Always Pass In No Namespace Or Test Suite",
-							TestCommon.UsingDoctestMainTestHeaderFilePath,
-							48);
+            TestCommon.AssertKeywords(TestCommon.UsingDoctestMainExecutableFilePath,
+                TestCommon.UsingDoctestMainTestHeaderFilePath,
+                keywords,
+                (int lineNumber, string testNamespace, List<TestCase> testCases) =>
+                {
+                    if (lineNumber == 113)
+                    {
+                        TestCommon.AssertTestCase(testCases.Last(),
+                            TestCommon.UsingDoctestMainExecutableFilePath,
+                            "Empty Namespace::UniqueTestsFixture::[UsingDoctestMain] Testing IsEven Test Case Fixture In No Namespace Or Test Suite",
+                            "[UsingDoctestMain] Testing IsEven Test Case Fixture In No Namespace Or Test Suite",
+                            TestCommon.UsingDoctestMainTestHeaderFilePath,
+                            113);
 
-						return true;
-					}
+                        return true;
+                    }
 
-					return false;
-				});
+                    return false;
+                });
         }
 
-		[TestMethod]
-		public void FindInTestSuite()
-		{
+        [TestMethod]
+        public void FindInTestSuite()
+        {
             Assert.IsNotEmpty(_allTestSuiteNames);
             Assert.HasCount(2, _allTestSuiteNames);
             Assert.IsNotEmpty(_allTestCaseNames);
@@ -80,7 +80,7 @@ namespace DoctestTestAdapter.Tests.Keywords
             List<IKeyword> keywords = new List<IKeyword>()
             {
                 new DoctestTestSuiteKeyword(_allTestSuiteNames),
-                new DoctestTestCaseKeyword(_allTestCaseNames)
+                new DoctestTestCaseFixtureKeyword(_allTestCaseNames)
             };
 
             TestCommon.AssertKeywords(TestCommon.UsingDoctestMainExecutableFilePath,
@@ -88,14 +88,14 @@ namespace DoctestTestAdapter.Tests.Keywords
                 keywords,
                 (int lineNumber, string testNamespace, List<TestCase> testCases) =>
                 {
-                    if (lineNumber == 139)
+                    if (lineNumber == 204)
                     {
                         TestCommon.AssertTestCase(testCases.Last(),
                             TestCommon.UsingDoctestMainExecutableFilePath,
-                            "[UsingDoctestMainTestSuite]::Empty Class::[UsingDoctestMain] Testing IsEven Always Pass In Test Suite",
-                            "[UsingDoctestMain] Testing IsEven Always Pass In Test Suite",
+                            "[UsingDoctestMainTestSuite]::UniqueTestsFixture::[UsingDoctestMain] Testing IsEven Test Case Fixture In Test Suite",
+                            "[UsingDoctestMain] Testing IsEven Test Case Fixture In Test Suite",
                             TestCommon.UsingDoctestMainTestHeaderFilePath,
-                            139);
+                            204);
 
                         return true;
                     }
@@ -113,7 +113,7 @@ namespace DoctestTestAdapter.Tests.Keywords
             List<IKeyword> keywords = new List<IKeyword>()
             {
                 new NamespaceKeyword(),
-                new DoctestTestCaseKeyword(_allTestCaseNames)
+                new DoctestTestCaseFixtureKeyword(_allTestCaseNames)
             };
 
             TestCommon.AssertKeywords(TestCommon.UsingDoctestMainExecutableFilePath,
@@ -121,14 +121,14 @@ namespace DoctestTestAdapter.Tests.Keywords
                 keywords,
                 (int lineNumber, string testNamespace, List<TestCase> testCases) =>
                 {
-                    if (lineNumber == 323)
+                    if (lineNumber == 388)
                     {
                         TestCommon.AssertTestCase(testCases.Last(),
                             TestCommon.UsingDoctestMainExecutableFilePath,
-                            "UsingDoctestMainNamespace::Empty Class::[UsingDoctestMain] Testing IsEven Always Pass In Namespace",
-                            "[UsingDoctestMain] Testing IsEven Always Pass In Namespace",
+                            "UsingDoctestMainNamespace::UniqueTestsFixture::[UsingDoctestMain] Testing IsEven Test Case Fixture In Namespace",
+                            "[UsingDoctestMain] Testing IsEven Test Case Fixture In Namespace",
                             TestCommon.UsingDoctestMainTestHeaderFilePath,
-                            323);
+                            388);
 
                         return true;
                     }
@@ -146,7 +146,7 @@ namespace DoctestTestAdapter.Tests.Keywords
             List<IKeyword> keywords = new List<IKeyword>()
             {
                 new NamespaceKeyword(),
-                new DoctestTestCaseKeyword(_allTestCaseNames)
+                new DoctestTestCaseFixtureKeyword(_allTestCaseNames)
             };
 
             TestCommon.AssertKeywords(TestCommon.UsingDoctestMainExecutableFilePath,
@@ -154,14 +154,14 @@ namespace DoctestTestAdapter.Tests.Keywords
                 keywords,
                 (int lineNumber, string testNamespace, List<TestCase> testCases) =>
                 {
-                    if (lineNumber == 417)
+                    if (lineNumber == 482)
                     {
                         TestCommon.AssertTestCase(testCases.Last(),
                             TestCommon.UsingDoctestMainExecutableFilePath,
-                            "UsingDoctestMainNestedNamespaceOne::UsingDoctestMainNestedNamespaceTwo::Empty Class::[UsingDoctestMain] Testing IsEven Always Pass In Nested Namespace",
-                            "[UsingDoctestMain] Testing IsEven Always Pass In Nested Namespace",
+                            "UsingDoctestMainNestedNamespaceOne::UsingDoctestMainNestedNamespaceTwo::UniqueTestsFixture::[UsingDoctestMain] Testing IsEven Test Case Fixture In Nested Namespace",
+                            "[UsingDoctestMain] Testing IsEven Test Case Fixture In Nested Namespace",
                             TestCommon.UsingDoctestMainTestHeaderFilePath,
-                            417);
+                            482);
 
                         return true;
                     }
@@ -182,7 +182,7 @@ namespace DoctestTestAdapter.Tests.Keywords
             {
                 new NamespaceKeyword(),
                 new DoctestTestSuiteKeyword(_allTestSuiteNames),
-                new DoctestTestCaseKeyword(_allTestCaseNames)
+                new DoctestTestCaseFixtureKeyword(_allTestCaseNames)
             };
 
             TestCommon.AssertKeywords(TestCommon.UsingDoctestMainExecutableFilePath,
@@ -190,14 +190,14 @@ namespace DoctestTestAdapter.Tests.Keywords
                 keywords,
                 (int lineNumber, string testNamespace, List<TestCase> testCases) =>
                 {
-                    if (lineNumber == 512)
+                    if (lineNumber == 577)
                     {
                         TestCommon.AssertTestCase(testCases.Last(),
                             TestCommon.UsingDoctestMainExecutableFilePath,
-                            "UsingDoctestMainNamespaceAndTestSuite_Namespace::[UsingDoctestMainNamespaceAndTestSuite_TestSuite]::Empty Class::[UsingDoctestMain] Testing IsEven Always Pass In Namespace And Test Suite",
-                            "[UsingDoctestMain] Testing IsEven Always Pass In Namespace And Test Suite",
+                            "UsingDoctestMainNamespaceAndTestSuite_Namespace::[UsingDoctestMainNamespaceAndTestSuite_TestSuite]::UniqueTestsFixture::[UsingDoctestMain] Testing IsEven Test Case Fixture In Namespace And Test Suite",
+                            "[UsingDoctestMain] Testing IsEven Test Case Fixture In Namespace And Test Suite",
                             TestCommon.UsingDoctestMainTestHeaderFilePath,
-                            512);
+                            577);
 
                         return true;
                     }
@@ -205,5 +205,5 @@ namespace DoctestTestAdapter.Tests.Keywords
                     return false;
                 });
         }
-	}
+    }
 }

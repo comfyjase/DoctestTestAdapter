@@ -92,7 +92,7 @@ namespace DoctestTestAdapter.Tests.Execution
                 Assert.IsTrue(string.IsNullOrEmpty(output));
             }
 
-            Assert.HasCount(25, testCases);
+            Assert.HasCount(50, testCases);
 
             Assert.IsEmpty(capturedTestMessageLevels.Values);
             Assert.IsEmpty(capturedTestMessages.Values);
@@ -112,7 +112,7 @@ namespace DoctestTestAdapter.Tests.Execution
 
             if (assertTestResults)
             {
-                Assert.HasCount(25, capturedTestResults.Values);
+                Assert.HasCount(50, capturedTestResults.Values);
                 TestCommon.AssertTestResults(capturedTestResults.Values.ToList());
             }
         }
@@ -131,7 +131,7 @@ namespace DoctestTestAdapter.Tests.Execution
                .DoesNothing();
 
             List<TestCase> testCases = new TestCaseFactory(TestCommon.ExecutableUsingDLLExecutableFilePath, null, null, null).CreateTestCases();
-            Assert.HasCount(50, testCases);
+            Assert.HasCount(100, testCases);
 
             Assert.IsEmpty(capturedTestMessageLevels.Values);
             Assert.IsEmpty(capturedTestMessages.Values);
@@ -167,12 +167,14 @@ namespace DoctestTestAdapter.Tests.Execution
             ITestExecutor doctestTestExecutor = new DoctestTestExecutor();
             doctestTestExecutor.RunTests(testCases, runContext, frameworkHandle);
 
-            Assert.HasCount(1, capturedTestMessageLevels.Values);
-            Assert.HasCount(1, capturedTestMessages.Values);
+            Assert.HasCount(2, capturedTestMessageLevels.Values);
+            Assert.HasCount(2, capturedTestMessages.Values);
             Assert.AreEqual(TestMessageLevel.Informational, capturedTestMessageLevels.Values[0]);
+            Assert.AreEqual(TestMessageLevel.Informational, capturedTestMessageLevels.Values[1]);
             Assert.IsTrue(capturedTestMessages.Values[0].Contains(Shared.Helpers.Constants.InformationMessagePrefix + " - About to start exe ExecutableUsingDLL.exe with command arguments: "));
+            Assert.IsTrue(capturedTestMessages.Values[1].Contains(Shared.Helpers.Constants.InformationMessagePrefix + " - About to start exe ExecutableUsingDLL.exe with command arguments: "));
 
-            Assert.HasCount(50, capturedTestResults.Values);
+            Assert.HasCount(100, capturedTestResults.Values);
             List<TestResult> dllTestResults = capturedTestResults.Values
                 .Where(t => t.TestCase.DisplayName.Contains("[DLL]"))
                 .ToList();

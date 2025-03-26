@@ -54,6 +54,12 @@
     <Compile Include="test\keywords\NamespaceKeywordTest.cs" />
     <Compile Include="test\keywords\DoctestTestSuiteKeywordTest.cs" />
     <Compile Include="test\keywords\DoctestTestCaseKeywordTest.cs" />
+    <Compile Include="test\keywords\DoctestTestCaseTemplateKeywordTest.cs" />
+    <Compile Include="test\keywords\CustomTestCaseMacroKeywordTest.cs" />
+    <Compile Include="test\keywords\CustomTestCaseFixtureMacroKeywordTest.cs" />
+    <Compile Include="test\keywords\DoctestTestCaseFixtureKeywordTest.cs" />
+    <Compile Include="test\keywords\CustomTestCaseTemplateMacroKeywordTest.cs" />
+    <Compile Include="test\pattern_searcher\BracketSearcherTest.cs" />
     <Compile Include="test\settings\DoctestTestSettingsTest.cs" />
     <Compile Include="test\settings\DoctestGeneralSettingsTest.cs" />
     <Compile Include="test\settings\DoctestDiscoverySettingsTest.cs" />

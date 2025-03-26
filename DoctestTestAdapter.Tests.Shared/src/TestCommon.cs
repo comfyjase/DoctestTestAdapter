@@ -228,36 +228,61 @@ namespace DoctestTestAdapter.Tests
 
         private static List<ExampleTestCaseData> exampleTestCaseData = new List<ExampleTestCaseData>()
         {
-            new ExampleTestCaseData("Empty Namespace", "", "Empty Class", "Testing IsEven Always Pass In No Namespace Or Test Suite", 19, TestOutcome.Passed),
-            new ExampleTestCaseData("Empty Namespace", "", "Empty Class", "Testing IsEven Always Fail In No Namespace Or Test Suite", 24, TestOutcome.Failed),
-            new ExampleTestCaseData("Empty Namespace", "", "Empty Class", "Testing IsEven With Doctest Escape Characters doctest,doctest doctest\\doctest In No Namespace Or Test Suite", 34, TestOutcome.Passed),
-            new ExampleTestCaseData("Empty Namespace", "", "Empty Class", "Testing IsEven With Test Adapter Escape Characters doctest:doctest doctest::doctest In No Namespace Or Test Suite", 39, TestOutcome.Passed),
-            new ExampleTestCaseData("Empty Namespace", "", "Empty Class", "Testing IsEven Is Compiled In #if CUSTOM_TEST_MACRO_TRUE In No Namespace Or Test Suite", 78, TestOutcome.Passed),
+            new ExampleTestCaseData("Empty Namespace", "", "Empty Class", "Testing IsEven Always Pass In No Namespace Or Test Suite", 48, TestOutcome.Passed),
+            new ExampleTestCaseData("Empty Namespace", "", "Empty Class", "Testing IsEven Always Fail In No Namespace Or Test Suite", 53, TestOutcome.Failed),
+            new ExampleTestCaseData("Empty Namespace", "", "Empty Class", "Testing IsEven With Doctest Escape Characters doctest,doctest doctest\\doctest In No Namespace Or Test Suite", 63, TestOutcome.Passed),
+            new ExampleTestCaseData("Empty Namespace", "", "Empty Class", "Testing IsEven With Test Adapter Escape Characters doctest:doctest doctest::doctest doctest.doctest In No Namespace Or Test Suite", 68, TestOutcome.Passed),
+            new ExampleTestCaseData("Empty Namespace", "", "Empty Class", "Testing IsEven Is Compiled In #if CUSTOM_TEST_MACRO_TRUE In No Namespace Or Test Suite", 107, TestOutcome.Passed),
+            new ExampleTestCaseData("Empty Namespace", "", "UniqueTestsFixture", "Testing IsEven Test Case Fixture In No Namespace Or Test Suite", 113, TestOutcome.Passed),
+            new ExampleTestCaseData("Empty Namespace", "", "Empty Class", "Testing IsEven Test Case Template In No Namespace Or Test Suite<int>", 118, TestOutcome.Passed),
+            new ExampleTestCaseData("Empty Namespace", "", "Empty Class", "Testing IsEven From Custom Test Case Macro In No Namespace Or Test Suite", 123, TestOutcome.Passed),
+            new ExampleTestCaseData("Empty Namespace", "", "UniqueTestsFixture", "Testing IsEven From Custom Test Fixture Macro In No Namespace Or Test Suite", 125, TestOutcome.Passed),
+            new ExampleTestCaseData("Empty Namespace", "", "Empty Class", "Testing IsEven From Custom Test Case Template Macro In No Namespace Or Test Suite<int>", 127, TestOutcome.Passed),
 
             // Namespaces will be added onto later with a given prefix.
-            new ExampleTestCaseData("TestSuite]", "", "Empty Class", "Testing IsEven Always Pass In Test Suite", 94, TestOutcome.Passed),
-            new ExampleTestCaseData("TestSuite]", "", "Empty Class", "Testing IsEven Always Fail In Test Suite", 99, TestOutcome.Failed),
-            new ExampleTestCaseData("TestSuite]", "", "Empty Class", "Testing IsEven With Doctest Escape Characters doctest,doctest doctest\\doctest In Test Suite", 109, TestOutcome.Passed),
-            new ExampleTestCaseData("TestSuite]", "", "Empty Class", "Testing IsEven With Test Adapter Escape Characters doctest:doctest doctest::doctest In Test Suite", 114, TestOutcome.Passed),
-            new ExampleTestCaseData("TestSuite]", "", "Empty Class", "Testing IsEven Is Compiled In #if CUSTOM_TEST_MACRO_TRUE In Test Suite", 153, TestOutcome.Passed),
+            new ExampleTestCaseData("TestSuite]", "", "Empty Class", "Testing IsEven Always Pass In Test Suite", 139, TestOutcome.Passed),
+            new ExampleTestCaseData("TestSuite]", "", "Empty Class", "Testing IsEven Always Fail In Test Suite", 144, TestOutcome.Failed),
+            new ExampleTestCaseData("TestSuite]", "", "Empty Class", "Testing IsEven With Doctest Escape Characters doctest,doctest doctest\\doctest In Test Suite", 154, TestOutcome.Passed),
+            new ExampleTestCaseData("TestSuite]", "", "Empty Class", "Testing IsEven With Test Adapter Escape Characters doctest:doctest doctest::doctest doctest.doctest In Test Suite", 159, TestOutcome.Passed),
+            new ExampleTestCaseData("TestSuite]", "", "Empty Class", "Testing IsEven Is Compiled In #if CUSTOM_TEST_MACRO_TRUE In Test Suite", 198, TestOutcome.Passed),
+            new ExampleTestCaseData("TestSuite]", "", "UniqueTestsFixture", "Testing IsEven Test Case Fixture In Test Suite", 204, TestOutcome.Passed),
+            new ExampleTestCaseData("TestSuite]", "", "Empty Class", "Testing IsEven Test Case Template In Test Suite<int>", 209, TestOutcome.Passed),
+            new ExampleTestCaseData("TestSuite]", "", "Empty Class", "Testing IsEven From Custom Test Case Macro In Test Suite", 214, TestOutcome.Passed),
+            new ExampleTestCaseData("TestSuite]", "", "UniqueTestsFixture", "Testing IsEven From Custom Test Fixture Macro In Test Suite", 216, TestOutcome.Passed),
+            new ExampleTestCaseData("TestSuite]", "", "Empty Class", "Testing IsEven From Custom Test Case Template Macro In Test Suite<int>", 218, TestOutcome.Passed),
 
-            new ExampleTestCaseData("Namespace", "", "Empty Class", "Testing IsEven Always Pass In Namespace", 246, TestOutcome.Passed),
-            new ExampleTestCaseData("Namespace", "", "Empty Class", "Testing IsEven Always Fail In Namespace", 251, TestOutcome.Failed),
-            new ExampleTestCaseData("Namespace", "", "Empty Class", "Testing IsEven With Doctest Escape Characters doctest,doctest doctest\\doctest In Namespace", 261, TestOutcome.Passed),
-            new ExampleTestCaseData("Namespace", "", "Empty Class", "Testing IsEven With Test Adapter Escape Characters doctest:doctest doctest::doctest In Namespace", 266, TestOutcome.Passed),
-            new ExampleTestCaseData("Namespace", "", "Empty Class", "Testing IsEven Is Compiled In #if CUSTOM_TEST_MACRO_TRUE In Namespace", 305, TestOutcome.Passed),
+            new ExampleTestCaseData("Namespace", "", "Empty Class", "Testing IsEven Always Pass In Namespace", 323, TestOutcome.Passed),
+            new ExampleTestCaseData("Namespace", "", "Empty Class", "Testing IsEven Always Fail In Namespace", 328, TestOutcome.Failed),
+            new ExampleTestCaseData("Namespace", "", "Empty Class", "Testing IsEven With Doctest Escape Characters doctest,doctest doctest\\doctest In Namespace", 338, TestOutcome.Passed),
+            new ExampleTestCaseData("Namespace", "", "Empty Class", "Testing IsEven With Test Adapter Escape Characters doctest:doctest doctest::doctest doctest.doctest In Namespace", 343, TestOutcome.Passed),
+            new ExampleTestCaseData("Namespace", "", "Empty Class", "Testing IsEven Is Compiled In #if CUSTOM_TEST_MACRO_TRUE In Namespace", 382, TestOutcome.Passed),
+            new ExampleTestCaseData("Namespace", "", "UniqueTestsFixture", "Testing IsEven Test Case Fixture In Namespace", 388, TestOutcome.Passed),
+            new ExampleTestCaseData("Namespace", "", "Empty Class", "Testing IsEven Test Case Template In Namespace<int>", 393, TestOutcome.Passed),
+            new ExampleTestCaseData("Namespace", "", "Empty Class", "Testing IsEven From Custom Test Case Macro In Namespace", 398, TestOutcome.Passed),
+            new ExampleTestCaseData("Namespace", "", "UniqueTestsFixture", "Testing IsEven From Custom Test Fixture Macro In Namespace", 400, TestOutcome.Passed),
+            new ExampleTestCaseData("Namespace", "", "Empty Class", "Testing IsEven From Custom Test Case Template Macro In Namespace<int>", 402, TestOutcome.Passed),
 
-            new ExampleTestCaseData("NestedNamespaceOne", "NestedNamespaceTwo", "Empty Class", "Testing IsEven Always Pass In Nested Namespace", 324, TestOutcome.Passed),
-            new ExampleTestCaseData("NestedNamespaceOne", "NestedNamespaceTwo", "Empty Class", "Testing IsEven Always Fail In Nested Namespace", 329, TestOutcome.Failed),
-            new ExampleTestCaseData("NestedNamespaceOne", "NestedNamespaceTwo", "Empty Class", "Testing IsEven With Doctest Escape Characters doctest,doctest doctest\\doctest In Nested Namespace", 339, TestOutcome.Passed),
-            new ExampleTestCaseData("NestedNamespaceOne", "NestedNamespaceTwo", "Empty Class", "Testing IsEven With Test Adapter Escape Characters doctest:doctest doctest::doctest In Nested Namespace", 344, TestOutcome.Passed),
-            new ExampleTestCaseData("NestedNamespaceOne", "NestedNamespaceTwo", "Empty Class", "Testing IsEven Is Compiled In #if CUSTOM_TEST_MACRO_TRUE In Nested Namespace", 383, TestOutcome.Passed),
+            new ExampleTestCaseData("NestedNamespaceOne", "NestedNamespaceTwo", "Empty Class", "Testing IsEven Always Pass In Nested Namespace", 417, TestOutcome.Passed),
+            new ExampleTestCaseData("NestedNamespaceOne", "NestedNamespaceTwo", "Empty Class", "Testing IsEven Always Fail In Nested Namespace", 422, TestOutcome.Failed),
+            new ExampleTestCaseData("NestedNamespaceOne", "NestedNamespaceTwo", "Empty Class", "Testing IsEven With Doctest Escape Characters doctest,doctest doctest\\doctest In Nested Namespace", 432, TestOutcome.Passed),
+            new ExampleTestCaseData("NestedNamespaceOne", "NestedNamespaceTwo", "Empty Class", "Testing IsEven With Test Adapter Escape Characters doctest:doctest doctest::doctest doctest.doctest In Nested Namespace", 437, TestOutcome.Passed),
+            new ExampleTestCaseData("NestedNamespaceOne", "NestedNamespaceTwo", "Empty Class", "Testing IsEven Is Compiled In #if CUSTOM_TEST_MACRO_TRUE In Nested Namespace", 476, TestOutcome.Passed),
+            new ExampleTestCaseData("NestedNamespaceOne", "NestedNamespaceTwo", "UniqueTestsFixture", "Testing IsEven Test Case Fixture In Nested Namespace", 482, TestOutcome.Passed),
+            new ExampleTestCaseData("NestedNamespaceOne", "NestedNamespaceTwo", "Empty Class", "Testing IsEven Test Case Template In Nested Namespace<int>", 487, TestOutcome.Passed),
+            new ExampleTestCaseData("NestedNamespaceOne", "NestedNamespaceTwo", "Empty Class", "Testing IsEven From Custom Test Case Macro In Nested Namespace", 492, TestOutcome.Passed),
+            new ExampleTestCaseData("NestedNamespaceOne", "NestedNamespaceTwo", "UniqueTestsFixture", "Testing IsEven From Custom Test Fixture Macro In Nested Namespace", 494, TestOutcome.Passed),
+            new ExampleTestCaseData("NestedNamespaceOne", "NestedNamespaceTwo", "Empty Class", "Testing IsEven From Custom Test Case Template Macro In Nested Namespace<int>", 496, TestOutcome.Passed),
 
-            new ExampleTestCaseData("NamespaceAndTestSuite_Namespace", "NamespaceAndTestSuite_TestSuite]", "Empty Class", "Testing IsEven Always Pass In Namespace And Test Suite", 403, TestOutcome.Passed),
-            new ExampleTestCaseData("NamespaceAndTestSuite_Namespace", "NamespaceAndTestSuite_TestSuite]", "Empty Class", "Testing IsEven Always Fail In Namespace And Test Suite", 408, TestOutcome.Failed),
-            new ExampleTestCaseData("NamespaceAndTestSuite_Namespace", "NamespaceAndTestSuite_TestSuite]", "Empty Class", "Testing IsEven With Doctest Escape Characters doctest,doctest doctest\\doctest In Namespace And Test Suite", 418, TestOutcome.Passed),
-            new ExampleTestCaseData("NamespaceAndTestSuite_Namespace", "NamespaceAndTestSuite_TestSuite]", "Empty Class", "Testing IsEven With Test Adapter Escape Characters doctest:doctest doctest::doctest In Namespace And Test Suite", 423, TestOutcome.Passed),
-            new ExampleTestCaseData("NamespaceAndTestSuite_Namespace", "NamespaceAndTestSuite_TestSuite]", "Empty Class", "Testing IsEven Is Compiled In #if CUSTOM_TEST_MACRO_TRUE In Namespace And Test Suite", 462, TestOutcome.Passed),
+            new ExampleTestCaseData("NamespaceAndTestSuite_Namespace", "NamespaceAndTestSuite_TestSuite]", "Empty Class", "Testing IsEven Always Pass In Namespace And Test Suite", 512, TestOutcome.Passed),
+            new ExampleTestCaseData("NamespaceAndTestSuite_Namespace", "NamespaceAndTestSuite_TestSuite]", "Empty Class", "Testing IsEven Always Fail In Namespace And Test Suite", 517, TestOutcome.Failed),
+            new ExampleTestCaseData("NamespaceAndTestSuite_Namespace", "NamespaceAndTestSuite_TestSuite]", "Empty Class", "Testing IsEven With Doctest Escape Characters doctest,doctest doctest\\doctest In Namespace And Test Suite", 527, TestOutcome.Passed),
+            new ExampleTestCaseData("NamespaceAndTestSuite_Namespace", "NamespaceAndTestSuite_TestSuite]", "Empty Class", "Testing IsEven With Test Adapter Escape Characters doctest:doctest doctest::doctest doctest.doctest In Namespace And Test Suite", 532, TestOutcome.Passed),
+            new ExampleTestCaseData("NamespaceAndTestSuite_Namespace", "NamespaceAndTestSuite_TestSuite]", "Empty Class", "Testing IsEven Is Compiled In #if CUSTOM_TEST_MACRO_TRUE In Namespace And Test Suite", 571, TestOutcome.Passed),
+            new ExampleTestCaseData("NamespaceAndTestSuite_Namespace", "NamespaceAndTestSuite_TestSuite]", "UniqueTestsFixture", "Testing IsEven Test Case Fixture In Namespace And Test Suite", 577, TestOutcome.Passed),
+            new ExampleTestCaseData("NamespaceAndTestSuite_Namespace", "NamespaceAndTestSuite_TestSuite]", "Empty Class", "Testing IsEven Test Case Template In Namespace And Test Suite<int>", 582, TestOutcome.Passed),
+            new ExampleTestCaseData("NamespaceAndTestSuite_Namespace", "NamespaceAndTestSuite_TestSuite]", "Empty Class", "Testing IsEven From Custom Test Case Macro In Namespace And Test Suite", 587, TestOutcome.Passed),
+            new ExampleTestCaseData("NamespaceAndTestSuite_Namespace", "NamespaceAndTestSuite_TestSuite]", "UniqueTestsFixture", "Testing IsEven From Custom Test Fixture Macro In Namespace And Test Suite", 589, TestOutcome.Passed),
+            new ExampleTestCaseData("NamespaceAndTestSuite_Namespace", "NamespaceAndTestSuite_TestSuite]", "Empty Class", "Testing IsEven From Custom Test Case Template Macro In Namespace And Test Suite<int>", 591, TestOutcome.Passed),
         };
 
         internal static DoctestTestSettings LoadDoctestSettings(ISettingsProvider settingsProvider, string settingsAsString)
@@ -354,7 +379,7 @@ namespace DoctestTestAdapter.Tests
 
                 AssertTestCase(testCases[i],
                     expectedTestSource,
-                    testNamespace + "::" + currentExampleTestCaseData.TestClassName + "::[" + expectedPrefix + "] " + currentExampleTestCaseData.TestCaseName.Replace(@"::", @"\:\:"),
+                    testNamespace + "::" + currentExampleTestCaseData.TestClassName + "::[" + expectedPrefix + "] " + currentExampleTestCaseData.TestCaseName.Replace(@"::", @"\:\:").Replace(@".", "\u2024"),
                     "[" + expectedPrefix + "] " + currentExampleTestCaseData.TestCaseName,
                     expectedCodeFilePath,
                     currentExampleTestCaseData.LineNumber
@@ -378,7 +403,7 @@ namespace DoctestTestAdapter.Tests
             }
         }
 
-        internal static void AssertKeywords(string executableFilePath, string headerFilePath, List<Keyword> keywords, Func<int, string, List<TestCase>, bool> testFunction)
+        internal static void AssertKeywords(string executableFilePath, string headerFilePath, List<IKeyword> keywords, Func<int, string, List<TestCase>, bool> testFunction)
         {
             Assert.IsNotEmpty(keywords);
 

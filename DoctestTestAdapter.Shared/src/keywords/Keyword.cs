@@ -22,16 +22,16 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-using DoctestTestAdapter.Shared.IO;
+using DoctestTestAdapter.Shared.PatternSearcher;
 using Microsoft.VisualStudio.TestPlatform.ObjectModel;
 using System.Collections.Generic;
 using System.Text.RegularExpressions;
 
 namespace DoctestTestAdapter.Shared.Keywords
 {
-    internal abstract class Keyword
+    internal abstract class Keyword : IKeyword
     {
-        private BracketMatching _bracketMatching = new BracketMatching();
+        private BracketSearcher _bracketSearcher = new BracketSearcher();
         private Stack<int> _relevantBracketIndexForKeywordScope = new Stack<int>();
         private bool _hasPairedBracketsForKeywordScope = false;
         private bool _isInKeywordScope = false;
@@ -41,21 +41,25 @@ namespace DoctestTestAdapter.Shared.Keywords
         protected string doubleColonSeparator = "::";
         protected string fullStopSeparator = ".";
 
-        protected abstract string Word { get; }
+        internal abstract string Word { get; }
+        internal Regex SearchPattern 
+        {
+            get { return _regexSearchPattern; }
+        }
 
         internal Keyword()
         {
             _regexSearchPattern = new Regex(@"(^|[\t])\b" + Word + @"\b");
-            _bracketMatching.OnFoundCloseBracket += OnFoundCloseBracket;
-            _bracketMatching.OnLeaveBracketScope += OnLeaveBracketScope;
+            _bracketSearcher.OnFoundCloseBracket += OnFoundCloseBracket;
+            _bracketSearcher.OnLeaveBracketScope += OnLeaveBracketScope;
         }
 
-        private void OnLeaveBracketScope(object sender, BracketMatchingEventArgs e)
+        private void OnLeaveBracketScope(object sender, BracketSearcherEventArgs e)
         {
             _isInKeywordScope = false;
         }
 
-        private void OnFoundCloseBracket(object sender, BracketMatchingEventArgs e)
+        private void OnFoundCloseBracket(object sender, BracketSearcherEventArgs e)
         {
             if (_relevantBracketIndexForKeywordScope.Count > 0)
             {
@@ -67,11 +71,11 @@ namespace DoctestTestAdapter.Shared.Keywords
             }
         }
 
-        protected abstract void OnEnterKeywordScope(string executableFilePath, string sourceFilePath, ref string namespaceName, ref string className, string line, int lineNumber, ref List<TestCase> allTestCases);
+        internal abstract void OnEnterKeywordScope(string executableFilePath, string sourceFilePath, ref string namespaceName, ref string className, string line, int lineNumber, ref List<TestCase> allTestCases);
 
-        protected abstract void OnExitKeywordScope(string executableFilePath, string sourceFilePath, ref string namespaceName, ref string className, string line, int lineNumber, ref List<TestCase> allTestCases);
+        internal abstract void OnExitKeywordScope(string executableFilePath, string sourceFilePath, ref string namespaceName, ref string className, string line, int lineNumber, ref List<TestCase> allTestCases);
 
-        internal void Check(string executableFilePath, string sourceFilePath, ref string namespaceName, ref string className, string line, int lineNumber, ref List<TestCase> allTestCases)
+        public void Check(string executableFilePath, string sourceFilePath, ref string namespaceName, ref string className, string line, int lineNumber, ref List<TestCase> allTestCases)
         {
             Match keywordRegexMatch = _regexSearchPattern.Match(line);
             bool validMatch = keywordRegexMatch.Success && !line.EndsWith(";");
@@ -85,9 +89,9 @@ namespace DoctestTestAdapter.Shared.Keywords
                 // Important that this is done before the _bracketMatching.Check(line).
                 // Guaranteed to be entering some kind of keyword scope now.
                 // So track the relevant index of what bracket we expect to open/close this keyword scope.
-                _relevantBracketIndexForKeywordScope.Push(_bracketMatching.NumberOfBrackets);
+                _relevantBracketIndexForKeywordScope.Push(_bracketSearcher.NumberOfUnpairedBrackets);
                 
-                _bracketMatching.Check(line);
+                _bracketSearcher.Check(line);
                 OnEnterKeywordScope(executableFilePath, sourceFilePath, ref namespaceName, ref className, line, lineNumber, ref allTestCases);
             }
             // Even if the regex match fails, we might already be inside of a keyword scope - so check brackets to update inside state.
@@ -95,7 +99,7 @@ namespace DoctestTestAdapter.Shared.Keywords
             {
                 _hasPairedBracketsForKeywordScope = false;
 
-                int bracketNumber = _bracketMatching.Check(line);
+                _bracketSearcher.Check(line);
 
                 if (_hasPairedBracketsForKeywordScope)
                 {
