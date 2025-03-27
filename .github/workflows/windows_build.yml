@@ -43,31 +43,15 @@ jobs:
       - name: Setup MSBuild
         uses: microsoft/setup-msbuild@v2
 
-      - name: Setup SCons
-        run: |
-          python -m pip install scons
-
-      - name: Generate And Build Godot Project
-        run: |
-          cd DoctestTestAdapter.Examples.Godot
-          scons platform=windows target=editor dev_build=yes dev_mode=yes vsproj=yes vsproj_gen_only=no
-          
-      - name: Generate Godot GDScript Tests
-        run: |
-          cd DoctestTestAdapter.Examples.Godot\bin
-          godot.windows.editor.dev.x86_64.console.exe --gdscript-generate-tests modules/gdscript/tests/scripts
-          
       - name: Restore Packages
-        run: nuget restore DoctestTestAdapter.Godot.sln
+        run: nuget restore DoctestTestAdapter.sln
 
       - name: Build Solution
-        run: msbuild DoctestTestAdapter.Godot.sln -property:Configuration=${{ matrix.configuration }}
+        run: msbuild DoctestTestAdapter.sln -t:rebuild -property:Configuration=${{ matrix.configuration }}
 
       - name: Unit Tests
         if: ${{ matrix.tests }}
-        run: |
-          dotnet test "./DoctestTestAdapter.Tests/bin/${{ matrix.configuration }}/DoctestTestAdapter.Tests.dll"
-          dotnet test "./DoctestTestAdapter.Tests.Godot/bin/${{ matrix.configuration }}/DoctestTestAdapter.Tests.Godot.dll"
+        run: dotnet test "./DoctestTestAdapter.Tests/bin/${{ matrix.configuration }}/DoctestTestAdapter.Tests.dll"
 
       - name: Upload Artifact
         if: ${{ matrix.upload-artifact }}
