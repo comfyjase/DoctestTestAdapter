@@ -24,6 +24,7 @@
 
 using DoctestTestAdapter.Shared.Helpers;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using System.IO;
 
 namespace DoctestTestAdapter.Tests.Helpers
 {
@@ -43,7 +44,7 @@ namespace DoctestTestAdapter.Tests.Helpers
             => Assert.IsTrue(Utilities.GetSolutionDirectory(TestCommon.DLLExecutableFilePath).EndsWith("DoctestTestAdapter.Examples"));
 
         [TestMethod]
-        public void GetVsInstallDirectory()
-            => Assert.IsFalse(string.IsNullOrEmpty(Utilities.GetVSInstallDirectory()));
+        public void VsInstallDirectory()
+            => Assert.IsTrue(Directory.Exists(Utilities.GetVSInstallDirectory()));
     }
 }

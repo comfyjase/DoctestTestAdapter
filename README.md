@@ -18,10 +18,11 @@ Free open source Visual Studio Test Adapter VSIX to search, list, run and debug 
 
 ## Documentation
 [Installing the Test Adapter for Doctest](Assets/Documentation/Installing.md)  
-[Building the Test Adapter for Doctest From Source](Assets/Documentation/Building.md)
+[Building the Test Adapter for Doctest From Source](Assets/Documentation/Building.md)  
+[Code Implementation](Assets/Documentation/Code.md)
 
 ## Test Coverage
-This repository has unit tests in the `DoctestTestAdapter.Tests` project so developers can quickly test their own code changes locally and make sure everything passes before making any commits.
+This repository has unit tests in the `DoctestTestAdapter.Tests` and `DoctestTestAdapter.Tests.Godot` projects so developers can quickly test their own code changes locally and make sure everything passes before making any commits.
 There is also [continuous integration](https://github.com/comfyjase/DoctestTestAdapter/actions/workflows/ci.yml) setup for both main and dev branches as well as pull requests to help ensure stability throughout development.  
 
 ## Contributing
