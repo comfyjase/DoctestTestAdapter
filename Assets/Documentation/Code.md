@@ -51,35 +51,35 @@ This C++ project contains the `godot` engine source code from the `master` branc
 > ```
 
 ### DoctestTestAdapter
-This C# project is the main project to bring together the test adapter code. Here the [`ITestDiscoverer`](https://github.com/microsoft/vstest/blob/782a46231902762286f6958631437d635bfdd249/src/Microsoft.TestPlatform.ObjectModel/Adapter/Interfaces/ITestDiscoverer.cs) and [`ITestExecutor`](https://github.com/microsoft/vstest/blob/782a46231902762286f6958631437d635bfdd249/src/Microsoft.TestPlatform.ObjectModel/Adapter/Interfaces/ITestExecutor.cs) are implemented in `DoctestTestDiscoverer` and `DoctestTestExecutor`. 
+This C# project is the main project to bring together the test adapter code.
 * DoctestDiscoverySettings - Settings specific to discovering tests. Currently, this only consists of `SearchDirectories` which allows the user to specify relative or absolute source code folder paths to search for tests in.
 * DoctestExecutorSettings - Settings specific to executing tests. Implemented `ExecutableOverrides` previously, but then discovered it wasn't really needed for these example setups but it's kept in just in case anyone might find a use for it. User can specify relative or absolute file paths to executables to use instead of the discovered ones.
 * DoctestGeneralSettings - Settings that are shared across discovery/executing. Contains `CommandArguments` and `PrintStandardOutput`.
 * DoctestTestSettings - Implements [`TestRunSettings`](https://github.com/microsoft/vstest/blob/782a46231902762286f6958631437d635bfdd249/src/Microsoft.TestPlatform.ObjectModel/RunSettings/TestRunSettings.cs). Contains `DoctestGeneralSettings`, `DoctestDiscoverySettings` and `DoctestExecutorSettings`. Also implements helper methods to access settings for each of these classes.
 * DoctestTestSettingsProvider - Implements [`ISettingsProvider`](https://github.com/microsoft/vstest/blob/782a46231902762286f6958631437d635bfdd249/src/Microsoft.TestPlatform.ObjectModel/Adapter/Interfaces/ISettingsProvider.cs). Provides a way to load `DoctestTestSettings`.
-* DoctestTestDiscoverer - Makes use of the `TestCaseFactory` to create test cases and sends each one to the discovery sink.
-* DoctestTestExecutor - Creates `DoctestExecutable` and `DoctestExecutableTestBatch` to actually run the doctest unit tests.
+* DoctestTestDiscoverer - Implements [`ITestDiscoverer`](https://github.com/microsoft/vstest/blob/782a46231902762286f6958631437d635bfdd249/src/Microsoft.TestPlatform.ObjectModel/Adapter/Interfaces/ITestDiscoverer.cs). Makes use of the `TestCaseFactory` to create test cases and sends each one to the discovery sink.
+* DoctestTestExecutor - Implements [`ITestExecutor`](https://github.com/microsoft/vstest/blob/782a46231902762286f6958631437d635bfdd249/src/Microsoft.TestPlatform.ObjectModel/Adapter/Interfaces/ITestExecutor.cs). Creates `DoctestExecutable` and `DoctestExecutableTestBatch` to actually run the doctest unit tests.
 
 ### DoctestTestAdapter.Shared
 This C# shared project includes most of the different classes that handle different parts of logic for making this test adapter work. Anything that doesn't directly implement a class or interface from the [vstest](https://github.com/microsoft/vstest) framework should be stored in this project.
 * TestCaseComparer - Used to provide equality checking for [`TestCase`](https://github.com/microsoft/vstest/blob/782a46231902762286f6958631437d635bfdd249/src/Microsoft.TestPlatform.ObjectModel/TestCase.cs).
-* CVDumpExecutable - This class is a wrapper around starting a `Process` for the third party `cvdump.exe` to print out what source files are included in a given pdb file by reading the stringtable.
+* CVDumpExecutable - This class is a wrapper around starting a process for the third party `cvdump.exe` to print out what source files are included in a given pdb file by reading the stringtable.
 * DoctestExecutable - This class represents the discovered executable from the user's projects with doctest unit tests in. Can access test suite names, test case names and run unit tests using this class. This is also responsible for recording test starts and test finishes and reporting the [TestResults](https://github.com/microsoft/vstest/blob/782a46231902762286f6958631437d635bfdd249/src/Microsoft.TestPlatform.ObjectModel/TestResult.cs).
-* DoctestExecutableTestBatch - Used to store lists of `TestCase`s, relevant command arguments and the test report file path. These are created per executable and then further batches are created as necessary to make sure the command line arguments for the DoctestExecutables are within the [windows command prompt string limit](https://learn.microsoft.com/en-us/troubleshoot/windows-client/shell-experience/command-line-string-limitation) (if there happens to be lots of test cases).
-* DumpBinExecutable - Wrapper around starting a [`dumpbin`](https://learn.microsoft.com/en-us/cpp/build/reference/dumpbin-options?view=msvc-170) `Process` to be able to get any dependencies and the PDB file path.
+* DoctestExecutableTestBatch - Used to store lists of `TestCase`, relevant command arguments and the test report file path. These are created per executable and then further batches are created as necessary to make sure the command line arguments for the DoctestExecutables are within the [windows command prompt string limit](https://learn.microsoft.com/en-us/troubleshoot/windows-client/shell-experience/command-line-string-limitation) (if there happens to be lots of test cases).
+* DumpBinExecutable - Wrapper around starting a [`dumpbin`](https://learn.microsoft.com/en-us/cpp/build/reference/dumpbin-options?view=msvc-170) process to be able to get any dependencies and the PDB file path.
 * Executable - Base class for any executable processes to inherit from. Handles logic for starting a process and either waiting for the process to exit or wait for an exit event to be raised. Also has the option to attach to a process with a debugger using an [`IFrameworkHandle`](https://github.com/microsoft/vstest/blob/782a46231902762286f6958631437d635bfdd249/src/Microsoft.TestPlatform.ObjectModel/Adapter/Interfaces/IFrameworkHandle.cs).
 * TestCaseFactory - Has functions for creating a single test case (from specific test case data) or a list of test cases (from a given executable). This class makes use of the keywords to check source file lines.
 * Constants - Static class where constant variables can live.
 * Utilities - Static class where helpful functions that don't quite belong in a single class can live.
 * ClassKeyword - Searches source code for the `class` keyword within source files and storing class names to help create test cases later on.
 * CustomMacroKeyword - Searches source code for custom `#define` macros that are wrappers around doctest macros (e.g. `TEST_CASE`, `TEST_CASE_FIXTURE`, `TEST_CASE_TEMPLATE`).
-* DoctestTestCaseFixtureKeyword - Searches source code for `TEST_CASE_FIXTURE` macros.
-* DoctestTestCaseKeyword - Searches source code for `TEST_CASE` macros and creates individual test cases.
-* DoctestTestCaseMayFailKeyword - Searches source code for `TEST_CASE_MAY_FAIL` macros (didn't realise they were godot specific until after this was implemented). Leaving in for completeness and ease of use.
-* DoctestTestCaseTemplateKeyword - Searches source code for `TEST_CASE_TEMPLATE` macros.
-* DoctestTestSuiteKeyword - Searches source code for `TEST_SUITE` macros.
+* DoctestTestCaseFixtureKeyword - Searches source code for `TEST_CASE_FIXTURE` macros and creates a single test case.
+* DoctestTestCaseKeyword - Searches source code for `TEST_CASE` macros and creates a single test case.
+* DoctestTestCaseMayFailKeyword - Searches source code for `TEST_CASE_MAY_FAIL` macros and creates a single test case. Didn't realise they were godot specific until after this was implemented - leaving in for completeness and ease of use.
+* DoctestTestCaseTemplateKeyword - Searches source code for `TEST_CASE_TEMPLATE` macros and creates test cases for each template type.
+* DoctestTestSuiteKeyword - Searches source code for `TEST_SUITE` macros and stores the name of it to help create any test cases later on.
 * IKeyword - Interface for all keywords to implement.
-* Keyword - Base keyword class for other keywords to inherit from where appropriate. Contains logic for providing the keyword search, tracking when the line is inside of a namespace/class scope and calling `OnEnterKeywordScope` and `OnExitKeywordScope`.
+* Keyword - Base keyword class for other keywords to inherit from where appropriate. Contains logic for providing the keyword search and tracking when the line is inside of a bracket scope and calling `OnEnterKeywordScope` and `OnExitKeywordScope`.
 * NamespaceKeyword - Searches source code for the `namespace` keyword and stores it to help create test cases later on.
 * BracketSearcher - Tracks how many brackets have been paired by searching for '{' and '}' within a `string` line.
 * Profiler - Basically `StopWatch` with printing.
