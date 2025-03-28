@@ -116,14 +116,13 @@ namespace DoctestTestAdapter.Shared.Factory
                     new ClassKeyword(),
                     new DoctestTestSuiteKeyword(testSuiteNames),
                     new DoctestTestCaseKeyword(testCaseNames),
-                    new DoctestTestCaseMayFailKeyword(testCaseNames),
                     new DoctestTestCaseFixtureKeyword(testCaseNames),
                     new DoctestTestCaseTemplateKeyword(testCaseNames),
                 };
 
                 List<IKeyword> allKeywords = new List<IKeyword>();
                 allKeywords.AddRange(mainKeywords);
-                allKeywords.Add(new CustomMacroKeyword(mainKeywords));
+                allKeywords.Add(new CustomMacroKeyword(mainKeywords, _logger));
 
                 // Loop over all of the source files and read them line by line
                 foreach (string sourceFilePath in allSourceFilePaths)

@@ -23,6 +23,7 @@
 // SOFTWARE.
 
 using Microsoft.VisualStudio.TestPlatform.ObjectModel;
+using Microsoft.VisualStudio.TestPlatform.ObjectModel.Logging;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text.RegularExpressions;
@@ -125,6 +126,7 @@ namespace DoctestTestAdapter.Shared.Keywords
         private Regex _regexMacroDefineSearchPattern = null;
         private string _macroDefineKeyword = "#define";
         private string _currentMacroDefinition = null;
+        private IMessageLogger _logger = null;
 
         // Done so custom macros can just reuse logic from existing keywords.
         // E.g. a macro that wraps around a TEST_CASE should just reuse the DoctestTestCaseKeyword class.
@@ -132,10 +134,11 @@ namespace DoctestTestAdapter.Shared.Keywords
 
         private List<CustomMacroData> _customMacros = new List<CustomMacroData>();
 
-        internal CustomMacroKeyword(List<Keyword> keywords)
+        internal CustomMacroKeyword(List<Keyword> keywords, IMessageLogger logger)
         {
             _regexMacroDefineSearchPattern = new Regex(@"^" + _macroDefineKeyword + @"\b");
             _keywords = keywords;
+            _logger = logger;
         }
 
         private string GetMacroDefinition(string line)
@@ -161,10 +164,8 @@ namespace DoctestTestAdapter.Shared.Keywords
             return macroDefinition;
         }
 
-        private void MapMacro(string line, Keyword keyword)
+        private void MapMacro(string line, string macroName, Keyword keyword)
         {
-            string macroName = _currentMacroDefinition.Substring(0, _currentMacroDefinition.IndexOf("("));
-
             int startIndex = line.IndexOf(keyword.Word);
             int endIndex = line.LastIndexOf(@")") + 1;
             string doctestMacroLine = line.Substring(startIndex, endIndex - startIndex);
@@ -173,57 +174,83 @@ namespace DoctestTestAdapter.Shared.Keywords
             _customMacros.Add(customMacroData);
         }
 
-        public void Check(string executableFilePath, string sourceFilePath, ref string namespaceName, ref string className, string line, int lineNumber, ref List<TestCase> allTestCases)
+        private void CheckForKeyword(string line)
+        {
+            Keyword keyword = _keywords.Find(k => (k.SearchPattern.Match(line).Success || Regex.Match(line, @"\b" + k.Word + @"\b", RegexOptions.None).Success));
+            if (keyword != null)
+            {
+                string macroName = _currentMacroDefinition.Substring(0, _currentMacroDefinition.IndexOf("("));
+
+                if (_logger != null)
+                {
+                    _logger.SendMessage(TestMessageLevel.Informational, Shared.Helpers.Constants.InformationMessagePrefix + " - Found macro " + macroName + " mapped to " + keyword.Word);
+                }
+
+                // Add to the dictionary of custom macro definition -> doctest macros
+                MapMacro(line, macroName, keyword);
+            }
+
+            // This is the last line of the macro definition.
+            if (!line.EndsWith("\\"))
+            {
+                // Reset this now it's been parsed/stored.
+                _currentMacroDefinition = null;
+            }
+        }
+
+        private void CheckForMacroDefinition(string line)
         {
             // Found a #define to parse.
             Match keywordRegexMatch = _regexMacroDefineSearchPattern.Match(line);
-            bool validMatch = keywordRegexMatch.Success && line.EndsWith("\\");
-            if (validMatch)
+            bool macroDefinitionMatch = keywordRegexMatch.Success;
+            if (macroDefinitionMatch)
             {
                 _currentMacroDefinition = GetMacroDefinition(line);
+                CheckForKeyword(line);
             }
             // Otherwise, this isn't a match but we are looking through a macro definition now.
             else if (!string.IsNullOrEmpty(_currentMacroDefinition))
             {
-                Keyword keyword = _keywords.Find(k => k.SearchPattern.Match(line).Success);
-                if (keyword != null)
-                {
-                    // Add to the dictionary of custom macro definition -> doctest macros
-                    MapMacro(line, keyword);
-                }
-
-                // This is the last line of the macro definition.
-                if (!line.EndsWith("\\"))
-                {
-                    // Reset this now it's been parsed/stored.
-                    _currentMacroDefinition = null;
-                }
+                CheckForKeyword(line);
             }
+        }
 
-            foreach (CustomMacroData customMacro in _customMacros)
+        private void CheckForMacroImplementation(string executableFilePath, string sourceFilePath, ref string namespaceName, ref string className, string line, int lineNumber, ref List<TestCase> allTestCases)
+        {
+            // Should only be checking for implementation calls outside of macro definitions.
+            if (string.IsNullOrEmpty(_currentMacroDefinition))
             {
-                if (customMacro.MacroRegex.Match(line).Success)
+                foreach (CustomMacroData customMacro in _customMacros)
                 {
-                    string customLine = customMacro.GetCustomLine(line);
+                    if (customMacro.MacroRegex.Match(line).Success)
+                    {
+                        string customLine = customMacro.GetCustomLine(line);
 
-                    customMacro.Keyword.OnEnterKeywordScope(executableFilePath,
-                        sourceFilePath,
-                        ref namespaceName,
-                        ref className,
-                        customLine,
-                        lineNumber,
-                        ref allTestCases);
+                        customMacro.Keyword.OnEnterKeywordScope(executableFilePath,
+                            sourceFilePath,
+                            ref namespaceName,
+                            ref className,
+                            customLine,
+                            lineNumber,
+                            ref allTestCases);
 
-                    // These custom macros will only be only line, so exit straight away which is why the OnExitKeywordScope is called here.
-                    customMacro.Keyword.OnExitKeywordScope(executableFilePath,
-                        sourceFilePath,
-                        ref namespaceName,
-                        ref className,
-                        customLine,
-                        lineNumber,
-                        ref allTestCases);
+                        // These custom macros will only be only line, so exit straight away which is why the OnExitKeywordScope is called here.
+                        customMacro.Keyword.OnExitKeywordScope(executableFilePath,
+                            sourceFilePath,
+                            ref namespaceName,
+                            ref className,
+                            customLine,
+                            lineNumber,
+                            ref allTestCases);
+                    }
                 }
             }
+        }
+
+        public void Check(string executableFilePath, string sourceFilePath, ref string namespaceName, ref string className, string line, int lineNumber, ref List<TestCase> allTestCases)
+        {
+            CheckForMacroDefinition(line);
+            CheckForMacroImplementation(executableFilePath, sourceFilePath, ref namespaceName, ref className, line, lineNumber, ref allTestCases);
         }
     }
 }

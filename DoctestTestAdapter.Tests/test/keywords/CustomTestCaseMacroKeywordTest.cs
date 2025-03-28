@@ -48,7 +48,7 @@ namespace DoctestTestAdapter.Tests.Keywords
                 new CustomMacroKeyword(new List<Keyword>() 
                 { 
                     new DoctestTestCaseKeyword(_allTestCaseNames) 
-                })
+                }, null)
             };
 
             TestCommon.AssertKeywords(TestCommon.UsingDoctestMainExecutableFilePath,
@@ -86,7 +86,7 @@ namespace DoctestTestAdapter.Tests.Keywords
                 new CustomMacroKeyword(new List<Keyword>() 
                 {
                     new DoctestTestCaseKeyword(_allTestCaseNames)
-                })
+                }, null)
             };
 
             TestCommon.AssertKeywords(TestCommon.UsingDoctestMainExecutableFilePath,
@@ -122,7 +122,7 @@ namespace DoctestTestAdapter.Tests.Keywords
                 new CustomMacroKeyword(new List<Keyword>()
                 {
                     new DoctestTestCaseKeyword(_allTestCaseNames)
-                }),
+                }, null),
             };
 
             TestCommon.AssertKeywords(TestCommon.UsingDoctestMainExecutableFilePath,
@@ -158,7 +158,7 @@ namespace DoctestTestAdapter.Tests.Keywords
                 new CustomMacroKeyword(new List<Keyword>()
                 {
                     new DoctestTestCaseKeyword(_allTestCaseNames)
-                }),
+                }, null),
             };
 
             TestCommon.AssertKeywords(TestCommon.UsingDoctestMainExecutableFilePath,
@@ -197,7 +197,7 @@ namespace DoctestTestAdapter.Tests.Keywords
                 new CustomMacroKeyword(new List<Keyword>()
                 {
                     new DoctestTestCaseKeyword(_allTestCaseNames),
-                }),
+                }, null),
             };
 
             TestCommon.AssertKeywords(TestCommon.UsingDoctestMainExecutableFilePath,

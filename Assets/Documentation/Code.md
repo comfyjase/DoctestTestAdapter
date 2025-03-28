@@ -75,7 +75,6 @@ This C# shared project includes most of the different classes that handle differ
 * CustomMacroKeyword - Searches source code for custom `#define` macros that are wrappers around doctest macros (e.g. `TEST_CASE`, `TEST_CASE_FIXTURE`, `TEST_CASE_TEMPLATE`).
 * DoctestTestCaseFixtureKeyword - Searches source code for `TEST_CASE_FIXTURE` macros and creates a single test case.
 * DoctestTestCaseKeyword - Searches source code for `TEST_CASE` macros and creates a single test case.
-* DoctestTestCaseMayFailKeyword - Searches source code for `TEST_CASE_MAY_FAIL` macros and creates a single test case. Didn't realise they were godot specific until after this was implemented - leaving in for completeness and ease of use.
 * DoctestTestCaseTemplateKeyword - Searches source code for `TEST_CASE_TEMPLATE` macros and creates test cases for each template type.
 * DoctestTestSuiteKeyword - Searches source code for `TEST_SUITE` macros and stores the name of it to help create any test cases later on.
 * IKeyword - Interface for all keywords to implement.
@@ -173,7 +172,6 @@ This C# project holds the godot specific unit tests for the test adapter. These 
 | --- | --- |
 | GodotDoctestTestDiscovererTest.DiscoverExe | Uses `DoctestTestDiscoverer` to discover tests from `godot.windows.editor.dev.x86_64.exe` and assert that there are no missing test cases. |
 | GodotDoctestTestExecutorTest.ExecuteExe | Uses `DoctestTestExecutor` to run the unit tests for `godot.windows.editor.dev.x86_64.exe` and asserts the number of expected test results. |
-| DoctestTestCaseMayFailKeywordTest.Find | Uses `NamespaceKeyword` and `DoctestTestCaseMayFailKeyword` to search for `TEST_CASE_MAY_FAIL` and assert it exists in `test_random_number_generator.h`. |
 
 ### DoctestTestAdapter.Tests.Shared
 This C# shared project contains any classes that should be shared for any C# unit test projects for this test adapter.

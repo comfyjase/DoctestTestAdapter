@@ -94,8 +94,8 @@ namespace DoctestTestAdapter.Tests.Execution
 
             Assert.HasCount(50, testCases);
 
-            Assert.IsEmpty(capturedTestMessageLevels.Values);
-            Assert.IsEmpty(capturedTestMessages.Values);
+            Assert.HasCount(3, capturedTestMessageLevels.Values);
+            Assert.HasCount(3, capturedTestMessages.Values);
 
             TestCommon.AssertTestCases(testCases,
                 TestCommon.UsingDoctestMainExecutableFilePath,
@@ -105,10 +105,12 @@ namespace DoctestTestAdapter.Tests.Execution
             ITestExecutor doctestTestExecutor = new DoctestTestExecutor();
             doctestTestExecutor.RunTests(testCases, runContext, frameworkHandle);
 
-            Assert.HasCount(1, capturedTestMessageLevels.Values);
-            Assert.HasCount(1, capturedTestMessages.Values);
-            Assert.AreEqual(TestMessageLevel.Informational, capturedTestMessageLevels.Values[0]);
-            Assert.IsTrue(capturedTestMessages.Values[0].Contains(Shared.Helpers.Constants.InformationMessagePrefix + " - About to start exe " + expectedExeFileName + " with command arguments: "));
+            Assert.HasCount(4, capturedTestMessageLevels.Values);
+            Assert.HasCount(4, capturedTestMessages.Values);
+            foreach (TestMessageLevel testMessageLevel in capturedTestMessageLevels.Values)
+                Assert.AreEqual(TestMessageLevel.Informational, testMessageLevel);
+            Assert.IsTrue(capturedTestMessages.Values[0].Contains(Shared.Helpers.Constants.InformationMessagePrefix + " - Found macro "));
+            Assert.IsTrue(capturedTestMessages.Values[3].Contains(Shared.Helpers.Constants.InformationMessagePrefix + " - About to start exe " + expectedExeFileName + " with command arguments: "));
 
             if (assertTestResults)
             {
@@ -125,16 +127,23 @@ namespace DoctestTestAdapter.Tests.Execution
         public void ExecuteExeAndDLL()
         {
             IFrameworkHandle frameworkHandle = A.Fake<IFrameworkHandle>();
+            IRunContext runContext = A.Fake<IRunContext>();
             Captured<TestMessageLevel> capturedTestMessageLevels = A.Captured<TestMessageLevel>();
             Captured<string> capturedTestMessages = A.Captured<string>();
+            Captured<TestCase> capturedTestCases = A.Captured<TestCase>();
+            Captured<TestResult> capturedTestResults = A.Captured<TestResult>();
             A.CallTo(() => frameworkHandle.SendMessage(capturedTestMessageLevels._, capturedTestMessages._))
                .DoesNothing();
+            A.CallTo(() => frameworkHandle.RecordStart(capturedTestCases._))
+                .DoesNothing();
+            A.CallTo(() => frameworkHandle.RecordResult(capturedTestResults._))
+                .DoesNothing();
 
-            List<TestCase> testCases = new TestCaseFactory(TestCommon.ExecutableUsingDLLExecutableFilePath, null, null, null).CreateTestCases();
+            List<TestCase> testCases = new TestCaseFactory(TestCommon.ExecutableUsingDLLExecutableFilePath, null, runContext, frameworkHandle).CreateTestCases();
             Assert.HasCount(100, testCases);
 
-            Assert.IsEmpty(capturedTestMessageLevels.Values);
-            Assert.IsEmpty(capturedTestMessages.Values);
+            Assert.HasCount(6, capturedTestMessageLevels.Values);
+            Assert.HasCount(6, capturedTestMessages.Values);
 
             List<TestCase> dllTestCases = testCases
                 .ToList()
@@ -156,23 +165,15 @@ namespace DoctestTestAdapter.Tests.Execution
                 TestCommon.ExecutableUsingDLLTestHeaderFilePath
             );
 
-            Captured<TestCase> capturedTestCases = A.Captured<TestCase>();
-            Captured<TestResult> capturedTestResults = A.Captured<TestResult>();
-            IRunContext runContext = A.Fake<IRunContext>();
-            A.CallTo(() => frameworkHandle.RecordStart(capturedTestCases._))
-                .DoesNothing();
-            A.CallTo(() => frameworkHandle.RecordResult(capturedTestResults._))
-                .DoesNothing();
-
             ITestExecutor doctestTestExecutor = new DoctestTestExecutor();
             doctestTestExecutor.RunTests(testCases, runContext, frameworkHandle);
 
-            Assert.HasCount(2, capturedTestMessageLevels.Values);
-            Assert.HasCount(2, capturedTestMessages.Values);
-            Assert.AreEqual(TestMessageLevel.Informational, capturedTestMessageLevels.Values[0]);
-            Assert.AreEqual(TestMessageLevel.Informational, capturedTestMessageLevels.Values[1]);
-            Assert.IsTrue(capturedTestMessages.Values[0].Contains(Shared.Helpers.Constants.InformationMessagePrefix + " - About to start exe ExecutableUsingDLL.exe with command arguments: "));
-            Assert.IsTrue(capturedTestMessages.Values[1].Contains(Shared.Helpers.Constants.InformationMessagePrefix + " - About to start exe ExecutableUsingDLL.exe with command arguments: "));
+            Assert.HasCount(8, capturedTestMessageLevels.Values);
+            Assert.HasCount(8, capturedTestMessages.Values);
+            foreach (TestMessageLevel testMessageLevel in capturedTestMessageLevels.Values)
+                Assert.AreEqual(TestMessageLevel.Informational, testMessageLevel);
+            Assert.IsTrue(capturedTestMessages.Values[0].Contains(Shared.Helpers.Constants.InformationMessagePrefix + " - Found macro "));
+            Assert.IsTrue(capturedTestMessages.Values[7].Contains(Shared.Helpers.Constants.InformationMessagePrefix + " - About to start exe ExecutableUsingDLL.exe with command arguments: "));
 
             Assert.HasCount(100, capturedTestResults.Values);
             List<TestResult> dllTestResults = capturedTestResults.Values

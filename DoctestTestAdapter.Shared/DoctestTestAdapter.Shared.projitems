@@ -21,7 +21,6 @@
     <Compile Include="$(MSBuildThisFileDirectory)src\keywords\CustomMacroKeyword.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)src\keywords\DoctestTestCaseFixtureKeyword.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)src\keywords\DoctestTestCaseKeyword.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)src\keywords\DoctestTestCaseMayFailKeyword.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)src\keywords\DoctestTestCaseTemplateKeyword.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)src\keywords\DoctestTestSuiteKeyword.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)src\keywords\IKeyword.cs" />
