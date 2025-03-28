@@ -24,6 +24,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Text.RegularExpressions;
 
 namespace DoctestTestAdapter.Shared.Helpers
 {
@@ -53,6 +54,9 @@ namespace DoctestTestAdapter.Shared.Helpers
 
         // Profiling
         internal static readonly bool ProfilingEnabled = false;
+
+        // Regex
+        internal static readonly Regex MultipleSpaceRegex = new Regex(@"[ ]{2,}");
 
         // CPP - stdint.h
         internal static readonly Dictionary<string, string> MappedTypedefs = new Dictionary<string, string>()

@@ -37,7 +37,6 @@ namespace DoctestTestAdapter.Shared.Keywords
         private Keyword _keyword = null;
         private List<string> _macroParameterNames = new List<string>();
         private Regex _macroRegex = null;
-        private Regex _multipleSpaceRegex = new Regex(@"[ ]{2,}");
 
         internal Keyword Keyword
         {
@@ -104,7 +103,7 @@ namespace DoctestTestAdapter.Shared.Keywords
                 if (numberOfDoubleQuotes > 2)
                 {
                     customLineParameter = customLineParameter.Replace("\"", string.Empty);
-                    customLineParameter = _multipleSpaceRegex.Replace(customLineParameter, " ");
+                    customLineParameter = Shared.Helpers.Constants.MultipleSpaceRegex.Replace(customLineParameter, " ");
                     customLineParameter = string.Format("\"{0}\"", customLineParameter);
                     customLineParameters[i] = customLineParameter;
                     shouldUpdateCustomLine = true;
