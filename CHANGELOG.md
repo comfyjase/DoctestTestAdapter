@@ -3,28 +3,25 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
-## Unreleased
-
-### Added
-
-#### Doctest Test Adapter Discovery
-  - Discover C++ doctest unit tests and list them in the test explorer window.
-  
-#### Doctest Test Adapter Executor
-  - Run all C++ doctest unit tests.
-  - Run only selected C++ doctest unit tests.
-  - Debug C++ doctest unit tests.
-  - Run C++ doctest unit tests from executables.
-  - Run C++ doctest unit tests from dll files (as long as there is a project that outputs an exe file that loads the dll is included in the solution too).
-
-## [Pre-Release] - 2025-03-31 (Update this date if you pre-release earlier...)
+## [0.1.0-Pre-Release] - 2025-03-31
 
 See the [release]() for details and binary assets.
 
 ### Added
 
-#### Doctest Test Adapter Discovery
+#### Settings
+* Custom command arguments setting to be used when discovering/executing discovered executables.
+* Print standard output setting to print out more information when the test adapter is performing it's work.
+* Search directory setting to only search the listed directories within the solution folder for unit tests.
+* Executable override setting to allow users to run a different executable instead of the discovered executable.
 
+#### Discovery
+* Discover C++ doctest unit tests for executables and dlls and lists them in the test explorer window.
+* Support for finding custom macros that wrap around doctest keywords.
+* Jump to tests from the test explorer window.
 
-#### Doctest Test Adapter Executor
-
+#### Executor
+* Run C++ doctest unit tests for executables and dlls.
+* Debug C++ doctest unit tests for executables and dlls.
+* Reports duration of tests in the test explorer window.
+* Prints any test error messages to the test explorer window.
