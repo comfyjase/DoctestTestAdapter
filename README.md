@@ -32,6 +32,6 @@ There is also [continuous integration](https://github.com/comfyjase/DoctestTestA
 🔎 You can create pull requests for bug fixes or new features for review.  
 
 ## 📃 License
-DoctestTestAdapter is licensed under the [MIT License](./LICENSE.txt).
+Test Adapter for Doctest is licensed under the [MIT License](./LICENSE.txt).
 
 ## 🙌 Thank you!
