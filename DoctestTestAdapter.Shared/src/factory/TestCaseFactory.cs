@@ -87,6 +87,12 @@ namespace DoctestTestAdapter.Shared.Factory
                 List<string> testSuiteNames = doctestExecutable.GetTestSuiteNames();
                 List<string> testCaseNames = doctestExecutable.GetTestCaseNames();
 
+                if ((testSuiteNames == null || testSuiteNames.Count == 0)
+                    && (testCaseNames == null || testCaseNames.Count == 0))
+                {
+                    return testCases;
+                }
+
                 DumpBinExecutable dumpBinExecutable = new DumpBinExecutable(_executableFilePath, _solutionDirectory, _settings, _runContext, _logger);
                 string pdbFilePath = dumpBinExecutable.GetPDBFilePath();
 
@@ -119,6 +125,12 @@ namespace DoctestTestAdapter.Shared.Factory
                     new DoctestTestCaseFixtureKeyword(testCaseNames),
                     new DoctestTestCaseTemplateKeyword(testCaseNames),
                 };
+
+                // If there are no test suites, then we can remove this keyword altogether.
+                if (testSuiteNames == null || testSuiteNames.Count == 0)
+                {
+                    mainKeywords.RemoveAt(2);
+                }
 
                 List<IKeyword> allKeywords = new List<IKeyword>();
                 allKeywords.AddRange(mainKeywords);

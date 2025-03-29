@@ -63,7 +63,9 @@ namespace DoctestTestAdapter
                 }
                 catch(Exception ex)
                 {
-                    logger.SendMessage(TestMessageLevel.Error, Helpers.Constants.ErrorMessagePrefix + $"[Test Discovery]: {ex}");
+                    string errorMessage = Helpers.Constants.ErrorMessagePrefix + $" [Test Discovery]: \n{ex}";
+                    Console.Error.WriteLine(errorMessage);
+                    logger.SendMessage(TestMessageLevel.Error, errorMessage);
                 }
             }
             profiler.End();

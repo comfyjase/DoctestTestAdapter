@@ -39,61 +39,67 @@ namespace DoctestTestAdapter.Tests.Factory
         [TestMethod]
         public void CreateTestCasesExe()
         {
-            IFrameworkHandle frameworkHandle = A.Fake<IFrameworkHandle>();
-            Captured<TestMessageLevel> capturedTestMessageLevels = A.Captured<TestMessageLevel>();
-            Captured<string> capturedTestMessages = A.Captured<string>();
-            A.CallTo(() => frameworkHandle.SendMessage(capturedTestMessageLevels._, capturedTestMessages._))
-               .DoesNothing();
+            TestCommon.AssertErrorOutput(() =>
+            {
+                IFrameworkHandle frameworkHandle = A.Fake<IFrameworkHandle>();
+                Captured<TestMessageLevel> capturedTestMessageLevels = A.Captured<TestMessageLevel>();
+                Captured<string> capturedTestMessages = A.Captured<string>();
+                A.CallTo(() => frameworkHandle.SendMessage(capturedTestMessageLevels._, capturedTestMessages._))
+                   .DoesNothing();
 
-            TestCaseFactory testCaseFactory = new TestCaseFactory(TestCommon.UsingDoctestMainExecutableFilePath, null, null, null);
-            List<TestCase> testCases = testCaseFactory.CreateTestCases();
-            Assert.IsNotNull(testCases);
-            Assert.HasCount(50, testCases);
+                TestCaseFactory testCaseFactory = new TestCaseFactory(TestCommon.UsingDoctestMainExecutableFilePath, null, null, null);
+                List<TestCase> testCases = testCaseFactory.CreateTestCases();
+                Assert.IsNotNull(testCases);
+                Assert.HasCount(50, testCases);
 
-            Assert.IsEmpty(capturedTestMessageLevels.Values);
-            Assert.IsEmpty(capturedTestMessages.Values);
+                Assert.IsEmpty(capturedTestMessageLevels.Values);
+                Assert.IsEmpty(capturedTestMessages.Values);
 
-            TestCommon.AssertTestCases(testCases,
-                TestCommon.UsingDoctestMainExecutableFilePath,
-                "UsingDoctestMain",
-                TestCommon.UsingDoctestMainTestHeaderFilePath
-            );
+                TestCommon.AssertTestCases(testCases,
+                    TestCommon.UsingDoctestMainExecutableFilePath,
+                    "UsingDoctestMain",
+                    TestCommon.UsingDoctestMainTestHeaderFilePath
+                );
+            });
         }
 
         [TestMethod]
         public void CreateTestCasesExeAndDLL()
         {
-            IFrameworkHandle frameworkHandle = A.Fake<IFrameworkHandle>();
-            Captured<TestMessageLevel> capturedTestMessageLevels = A.Captured<TestMessageLevel>();
-            Captured<string> capturedTestMessages = A.Captured<string>();
-            A.CallTo(() => frameworkHandle.SendMessage(capturedTestMessageLevels._, capturedTestMessages._))
-               .DoesNothing();
+            TestCommon.AssertErrorOutput(() =>
+            {
+                IFrameworkHandle frameworkHandle = A.Fake<IFrameworkHandle>();
+                Captured<TestMessageLevel> capturedTestMessageLevels = A.Captured<TestMessageLevel>();
+                Captured<string> capturedTestMessages = A.Captured<string>();
+                A.CallTo(() => frameworkHandle.SendMessage(capturedTestMessageLevels._, capturedTestMessages._))
+                   .DoesNothing();
 
-            TestCaseFactory testCaseFactory = new TestCaseFactory(TestCommon.ExecutableUsingDLLExecutableFilePath, null, null, null);
-            List<TestCase> testCases = testCaseFactory.CreateTestCases();
-            Assert.IsNotNull(testCases);
-            Assert.HasCount(100, testCases);
+                TestCaseFactory testCaseFactory = new TestCaseFactory(TestCommon.ExecutableUsingDLLExecutableFilePath, null, null, null);
+                List<TestCase> testCases = testCaseFactory.CreateTestCases();
+                Assert.IsNotNull(testCases);
+                Assert.HasCount(100, testCases);
 
-            Assert.IsEmpty(capturedTestMessageLevels.Values);
-            Assert.IsEmpty(capturedTestMessages.Values);
+                Assert.IsEmpty(capturedTestMessageLevels.Values);
+                Assert.IsEmpty(capturedTestMessages.Values);
 
-            List<TestCase> dllTestCases = testCases
-                .Where(t => t.DisplayName.Contains("[DLL]"))
-                .ToList();
-            List<TestCase> executableUsingDLLTestCases = testCases
-                .Where(t => t.DisplayName.Contains("[ExecutableUsingDLL]"))
-                .ToList();
+                List<TestCase> dllTestCases = testCases
+                    .Where(t => t.DisplayName.Contains("[DLL]"))
+                    .ToList();
+                List<TestCase> executableUsingDLLTestCases = testCases
+                    .Where(t => t.DisplayName.Contains("[ExecutableUsingDLL]"))
+                    .ToList();
 
-            TestCommon.AssertTestCases(dllTestCases,
-                TestCommon.ExecutableUsingDLLExecutableFilePath,
-                "DLL",
-                TestCommon.DLLTestHeaderFilePath
-            );
-            TestCommon.AssertTestCases(executableUsingDLLTestCases,
-                TestCommon.ExecutableUsingDLLExecutableFilePath,
-                "ExecutableUsingDLL",
-                TestCommon.ExecutableUsingDLLTestHeaderFilePath
-            );
+                TestCommon.AssertTestCases(dllTestCases,
+                    TestCommon.ExecutableUsingDLLExecutableFilePath,
+                    "DLL",
+                    TestCommon.DLLTestHeaderFilePath
+                );
+                TestCommon.AssertTestCases(executableUsingDLLTestCases,
+                    TestCommon.ExecutableUsingDLLExecutableFilePath,
+                    "ExecutableUsingDLL",
+                    TestCommon.ExecutableUsingDLLTestHeaderFilePath
+                );
+            });
         }
     }
 }

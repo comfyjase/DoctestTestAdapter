@@ -40,170 +40,185 @@ namespace DoctestTestAdapter.Tests.Keywords
         [TestMethod]
 		public void FindInNoNamespaceOrTestSuite()
 		{
-            Assert.IsNotEmpty(_allTestCaseNames);
-            Assert.HasCount(50, _allTestCaseNames);
+            TestCommon.AssertErrorOutput(() =>
+            {
+                Assert.IsNotEmpty(_allTestCaseNames);
+                Assert.HasCount(50, _allTestCaseNames);
 
-			List<IKeyword> keywords = new List<IKeyword>()
-			{
-				new DoctestTestCaseKeyword(_allTestCaseNames)
-			};
+                List<IKeyword> keywords = new List<IKeyword>()
+                {
+                    new DoctestTestCaseKeyword(_allTestCaseNames)
+                };
 
-			TestCommon.AssertKeywords(TestCommon.UsingDoctestMainExecutableFilePath, 
-				TestCommon.UsingDoctestMainTestHeaderFilePath,
-				keywords, 
-				(int lineNumber, string testNamespace, List<TestCase> testCases) =>
-				{
-					if (lineNumber == 48)
-					{
-						TestCommon.AssertTestCase(testCases.Last(),
-							TestCommon.UsingDoctestMainExecutableFilePath,
-					        "Empty Namespace::Empty Class::[UsingDoctestMain] Testing IsEven Always Pass In No Namespace Or Test Suite",
-					        "[UsingDoctestMain] Testing IsEven Always Pass In No Namespace Or Test Suite",
-							TestCommon.UsingDoctestMainTestHeaderFilePath,
-							48);
+                TestCommon.AssertKeywords(TestCommon.UsingDoctestMainExecutableFilePath,
+                    TestCommon.UsingDoctestMainTestHeaderFilePath,
+                    keywords,
+                    (int lineNumber, string testNamespace, List<TestCase> testCases) =>
+                    {
+                        if (lineNumber == 48)
+                        {
+                            TestCommon.AssertTestCase(testCases.Last(),
+                                TestCommon.UsingDoctestMainExecutableFilePath,
+                                "Empty Namespace::Empty Class::[UsingDoctestMain] Testing IsEven Always Pass In No Namespace Or Test Suite",
+                                "[UsingDoctestMain] Testing IsEven Always Pass In No Namespace Or Test Suite",
+                                TestCommon.UsingDoctestMainTestHeaderFilePath,
+                                48);
 
-						return true;
-					}
+                            return true;
+                        }
 
-					return false;
-				});
+                        return false;
+                    });
+            });
         }
 
 		[TestMethod]
 		public void FindInTestSuite()
 		{
-            Assert.IsNotEmpty(_allTestSuiteNames);
-            Assert.HasCount(2, _allTestSuiteNames);
-            Assert.IsNotEmpty(_allTestCaseNames);
-            Assert.HasCount(50, _allTestCaseNames);
-
-            List<IKeyword> keywords = new List<IKeyword>()
+            TestCommon.AssertErrorOutput(() =>
             {
-                new DoctestTestSuiteKeyword(_allTestSuiteNames),
-                new DoctestTestCaseKeyword(_allTestCaseNames)
-            };
+                Assert.IsNotEmpty(_allTestSuiteNames);
+                Assert.HasCount(2, _allTestSuiteNames);
+                Assert.IsNotEmpty(_allTestCaseNames);
+                Assert.HasCount(50, _allTestCaseNames);
 
-            TestCommon.AssertKeywords(TestCommon.UsingDoctestMainExecutableFilePath,
-                TestCommon.UsingDoctestMainTestHeaderFilePath,
-                keywords,
-                (int lineNumber, string testNamespace, List<TestCase> testCases) =>
+                List<IKeyword> keywords = new List<IKeyword>()
                 {
-                    if (lineNumber == 139)
+                    new DoctestTestSuiteKeyword(_allTestSuiteNames),
+                    new DoctestTestCaseKeyword(_allTestCaseNames)
+                };
+
+                TestCommon.AssertKeywords(TestCommon.UsingDoctestMainExecutableFilePath,
+                    TestCommon.UsingDoctestMainTestHeaderFilePath,
+                    keywords,
+                    (int lineNumber, string testNamespace, List<TestCase> testCases) =>
                     {
-                        TestCommon.AssertTestCase(testCases.Last(),
-                            TestCommon.UsingDoctestMainExecutableFilePath,
-                            "[UsingDoctestMainTestSuite]::Empty Class::[UsingDoctestMain] Testing IsEven Always Pass In Test Suite",
-                            "[UsingDoctestMain] Testing IsEven Always Pass In Test Suite",
-                            TestCommon.UsingDoctestMainTestHeaderFilePath,
-                            139);
+                        if (lineNumber == 139)
+                        {
+                            TestCommon.AssertTestCase(testCases.Last(),
+                                TestCommon.UsingDoctestMainExecutableFilePath,
+                                "[UsingDoctestMainTestSuite]::Empty Class::[UsingDoctestMain] Testing IsEven Always Pass In Test Suite",
+                                "[UsingDoctestMain] Testing IsEven Always Pass In Test Suite",
+                                TestCommon.UsingDoctestMainTestHeaderFilePath,
+                                139);
 
-                        return true;
-                    }
+                            return true;
+                        }
 
-                    return false;
-                });
+                        return false;
+                    });
+            });
         }
 
         [TestMethod]
         public void FindInNamespace()
         {
-            Assert.IsNotEmpty(_allTestCaseNames);
-            Assert.HasCount(50, _allTestCaseNames);
-
-            List<IKeyword> keywords = new List<IKeyword>()
+            TestCommon.AssertErrorOutput(() =>
             {
-                new NamespaceKeyword(),
-                new DoctestTestCaseKeyword(_allTestCaseNames)
-            };
+                Assert.IsNotEmpty(_allTestCaseNames);
+                Assert.HasCount(50, _allTestCaseNames);
 
-            TestCommon.AssertKeywords(TestCommon.UsingDoctestMainExecutableFilePath,
-                TestCommon.UsingDoctestMainTestHeaderFilePath,
-                keywords,
-                (int lineNumber, string testNamespace, List<TestCase> testCases) =>
+                List<IKeyword> keywords = new List<IKeyword>()
                 {
-                    if (lineNumber == 323)
+                    new NamespaceKeyword(),
+                    new DoctestTestCaseKeyword(_allTestCaseNames)
+                };
+
+                TestCommon.AssertKeywords(TestCommon.UsingDoctestMainExecutableFilePath,
+                    TestCommon.UsingDoctestMainTestHeaderFilePath,
+                    keywords,
+                    (int lineNumber, string testNamespace, List<TestCase> testCases) =>
                     {
-                        TestCommon.AssertTestCase(testCases.Last(),
-                            TestCommon.UsingDoctestMainExecutableFilePath,
-                            "UsingDoctestMainNamespace::Empty Class::[UsingDoctestMain] Testing IsEven Always Pass In Namespace",
-                            "[UsingDoctestMain] Testing IsEven Always Pass In Namespace",
-                            TestCommon.UsingDoctestMainTestHeaderFilePath,
-                            323);
+                        if (lineNumber == 323)
+                        {
+                            TestCommon.AssertTestCase(testCases.Last(),
+                                TestCommon.UsingDoctestMainExecutableFilePath,
+                                "UsingDoctestMainNamespace::Empty Class::[UsingDoctestMain] Testing IsEven Always Pass In Namespace",
+                                "[UsingDoctestMain] Testing IsEven Always Pass In Namespace",
+                                TestCommon.UsingDoctestMainTestHeaderFilePath,
+                                323);
 
-                        return true;
-                    }
+                            return true;
+                        }
 
-                    return false;
-                });
+                        return false;
+                    });
+            });
         }
 
         [TestMethod]
         public void FindInNestedNamespace()
         {
-            Assert.IsNotEmpty(_allTestCaseNames);
-            Assert.HasCount(50, _allTestCaseNames);
-
-            List<IKeyword> keywords = new List<IKeyword>()
+            TestCommon.AssertErrorOutput(() =>
             {
-                new NamespaceKeyword(),
-                new DoctestTestCaseKeyword(_allTestCaseNames)
-            };
+                Assert.IsNotEmpty(_allTestCaseNames);
+                Assert.HasCount(50, _allTestCaseNames);
 
-            TestCommon.AssertKeywords(TestCommon.UsingDoctestMainExecutableFilePath,
-                TestCommon.UsingDoctestMainTestHeaderFilePath,
-                keywords,
-                (int lineNumber, string testNamespace, List<TestCase> testCases) =>
+                List<IKeyword> keywords = new List<IKeyword>()
                 {
-                    if (lineNumber == 417)
+                    new NamespaceKeyword(),
+                    new DoctestTestCaseKeyword(_allTestCaseNames)
+                };
+
+                TestCommon.AssertKeywords(TestCommon.UsingDoctestMainExecutableFilePath,
+                    TestCommon.UsingDoctestMainTestHeaderFilePath,
+                    keywords,
+                    (int lineNumber, string testNamespace, List<TestCase> testCases) =>
                     {
-                        TestCommon.AssertTestCase(testCases.Last(),
-                            TestCommon.UsingDoctestMainExecutableFilePath,
-                            "UsingDoctestMainNestedNamespaceOne::UsingDoctestMainNestedNamespaceTwo::Empty Class::[UsingDoctestMain] Testing IsEven Always Pass In Nested Namespace",
-                            "[UsingDoctestMain] Testing IsEven Always Pass In Nested Namespace",
-                            TestCommon.UsingDoctestMainTestHeaderFilePath,
-                            417);
+                        if (lineNumber == 417)
+                        {
+                            TestCommon.AssertTestCase(testCases.Last(),
+                                TestCommon.UsingDoctestMainExecutableFilePath,
+                                "UsingDoctestMainNestedNamespaceOne::UsingDoctestMainNestedNamespaceTwo::Empty Class::[UsingDoctestMain] Testing IsEven Always Pass In Nested Namespace",
+                                "[UsingDoctestMain] Testing IsEven Always Pass In Nested Namespace",
+                                TestCommon.UsingDoctestMainTestHeaderFilePath,
+                                417);
 
-                        return true;
-                    }
+                            return true;
+                        }
 
-                    return false;
-                });
+                        return false;
+                    });
+            });
         }
 
         [TestMethod]
         public void FindInNamespaceAndTestSuite()
         {
-            Assert.IsNotEmpty(_allTestSuiteNames);
-            Assert.HasCount(2, _allTestSuiteNames);
-            Assert.IsNotEmpty(_allTestCaseNames);
-            Assert.HasCount(50, _allTestCaseNames);
-
-            List<IKeyword> keywords = new List<IKeyword>()
+            TestCommon.AssertErrorOutput(() =>
             {
-                new NamespaceKeyword(),
-                new DoctestTestSuiteKeyword(_allTestSuiteNames),
-                new DoctestTestCaseKeyword(_allTestCaseNames)
-            };
+                Assert.IsNotEmpty(_allTestSuiteNames);
+                Assert.HasCount(2, _allTestSuiteNames);
+                Assert.IsNotEmpty(_allTestCaseNames);
+                Assert.HasCount(50, _allTestCaseNames);
 
-            TestCommon.AssertKeywords(TestCommon.UsingDoctestMainExecutableFilePath,
-                TestCommon.UsingDoctestMainTestHeaderFilePath,
-                keywords,
-                (int lineNumber, string testNamespace, List<TestCase> testCases) =>
+                List<IKeyword> keywords = new List<IKeyword>()
                 {
-                    if (lineNumber == 512)
+                    new NamespaceKeyword(),
+                    new DoctestTestSuiteKeyword(_allTestSuiteNames),
+                    new DoctestTestCaseKeyword(_allTestCaseNames)
+                };
+
+                TestCommon.AssertKeywords(TestCommon.UsingDoctestMainExecutableFilePath,
+                    TestCommon.UsingDoctestMainTestHeaderFilePath,
+                    keywords,
+                    (int lineNumber, string testNamespace, List<TestCase> testCases) =>
                     {
-                        TestCommon.AssertTestCase(testCases.Last(),
-                            TestCommon.UsingDoctestMainExecutableFilePath,
-                            "UsingDoctestMainNamespaceAndTestSuite_Namespace::[UsingDoctestMainNamespaceAndTestSuite_TestSuite]::Empty Class::[UsingDoctestMain] Testing IsEven Always Pass In Namespace And Test Suite",
-                            "[UsingDoctestMain] Testing IsEven Always Pass In Namespace And Test Suite",
-                            TestCommon.UsingDoctestMainTestHeaderFilePath,
-                            512);
+                        if (lineNumber == 512)
+                        {
+                            TestCommon.AssertTestCase(testCases.Last(),
+                                TestCommon.UsingDoctestMainExecutableFilePath,
+                                "UsingDoctestMainNamespaceAndTestSuite_Namespace::[UsingDoctestMainNamespaceAndTestSuite_TestSuite]::Empty Class::[UsingDoctestMain] Testing IsEven Always Pass In Namespace And Test Suite",
+                                "[UsingDoctestMain] Testing IsEven Always Pass In Namespace And Test Suite",
+                                TestCommon.UsingDoctestMainTestHeaderFilePath,
+                                512);
 
-                        return true;
-                    }
+                            return true;
+                        }
 
-                    return false;
-                });
+                        return false;
+                    });
+            });
         }
 	}
 }

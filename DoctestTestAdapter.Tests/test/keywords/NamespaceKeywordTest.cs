@@ -35,67 +35,73 @@ namespace DoctestTestAdapter.Tests.Keywords
         [TestMethod]
         public void FindSingle()
         {
-            List<IKeyword> keywords = new List<IKeyword>()
+            TestCommon.AssertErrorOutput(() =>
             {
-                new NamespaceKeyword()
-            };
-
-            TestCommon.AssertKeywords(TestCommon.UsingDoctestMainExecutableFilePath,
-                TestCommon.UsingDoctestMainTestHeaderFilePath,
-                keywords, 
-                (int lineNumber, string testNamespace, List<TestCase> testCases) =>
+                List<IKeyword> keywords = new List<IKeyword>()
                 {
-                    if (lineNumber == 321)
-                    {
-                        Assert.IsFalse(string.IsNullOrEmpty(testNamespace));
-                        Assert.AreEqual("UsingDoctestMainNamespace", testNamespace);
-                    }
-                    else if (lineNumber == 403)
-                    {
-                        Assert.IsTrue(string.IsNullOrEmpty(testNamespace));
-                        return true;
-                    }
+                    new NamespaceKeyword()
+                };
 
-                    return false;
-                });
+                TestCommon.AssertKeywords(TestCommon.UsingDoctestMainExecutableFilePath,
+                    TestCommon.UsingDoctestMainTestHeaderFilePath,
+                    keywords,
+                    (int lineNumber, string testNamespace, List<TestCase> testCases) =>
+                    {
+                        if (lineNumber == 321)
+                        {
+                            Assert.IsFalse(string.IsNullOrEmpty(testNamespace));
+                            Assert.AreEqual("UsingDoctestMainNamespace", testNamespace);
+                        }
+                        else if (lineNumber == 403)
+                        {
+                            Assert.IsTrue(string.IsNullOrEmpty(testNamespace));
+                            return true;
+                        }
+
+                        return false;
+                    });
+            });
         }
 
         [TestMethod]
         public void FindNested()
         {
-            List<IKeyword> keywords = new List<IKeyword>()
+            TestCommon.AssertErrorOutput(() =>
             {
-                new NamespaceKeyword()
-            };
-
-            TestCommon.AssertKeywords(TestCommon.UsingDoctestMainExecutableFilePath,
-                TestCommon.UsingDoctestMainTestHeaderFilePath,
-                keywords, 
-                (int lineNumber, string testNamespace, List<TestCase> testCases) =>
+                List<IKeyword> keywords = new List<IKeyword>()
                 {
-                    if (lineNumber == 413)
-                    {
-                        Assert.IsFalse(string.IsNullOrEmpty(testNamespace));
-                        Assert.AreEqual("UsingDoctestMainNestedNamespaceOne", testNamespace);
-                    }
-                    else if (lineNumber == 415)
-                    {
-                        Assert.IsFalse(string.IsNullOrEmpty(testNamespace));
-                        Assert.AreEqual("UsingDoctestMainNestedNamespaceOne::UsingDoctestMainNestedNamespaceTwo", testNamespace);
-                    }
-                    else if (lineNumber == 497)
-                    {
-                        Assert.IsFalse(string.IsNullOrEmpty(testNamespace));
-                        Assert.AreEqual("UsingDoctestMainNestedNamespaceOne", testNamespace);
-                    }
-                    else if (lineNumber == 498)
-                    {
-                        Assert.IsTrue(string.IsNullOrEmpty(testNamespace));
-                        return true;
-                    }
+                    new NamespaceKeyword()
+                };
 
-                    return false;
-                });
+                TestCommon.AssertKeywords(TestCommon.UsingDoctestMainExecutableFilePath,
+                    TestCommon.UsingDoctestMainTestHeaderFilePath,
+                    keywords,
+                    (int lineNumber, string testNamespace, List<TestCase> testCases) =>
+                    {
+                        if (lineNumber == 413)
+                        {
+                            Assert.IsFalse(string.IsNullOrEmpty(testNamespace));
+                            Assert.AreEqual("UsingDoctestMainNestedNamespaceOne", testNamespace);
+                        }
+                        else if (lineNumber == 415)
+                        {
+                            Assert.IsFalse(string.IsNullOrEmpty(testNamespace));
+                            Assert.AreEqual("UsingDoctestMainNestedNamespaceOne::UsingDoctestMainNestedNamespaceTwo", testNamespace);
+                        }
+                        else if (lineNumber == 497)
+                        {
+                            Assert.IsFalse(string.IsNullOrEmpty(testNamespace));
+                            Assert.AreEqual("UsingDoctestMainNestedNamespaceOne", testNamespace);
+                        }
+                        else if (lineNumber == 498)
+                        {
+                            Assert.IsTrue(string.IsNullOrEmpty(testNamespace));
+                            return true;
+                        }
+
+                        return false;
+                    });
+            });
         }
 	}
 }

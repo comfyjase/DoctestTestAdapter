@@ -33,18 +33,18 @@ namespace DoctestTestAdapter.Tests.Helpers
     {
         [TestMethod]
         public void SolutionDirectory()
-            => Assert.IsTrue(Utilities.GetSolutionDirectory().EndsWith("DoctestTestAdapter"));
+            => TestCommon.AssertErrorOutput(() => { Assert.IsTrue(Utilities.GetSolutionDirectory().EndsWith("DoctestTestAdapter")); });
 
         [TestMethod]
         public void SolutionDirectoryExe()
-            => Assert.IsTrue(Utilities.GetSolutionDirectory(TestCommon.UsingDoctestMainExecutableFilePath).EndsWith("DoctestTestAdapter.Examples"));
+            => TestCommon.AssertErrorOutput(() => { Assert.IsTrue(Utilities.GetSolutionDirectory(TestCommon.UsingDoctestMainExecutableFilePath).EndsWith("DoctestTestAdapter.Examples")); });
 
         [TestMethod]
         public void SolutionDirectoryDLL()
-            => Assert.IsTrue(Utilities.GetSolutionDirectory(TestCommon.DLLExecutableFilePath).EndsWith("DoctestTestAdapter.Examples"));
+            => TestCommon.AssertErrorOutput(() => { Assert.IsTrue(Utilities.GetSolutionDirectory(TestCommon.DLLExecutableFilePath).EndsWith("DoctestTestAdapter.Examples")); });
 
         [TestMethod]
         public void VsInstallDirectory()
-            => Assert.IsTrue(Directory.Exists(Utilities.GetVSInstallDirectory()));
+            => TestCommon.AssertErrorOutput(() => { Assert.IsTrue(Directory.Exists(Utilities.GetVSInstallDirectory())); });
     }
 }

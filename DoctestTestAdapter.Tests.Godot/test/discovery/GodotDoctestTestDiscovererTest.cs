@@ -38,28 +38,31 @@ namespace DoctestTestAdapter.Tests.Godot.Discovery
         [TestMethod]
 		public void DiscoverExe()
 		{
-            IEnumerable<string> sources = new List<string>() { TestCommon.GodotExecutableFilePath };
+            TestCommon.AssertErrorOutput(() =>
+            {
+                IEnumerable<string> sources = new List<string>() { TestCommon.GodotExecutableFilePath };
 
-            // Run settings.
-            DoctestTestSettingsProvider doctestTestSettingsProvider = new DoctestTestSettingsProvider();
-            AssertAndLoadExampleRunSettings(doctestTestSettingsProvider);
+                // Run settings.
+                DoctestTestSettingsProvider doctestTestSettingsProvider = new DoctestTestSettingsProvider();
+                AssertAndLoadExampleRunSettings(doctestTestSettingsProvider);
 
-            IRunContext runContext = A.Fake<IRunContext>();
-            IMessageLogger messageLogger = A.Fake<IMessageLogger>();
-            ITestCaseDiscoverySink testCaseDiscoverySink = A.Fake<ITestCaseDiscoverySink>();
-            Captured<TestCase> capturedTestCasesFromDiscovery = A.Captured<TestCase>();
-            A.CallTo(() => runContext.RunSettings.GetSettings(DoctestTestSettings.RunSettingsXmlNode))
-                .Returns(doctestTestSettingsProvider);
-            A.CallTo(() => runContext.IsBeingDebugged)
-                .Returns(false);
-            A.CallTo(() => testCaseDiscoverySink.SendTestCase(capturedTestCasesFromDiscovery._))
-                .DoesNothing();
+                IRunContext runContext = A.Fake<IRunContext>();
+                IMessageLogger messageLogger = A.Fake<IMessageLogger>();
+                ITestCaseDiscoverySink testCaseDiscoverySink = A.Fake<ITestCaseDiscoverySink>();
+                Captured<TestCase> capturedTestCasesFromDiscovery = A.Captured<TestCase>();
+                A.CallTo(() => runContext.RunSettings.GetSettings(DoctestTestSettings.RunSettingsXmlNode))
+                    .Returns(doctestTestSettingsProvider);
+                A.CallTo(() => runContext.IsBeingDebugged)
+                    .Returns(false);
+                A.CallTo(() => testCaseDiscoverySink.SendTestCase(capturedTestCasesFromDiscovery._))
+                    .DoesNothing();
 
-            ITestDiscoverer doctestTestDiscoverer = new DoctestTestDiscoverer();
-            doctestTestDiscoverer.DiscoverTests(sources, runContext, messageLogger, testCaseDiscoverySink);
+                ITestDiscoverer doctestTestDiscoverer = new DoctestTestDiscoverer();
+                doctestTestDiscoverer.DiscoverTests(sources, runContext, messageLogger, testCaseDiscoverySink);
 
-            Assert.IsNotEmpty(capturedTestCasesFromDiscovery.Values);
-            AssertMissingTestCases(runContext, capturedTestCasesFromDiscovery.Values);
+                Assert.IsNotEmpty(capturedTestCasesFromDiscovery.Values);
+                AssertMissingTestCases(runContext, capturedTestCasesFromDiscovery.Values);
+            });
         }
     }
 }

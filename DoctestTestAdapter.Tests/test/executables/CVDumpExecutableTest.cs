@@ -40,47 +40,53 @@ namespace DoctestTestAdapter.Tests.Executables
         [TestMethod]
         public void SourceFilesExe()
         {
-            IFrameworkHandle frameworkHandle = A.Fake<IFrameworkHandle>();
-            Captured<TestMessageLevel> capturedTestMessageLevels = A.Captured<TestMessageLevel>();
-            Captured<string> capturedTestMessages = A.Captured<string>();
-            A.CallTo(() => frameworkHandle.SendMessage(capturedTestMessageLevels._, capturedTestMessages._))
-               .DoesNothing();
+            TestCommon.AssertErrorOutput(() =>
+            {
+                IFrameworkHandle frameworkHandle = A.Fake<IFrameworkHandle>();
+                Captured<TestMessageLevel> capturedTestMessageLevels = A.Captured<TestMessageLevel>();
+                Captured<string> capturedTestMessages = A.Captured<string>();
+                A.CallTo(() => frameworkHandle.SendMessage(capturedTestMessageLevels._, capturedTestMessages._))
+                   .DoesNothing();
 
-            _cvDumpExecutable.SetPdbFilePath(TestCommon.UsingDoctestMainPdbFilePath);
-            List<string> sourceFiles = _cvDumpExecutable.GetSourceFiles(); 
-            Assert.IsNotNull(sourceFiles);
-            Assert.HasCount(1, sourceFiles);
+                _cvDumpExecutable.SetPdbFilePath(TestCommon.UsingDoctestMainPdbFilePath);
+                List<string> sourceFiles = _cvDumpExecutable.GetSourceFiles();
+                Assert.IsNotNull(sourceFiles);
+                Assert.HasCount(1, sourceFiles);
 
-            Assert.IsEmpty(capturedTestMessageLevels.Values);
-            Assert.IsEmpty(capturedTestMessages.Values);
+                Assert.IsEmpty(capturedTestMessageLevels.Values);
+                Assert.IsEmpty(capturedTestMessages.Values);
 
-            string sourceFile = sourceFiles[0];
-            Assert.IsFalse(string.IsNullOrEmpty(sourceFile));
-            Assert.IsTrue(File.Exists(sourceFile));
-            Assert.AreEqual(TestCommon.UsingDoctestMainTestHeaderFilePath, sourceFile);
+                string sourceFile = sourceFiles[0];
+                Assert.IsFalse(string.IsNullOrEmpty(sourceFile));
+                Assert.IsTrue(File.Exists(sourceFile));
+                Assert.AreEqual(TestCommon.UsingDoctestMainTestHeaderFilePath, sourceFile);
+            });
         }
 
         [TestMethod]
         public void SourceFilesDLL()
         {
-            IFrameworkHandle frameworkHandle = A.Fake<IFrameworkHandle>();
-            Captured<TestMessageLevel> capturedTestMessageLevels = A.Captured<TestMessageLevel>();
-            Captured<string> capturedTestMessages = A.Captured<string>();
-            A.CallTo(() => frameworkHandle.SendMessage(capturedTestMessageLevels._, capturedTestMessages._))
-               .DoesNothing();
+            TestCommon.AssertErrorOutput(() =>
+            {
+                IFrameworkHandle frameworkHandle = A.Fake<IFrameworkHandle>();
+                Captured<TestMessageLevel> capturedTestMessageLevels = A.Captured<TestMessageLevel>();
+                Captured<string> capturedTestMessages = A.Captured<string>();
+                A.CallTo(() => frameworkHandle.SendMessage(capturedTestMessageLevels._, capturedTestMessages._))
+                   .DoesNothing();
 
-            _cvDumpExecutable.SetPdbFilePath(TestCommon.DLLPdbFilePath);
-            List<string> sourceFiles = _cvDumpExecutable.GetSourceFiles();
-            Assert.IsNotNull(sourceFiles);
-            Assert.HasCount(1, sourceFiles);
+                _cvDumpExecutable.SetPdbFilePath(TestCommon.DLLPdbFilePath);
+                List<string> sourceFiles = _cvDumpExecutable.GetSourceFiles();
+                Assert.IsNotNull(sourceFiles);
+                Assert.HasCount(1, sourceFiles);
 
-            Assert.IsEmpty(capturedTestMessageLevels.Values);
-            Assert.IsEmpty(capturedTestMessages.Values);
+                Assert.IsEmpty(capturedTestMessageLevels.Values);
+                Assert.IsEmpty(capturedTestMessages.Values);
 
-            string sourceFile = sourceFiles[0];
-            Assert.IsFalse(string.IsNullOrEmpty(sourceFile));
-            Assert.IsTrue(File.Exists(sourceFile));
-            Assert.AreEqual(TestCommon.DLLTestHeaderFilePath, sourceFile);
+                string sourceFile = sourceFiles[0];
+                Assert.IsFalse(string.IsNullOrEmpty(sourceFile));
+                Assert.IsTrue(File.Exists(sourceFile));
+                Assert.AreEqual(TestCommon.DLLTestHeaderFilePath, sourceFile);
+            });
         }
     }
 }

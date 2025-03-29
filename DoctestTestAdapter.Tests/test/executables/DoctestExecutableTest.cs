@@ -38,69 +38,81 @@ namespace DoctestTestAdapter.Tests.Executables
         [TestMethod]
         public void TestSuiteNamesExe()
         {
-            List<string> testSuiteNames = _doctestExecutableExe.GetTestSuiteNames();
-            Assert.IsNotEmpty(testSuiteNames);
-            Assert.HasCount(2, testSuiteNames);
-
-            foreach (string testSuiteName in testSuiteNames)
+            TestCommon.AssertErrorOutput(() =>
             {
-                Assert.IsFalse(string.IsNullOrEmpty(testSuiteName));
-            }
+                List<string> testSuiteNames = _doctestExecutableExe.GetTestSuiteNames();
+                Assert.IsNotEmpty(testSuiteNames);
+                Assert.HasCount(2, testSuiteNames);
 
-            Assert.AreEqual("[UsingDoctestMainTestSuite]", testSuiteNames[0]);
-            Assert.AreEqual("[UsingDoctestMainNamespaceAndTestSuite_TestSuite]", testSuiteNames[1]);
+                foreach (string testSuiteName in testSuiteNames)
+                {
+                    Assert.IsFalse(string.IsNullOrEmpty(testSuiteName));
+                }
+
+                Assert.AreEqual("[UsingDoctestMainTestSuite]", testSuiteNames[0]);
+                Assert.AreEqual("[UsingDoctestMainNamespaceAndTestSuite_TestSuite]", testSuiteNames[1]);
+            });
         }
 
         [TestMethod]
         public void TestCaseNamesExe()
         {
-            List<string> testCaseNames = _doctestExecutableExe.GetTestCaseNames();
-            Assert.IsNotEmpty(testCaseNames);
-            Assert.HasCount(50, testCaseNames);
-            TestCommon.AssertTestCaseNames(testCaseNames, "[UsingDoctestMain]");
+            TestCommon.AssertErrorOutput(() =>
+            {
+                List<string> testCaseNames = _doctestExecutableExe.GetTestCaseNames();
+                Assert.IsNotEmpty(testCaseNames);
+                Assert.HasCount(50, testCaseNames);
+                TestCommon.AssertTestCaseNames(testCaseNames, "[UsingDoctestMain]");
+            });
         }
 
         [TestMethod]
         public void TestSuiteNamesDLL()
         {
-            // Note, you have to use the exe that loads the DLL, can't just use the DLL file like the other DLL tests do.
-            // This is because we need to be able to _run_ a process off of this executable to get the test suite names.
-            // You can't just run a DLL file.
-            List<string> testSuiteNames = _doctestExecutableExeAndDLL.GetTestSuiteNames();
-            Assert.IsNotEmpty(testSuiteNames);
-            Assert.HasCount(4, testSuiteNames);
-
-            foreach (string testSuiteName in testSuiteNames)
+            TestCommon.AssertErrorOutput(() =>
             {
-                Assert.IsFalse(string.IsNullOrEmpty(testSuiteName));
-            }
+                // Note, you have to use the exe that loads the DLL, can't just use the DLL file like the other DLL tests do.
+                // This is because we need to be able to _run_ a process off of this executable to get the test suite names.
+                // You can't just run a DLL file.
+                List<string> testSuiteNames = _doctestExecutableExeAndDLL.GetTestSuiteNames();
+                Assert.IsNotEmpty(testSuiteNames);
+                Assert.HasCount(4, testSuiteNames);
 
-            // DLL Test Suite Names
-            Assert.AreEqual("[DLLTestSuite]", testSuiteNames[0]);
-            Assert.AreEqual("[DLLNamespaceAndTestSuite_TestSuite]", testSuiteNames[1]);
+                foreach (string testSuiteName in testSuiteNames)
+                {
+                    Assert.IsFalse(string.IsNullOrEmpty(testSuiteName));
+                }
 
-            // Exe Using DLL Test Suite Names
-            Assert.AreEqual("[ExecutableUsingDLLTestSuite]", testSuiteNames[2]);
-            Assert.AreEqual("[ExecutableUsingDLLNamespaceAndTestSuite_TestSuite]", testSuiteNames[3]);
+                // DLL Test Suite Names
+                Assert.AreEqual("[DLLTestSuite]", testSuiteNames[0]);
+                Assert.AreEqual("[DLLNamespaceAndTestSuite_TestSuite]", testSuiteNames[1]);
+
+                // Exe Using DLL Test Suite Names
+                Assert.AreEqual("[ExecutableUsingDLLTestSuite]", testSuiteNames[2]);
+                Assert.AreEqual("[ExecutableUsingDLLNamespaceAndTestSuite_TestSuite]", testSuiteNames[3]);
+            });
         }
 
         [TestMethod]
         public void TestCaseNamesDLL()
         {
-            // Same as the TestSuiteNamesDLL unit test - can't just run a DLL file, so use the exe that loads the DLL.
-            List<string> testCaseNames = _doctestExecutableExeAndDLL.GetTestCaseNames();
-            Assert.IsNotEmpty(testCaseNames);
-            Assert.HasCount(100, testCaseNames);
+            TestCommon.AssertErrorOutput(() =>
+            {
+                // Same as the TestSuiteNamesDLL unit test - can't just run a DLL file, so use the exe that loads the DLL.
+                List<string> testCaseNames = _doctestExecutableExeAndDLL.GetTestCaseNames();
+                Assert.IsNotEmpty(testCaseNames);
+                Assert.HasCount(100, testCaseNames);
 
-            List<string> testCaseNamesFromDLL = testCaseNames
-                .Where(s => s.StartsWith("[DLL]"))
-                .ToList();
-            List<string> testCaseNamesFromExeUsingDLL = testCaseNames
-                .Where(s => s.StartsWith("[ExecutableUsingDLL]"))
-                .ToList();
+                List<string> testCaseNamesFromDLL = testCaseNames
+                    .Where(s => s.StartsWith("[DLL]"))
+                    .ToList();
+                List<string> testCaseNamesFromExeUsingDLL = testCaseNames
+                    .Where(s => s.StartsWith("[ExecutableUsingDLL]"))
+                    .ToList();
 
-            TestCommon.AssertTestCaseNames(testCaseNamesFromDLL, "[DLL]");
-            TestCommon.AssertTestCaseNames(testCaseNamesFromExeUsingDLL, "[ExecutableUsingDLL]");
+                TestCommon.AssertTestCaseNames(testCaseNamesFromDLL, "[DLL]");
+                TestCommon.AssertTestCaseNames(testCaseNamesFromExeUsingDLL, "[ExecutableUsingDLL]");
+            });
         }
     }
 }

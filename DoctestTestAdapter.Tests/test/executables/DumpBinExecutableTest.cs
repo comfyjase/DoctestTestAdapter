@@ -37,23 +37,25 @@ namespace DoctestTestAdapter.Tests.Executables
         [TestMethod]
         public void DependenciesExe()
         {
-            _dumpBinExecutable.SetDiscoveredExecutable(TestCommon.ExecutableUsingDLLExecutableFilePath);
-            List<string> dependencies = _dumpBinExecutable.GetDependencies();
-            Assert.IsNotEmpty(dependencies);
+            TestCommon.AssertErrorOutput(() =>
+            {
+                _dumpBinExecutable.SetDiscoveredExecutable(TestCommon.ExecutableUsingDLLExecutableFilePath);
+                List<string> dependencies = _dumpBinExecutable.GetDependencies();
+                Assert.IsNotEmpty(dependencies);
 
 #if DEBUG
-            Assert.HasCount(5, dependencies);
+                Assert.HasCount(5, dependencies);
 
-            foreach (string dependency in dependencies)
-            {
-                Assert.IsFalse(string.IsNullOrEmpty(dependency));
-            }
+                foreach (string dependency in dependencies)
+                {
+                    Assert.IsFalse(string.IsNullOrEmpty(dependency));
+                }
 
-            Assert.AreEqual("DLL.dll", dependencies[0]);
-            Assert.AreEqual("KERNEL32.dll", dependencies[1]);
-            Assert.AreEqual("VCRUNTIME140_1D.dll", dependencies[2]);
-            Assert.AreEqual("VCRUNTIME140D.dll", dependencies[3]);
-            Assert.AreEqual("ucrtbased.dll", dependencies[4]);
+                Assert.AreEqual("DLL.dll", dependencies[0]);
+                Assert.AreEqual("KERNEL32.dll", dependencies[1]);
+                Assert.AreEqual("VCRUNTIME140_1D.dll", dependencies[2]);
+                Assert.AreEqual("VCRUNTIME140D.dll", dependencies[3]);
+                Assert.AreEqual("ucrtbased.dll", dependencies[4]);
 #else
             Assert.HasCount(9, dependencies);
 
@@ -72,38 +74,44 @@ namespace DoctestTestAdapter.Tests.Executables
             Assert.AreEqual("api-ms-win-crt-locale-l1-1-0.dll", dependencies[7]);
             Assert.AreEqual("api-ms-win-crt-heap-l1-1-0.dll", dependencies[8]);
 #endif
+            });
         }
 
         [TestMethod]
         public void PDBFilePathExe()
         {
-            _dumpBinExecutable.SetDiscoveredExecutable(TestCommon.UsingDoctestMainExecutableFilePath);
-            string pdbFilePath = _dumpBinExecutable.GetPDBFilePath();
-            Assert.IsFalse(string.IsNullOrEmpty(pdbFilePath));
-            Assert.IsTrue(File.Exists(pdbFilePath));
-            Assert.AreEqual(TestCommon.UsingDoctestMainPdbFilePath, pdbFilePath);
+            TestCommon.AssertErrorOutput(() =>
+            {
+                _dumpBinExecutable.SetDiscoveredExecutable(TestCommon.UsingDoctestMainExecutableFilePath);
+                string pdbFilePath = _dumpBinExecutable.GetPDBFilePath();
+                Assert.IsFalse(string.IsNullOrEmpty(pdbFilePath));
+                Assert.IsTrue(File.Exists(pdbFilePath));
+                Assert.AreEqual(TestCommon.UsingDoctestMainPdbFilePath, pdbFilePath);
+            });
         }
 
         [TestMethod]
         public void DependenciesDLL()
         {
-            _dumpBinExecutable.SetDiscoveredExecutable(TestCommon.DLLExecutableFilePath);
-            List<string> dependencies = _dumpBinExecutable.GetDependencies();
-            Assert.IsNotEmpty(dependencies);
+            TestCommon.AssertErrorOutput(() =>
+            {
+                _dumpBinExecutable.SetDiscoveredExecutable(TestCommon.DLLExecutableFilePath);
+                List<string> dependencies = _dumpBinExecutable.GetDependencies();
+                Assert.IsNotEmpty(dependencies);
 
 #if DEBUG
-            Assert.HasCount(5, dependencies);
+                Assert.HasCount(5, dependencies);
 
-            foreach (string dependency in dependencies)
-            {
-                Assert.IsFalse(string.IsNullOrEmpty(dependency));
-            }
+                foreach (string dependency in dependencies)
+                {
+                    Assert.IsFalse(string.IsNullOrEmpty(dependency));
+                }
 
-            Assert.AreEqual("KERNEL32.dll", dependencies[0]);
-            Assert.AreEqual("MSVCP140D.dll", dependencies[1]);
-            Assert.AreEqual("VCRUNTIME140D.dll", dependencies[2]);
-            Assert.AreEqual("VCRUNTIME140_1D.dll", dependencies[3]);
-            Assert.AreEqual("ucrtbased.dll", dependencies[4]);
+                Assert.AreEqual("KERNEL32.dll", dependencies[0]);
+                Assert.AreEqual("MSVCP140D.dll", dependencies[1]);
+                Assert.AreEqual("VCRUNTIME140D.dll", dependencies[2]);
+                Assert.AreEqual("VCRUNTIME140_1D.dll", dependencies[3]);
+                Assert.AreEqual("ucrtbased.dll", dependencies[4]);
 #else
             Assert.HasCount(13, dependencies);
 
@@ -126,16 +134,20 @@ namespace DoctestTestAdapter.Tests.Executables
             Assert.AreEqual("api-ms-win-crt-convert-l1-1-0.dll", dependencies[11]);
             Assert.AreEqual("api-ms-win-crt-math-l1-1-0.dll", dependencies[12]);
 #endif
+            });
         }
 
         [TestMethod]
         public void PDBFilePathDLL()
         {
-            _dumpBinExecutable.SetDiscoveredExecutable(TestCommon.DLLExecutableFilePath);
-            string pdbFilePath = _dumpBinExecutable.GetPDBFilePath();
-            Assert.IsFalse(string.IsNullOrEmpty(pdbFilePath));
-            Assert.IsTrue(File.Exists(pdbFilePath));
-            Assert.AreEqual(TestCommon.DLLPdbFilePath, pdbFilePath);
+            TestCommon.AssertErrorOutput(() =>
+            {
+                _dumpBinExecutable.SetDiscoveredExecutable(TestCommon.DLLExecutableFilePath);
+                string pdbFilePath = _dumpBinExecutable.GetPDBFilePath();
+                Assert.IsFalse(string.IsNullOrEmpty(pdbFilePath));
+                Assert.IsTrue(File.Exists(pdbFilePath));
+                Assert.AreEqual(TestCommon.DLLPdbFilePath, pdbFilePath);
+            });
         }
     }
 }

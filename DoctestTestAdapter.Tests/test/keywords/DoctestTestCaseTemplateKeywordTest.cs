@@ -40,170 +40,185 @@ namespace DoctestTestAdapter.Tests.Keywords
         [TestMethod]
         public void FindInNoNamespaceOrTestSuite()
         {
-            Assert.IsNotEmpty(_allTestCaseNames);
-            Assert.HasCount(50, _allTestCaseNames);
-
-            List<IKeyword> keywords = new List<IKeyword>()
+            TestCommon.AssertErrorOutput(() =>
             {
-                new DoctestTestCaseTemplateKeyword(_allTestCaseNames)
-            };
+                Assert.IsNotEmpty(_allTestCaseNames);
+                Assert.HasCount(50, _allTestCaseNames);
 
-            TestCommon.AssertKeywords(TestCommon.UsingDoctestMainExecutableFilePath,
-                TestCommon.UsingDoctestMainTestHeaderFilePath,
-                keywords,
-                (int lineNumber, string testNamespace, List<TestCase> testCases) =>
+                List<IKeyword> keywords = new List<IKeyword>()
                 {
-                    if (lineNumber == 118)
+                    new DoctestTestCaseTemplateKeyword(_allTestCaseNames)
+                };
+
+                TestCommon.AssertKeywords(TestCommon.UsingDoctestMainExecutableFilePath,
+                    TestCommon.UsingDoctestMainTestHeaderFilePath,
+                    keywords,
+                    (int lineNumber, string testNamespace, List<TestCase> testCases) =>
                     {
-                        TestCommon.AssertTestCase(testCases.Last(),
-                            TestCommon.UsingDoctestMainExecutableFilePath,
-                            "Empty Namespace::Empty Class::[UsingDoctestMain] Testing IsEven Test Case Template In No Namespace Or Test Suite<int>",
-                            "[UsingDoctestMain] Testing IsEven Test Case Template In No Namespace Or Test Suite<int>",
-                            TestCommon.UsingDoctestMainTestHeaderFilePath,
-                            118);
+                        if (lineNumber == 118)
+                        {
+                            TestCommon.AssertTestCase(testCases.Last(),
+                                TestCommon.UsingDoctestMainExecutableFilePath,
+                                "Empty Namespace::Empty Class::[UsingDoctestMain] Testing IsEven Test Case Template In No Namespace Or Test Suite<int>",
+                                "[UsingDoctestMain] Testing IsEven Test Case Template In No Namespace Or Test Suite<int>",
+                                TestCommon.UsingDoctestMainTestHeaderFilePath,
+                                118);
 
-                        return true;
-                    }
+                            return true;
+                        }
 
-                    return false;
-                });
+                        return false;
+                    });
+            });
         }
 
         [TestMethod]
         public void FindInTestSuite()
         {
-            Assert.IsNotEmpty(_allTestSuiteNames);
-            Assert.HasCount(2, _allTestSuiteNames);
-            Assert.IsNotEmpty(_allTestCaseNames);
-            Assert.HasCount(50, _allTestCaseNames);
-
-            List<IKeyword> keywords = new List<IKeyword>()
+            TestCommon.AssertErrorOutput(() =>
             {
-                new DoctestTestSuiteKeyword(_allTestSuiteNames),
-                new DoctestTestCaseTemplateKeyword(_allTestCaseNames)
-            };
+                Assert.IsNotEmpty(_allTestSuiteNames);
+                Assert.HasCount(2, _allTestSuiteNames);
+                Assert.IsNotEmpty(_allTestCaseNames);
+                Assert.HasCount(50, _allTestCaseNames);
 
-            TestCommon.AssertKeywords(TestCommon.UsingDoctestMainExecutableFilePath,
-                TestCommon.UsingDoctestMainTestHeaderFilePath,
-                keywords,
-                (int lineNumber, string testNamespace, List<TestCase> testCases) =>
+                List<IKeyword> keywords = new List<IKeyword>()
                 {
-                    if (lineNumber == 209)
+                    new DoctestTestSuiteKeyword(_allTestSuiteNames),
+                    new DoctestTestCaseTemplateKeyword(_allTestCaseNames)
+                };
+
+                TestCommon.AssertKeywords(TestCommon.UsingDoctestMainExecutableFilePath,
+                    TestCommon.UsingDoctestMainTestHeaderFilePath,
+                    keywords,
+                    (int lineNumber, string testNamespace, List<TestCase> testCases) =>
                     {
-                        TestCommon.AssertTestCase(testCases.Last(),
-                            TestCommon.UsingDoctestMainExecutableFilePath,
-                            "[UsingDoctestMainTestSuite]::Empty Class::[UsingDoctestMain] Testing IsEven Test Case Template In Test Suite<int>",
-                            "[UsingDoctestMain] Testing IsEven Test Case Template In Test Suite<int>",
-                            TestCommon.UsingDoctestMainTestHeaderFilePath,
-                            209);
+                        if (lineNumber == 209)
+                        {
+                            TestCommon.AssertTestCase(testCases.Last(),
+                                TestCommon.UsingDoctestMainExecutableFilePath,
+                                "[UsingDoctestMainTestSuite]::Empty Class::[UsingDoctestMain] Testing IsEven Test Case Template In Test Suite<int>",
+                                "[UsingDoctestMain] Testing IsEven Test Case Template In Test Suite<int>",
+                                TestCommon.UsingDoctestMainTestHeaderFilePath,
+                                209);
 
-                        return true;
-                    }
+                            return true;
+                        }
 
-                    return false;
-                });
+                        return false;
+                    });
+            });
         }
 
         [TestMethod]
         public void FindInNamespace()
         {
-            Assert.IsNotEmpty(_allTestCaseNames);
-            Assert.HasCount(50, _allTestCaseNames);
-
-            List<IKeyword> keywords = new List<IKeyword>()
+            TestCommon.AssertErrorOutput(() =>
             {
-                new NamespaceKeyword(),
-                new DoctestTestCaseTemplateKeyword(_allTestCaseNames)
-            };
+                Assert.IsNotEmpty(_allTestCaseNames);
+                Assert.HasCount(50, _allTestCaseNames);
 
-            TestCommon.AssertKeywords(TestCommon.UsingDoctestMainExecutableFilePath,
-                TestCommon.UsingDoctestMainTestHeaderFilePath,
-                keywords,
-                (int lineNumber, string testNamespace, List<TestCase> testCases) =>
+                List<IKeyword> keywords = new List<IKeyword>()
                 {
-                    if (lineNumber == 393)
+                    new NamespaceKeyword(),
+                    new DoctestTestCaseTemplateKeyword(_allTestCaseNames)
+                };
+
+                TestCommon.AssertKeywords(TestCommon.UsingDoctestMainExecutableFilePath,
+                    TestCommon.UsingDoctestMainTestHeaderFilePath,
+                    keywords,
+                    (int lineNumber, string testNamespace, List<TestCase> testCases) =>
                     {
-                        TestCommon.AssertTestCase(testCases.Last(),
-                            TestCommon.UsingDoctestMainExecutableFilePath,
-                            "UsingDoctestMainNamespace::Empty Class::[UsingDoctestMain] Testing IsEven Test Case Template In Namespace<int>",
-                            "[UsingDoctestMain] Testing IsEven Test Case Template In Namespace<int>",
-                            TestCommon.UsingDoctestMainTestHeaderFilePath,
-                            393);
+                        if (lineNumber == 393)
+                        {
+                            TestCommon.AssertTestCase(testCases.Last(),
+                                TestCommon.UsingDoctestMainExecutableFilePath,
+                                "UsingDoctestMainNamespace::Empty Class::[UsingDoctestMain] Testing IsEven Test Case Template In Namespace<int>",
+                                "[UsingDoctestMain] Testing IsEven Test Case Template In Namespace<int>",
+                                TestCommon.UsingDoctestMainTestHeaderFilePath,
+                                393);
 
-                        return true;
-                    }
+                            return true;
+                        }
 
-                    return false;
-                });
+                        return false;
+                    });
+            });
         }
 
         [TestMethod]
         public void FindInNestedNamespace()
         {
-            Assert.IsNotEmpty(_allTestCaseNames);
-            Assert.HasCount(50, _allTestCaseNames);
-
-            List<IKeyword> keywords = new List<IKeyword>()
+            TestCommon.AssertErrorOutput(() =>
             {
-                new NamespaceKeyword(),
-                new DoctestTestCaseTemplateKeyword(_allTestCaseNames)
-            };
+                Assert.IsNotEmpty(_allTestCaseNames);
+                Assert.HasCount(50, _allTestCaseNames);
 
-            TestCommon.AssertKeywords(TestCommon.UsingDoctestMainExecutableFilePath,
-                TestCommon.UsingDoctestMainTestHeaderFilePath,
-                keywords,
-                (int lineNumber, string testNamespace, List<TestCase> testCases) =>
+                List<IKeyword> keywords = new List<IKeyword>()
                 {
-                    if (lineNumber == 487)
+                    new NamespaceKeyword(),
+                    new DoctestTestCaseTemplateKeyword(_allTestCaseNames)
+                };
+
+                TestCommon.AssertKeywords(TestCommon.UsingDoctestMainExecutableFilePath,
+                    TestCommon.UsingDoctestMainTestHeaderFilePath,
+                    keywords,
+                    (int lineNumber, string testNamespace, List<TestCase> testCases) =>
                     {
-                        TestCommon.AssertTestCase(testCases.Last(),
-                            TestCommon.UsingDoctestMainExecutableFilePath,
-                            "UsingDoctestMainNestedNamespaceOne::UsingDoctestMainNestedNamespaceTwo::Empty Class::[UsingDoctestMain] Testing IsEven Test Case Template In Nested Namespace<int>",
-                            "[UsingDoctestMain] Testing IsEven Test Case Template In Nested Namespace<int>",
-                            TestCommon.UsingDoctestMainTestHeaderFilePath,
-                            487);
+                        if (lineNumber == 487)
+                        {
+                            TestCommon.AssertTestCase(testCases.Last(),
+                                TestCommon.UsingDoctestMainExecutableFilePath,
+                                "UsingDoctestMainNestedNamespaceOne::UsingDoctestMainNestedNamespaceTwo::Empty Class::[UsingDoctestMain] Testing IsEven Test Case Template In Nested Namespace<int>",
+                                "[UsingDoctestMain] Testing IsEven Test Case Template In Nested Namespace<int>",
+                                TestCommon.UsingDoctestMainTestHeaderFilePath,
+                                487);
 
-                        return true;
-                    }
+                            return true;
+                        }
 
-                    return false;
-                });
+                        return false;
+                    });
+            });
         }
 
         [TestMethod]
         public void FindInNamespaceAndTestSuite()
         {
-            Assert.IsNotEmpty(_allTestSuiteNames);
-            Assert.HasCount(2, _allTestSuiteNames);
-            Assert.IsNotEmpty(_allTestCaseNames);
-            Assert.HasCount(50, _allTestCaseNames);
-
-            List<IKeyword> keywords = new List<IKeyword>()
+            TestCommon.AssertErrorOutput(() =>
             {
-                new NamespaceKeyword(),
-                new DoctestTestSuiteKeyword(_allTestSuiteNames),
-                new DoctestTestCaseTemplateKeyword(_allTestCaseNames)
-            };
+                Assert.IsNotEmpty(_allTestSuiteNames);
+                Assert.HasCount(2, _allTestSuiteNames);
+                Assert.IsNotEmpty(_allTestCaseNames);
+                Assert.HasCount(50, _allTestCaseNames);
 
-            TestCommon.AssertKeywords(TestCommon.UsingDoctestMainExecutableFilePath,
-                TestCommon.UsingDoctestMainTestHeaderFilePath,
-                keywords,
-                (int lineNumber, string testNamespace, List<TestCase> testCases) =>
+                List<IKeyword> keywords = new List<IKeyword>()
                 {
-                    if (lineNumber == 582)
+                    new NamespaceKeyword(),
+                    new DoctestTestSuiteKeyword(_allTestSuiteNames),
+                    new DoctestTestCaseTemplateKeyword(_allTestCaseNames)
+                };
+
+                TestCommon.AssertKeywords(TestCommon.UsingDoctestMainExecutableFilePath,
+                    TestCommon.UsingDoctestMainTestHeaderFilePath,
+                    keywords,
+                    (int lineNumber, string testNamespace, List<TestCase> testCases) =>
                     {
-                        TestCommon.AssertTestCase(testCases.Last(),
-                            TestCommon.UsingDoctestMainExecutableFilePath,
-                            "UsingDoctestMainNamespaceAndTestSuite_Namespace::[UsingDoctestMainNamespaceAndTestSuite_TestSuite]::Empty Class::[UsingDoctestMain] Testing IsEven Test Case Template In Namespace And Test Suite<int>",
-                            "[UsingDoctestMain] Testing IsEven Test Case Template In Namespace And Test Suite<int>",
-                            TestCommon.UsingDoctestMainTestHeaderFilePath,
-                            582);
+                        if (lineNumber == 582)
+                        {
+                            TestCommon.AssertTestCase(testCases.Last(),
+                                TestCommon.UsingDoctestMainExecutableFilePath,
+                                "UsingDoctestMainNamespaceAndTestSuite_Namespace::[UsingDoctestMainNamespaceAndTestSuite_TestSuite]::Empty Class::[UsingDoctestMain] Testing IsEven Test Case Template In Namespace And Test Suite<int>",
+                                "[UsingDoctestMain] Testing IsEven Test Case Template In Namespace And Test Suite<int>",
+                                TestCommon.UsingDoctestMainTestHeaderFilePath,
+                                582);
 
-                        return true;
-                    }
+                            return true;
+                        }
 
-                    return false;
-                });
+                        return false;
+                    });
+            });
         }
     }
 }

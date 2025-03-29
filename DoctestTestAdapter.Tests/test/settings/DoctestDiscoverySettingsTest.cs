@@ -36,49 +36,58 @@ namespace DoctestTestAdapter.Tests.Settings
         [TestMethod]
         public void SearchDirectoriesRelative()
         {
-            DoctestTestSettings doctestSettings = TestCommon.LoadDoctestSettings(new DoctestTestSettingsProvider(), TestCommon.DiscoveryRunSettingsRelativeSearchDirectoryExample);
+            TestCommon.AssertErrorOutput(() =>
+            {
+                DoctestTestSettings doctestSettings = TestCommon.LoadDoctestSettings(new DoctestTestSettingsProvider(), TestCommon.DiscoveryRunSettingsRelativeSearchDirectoryExample);
 
-            Assert.IsNotNull(doctestSettings);
-            Assert.IsNotNull(doctestSettings.DiscoverySettings);
-            Assert.IsNotNull(doctestSettings.DiscoverySettings.SearchDirectories);
-            Assert.IsNotEmpty(doctestSettings.DiscoverySettings.SearchDirectories);
-            Assert.HasCount(1, doctestSettings.DiscoverySettings.SearchDirectories);
-            Assert.AreEqual("UsingDoctestMain", doctestSettings.DiscoverySettings.SearchDirectories[0]);
-            
-            Assert.IsTrue(doctestSettings.DiscoverySettings.AreSearchDirectoriesValid(_solutionDirectory, out string message));
-            Assert.IsTrue(string.IsNullOrEmpty(message));
+                Assert.IsNotNull(doctestSettings);
+                Assert.IsNotNull(doctestSettings.DiscoverySettings);
+                Assert.IsNotNull(doctestSettings.DiscoverySettings.SearchDirectories);
+                Assert.IsNotEmpty(doctestSettings.DiscoverySettings.SearchDirectories);
+                Assert.HasCount(1, doctestSettings.DiscoverySettings.SearchDirectories);
+                Assert.AreEqual("UsingDoctestMain", doctestSettings.DiscoverySettings.SearchDirectories[0]);
+
+                Assert.IsTrue(doctestSettings.DiscoverySettings.AreSearchDirectoriesValid(_solutionDirectory, out string message));
+                Assert.IsTrue(string.IsNullOrEmpty(message));
+            });
         }
 
         [TestMethod]
         public void SearchDirectoriesAbsolute()
         {
-            DoctestTestSettings doctestSettings = TestCommon.LoadDoctestSettings(new DoctestTestSettingsProvider(), TestCommon.DiscoveryRunSettingsAbsoluteSearchDirectoryExample);
-            
-            Assert.IsNotNull(doctestSettings);
-            Assert.IsNotNull(doctestSettings.DiscoverySettings);
-            Assert.IsNotNull(doctestSettings.DiscoverySettings.SearchDirectories);
-            Assert.IsNotEmpty(doctestSettings.DiscoverySettings.SearchDirectories);
-            Assert.HasCount(1, doctestSettings.DiscoverySettings.SearchDirectories);
-            Assert.AreEqual(_solutionDirectory + "\\UsingDoctestMain", doctestSettings.DiscoverySettings.SearchDirectories[0]);
+            TestCommon.AssertErrorOutput(() =>
+            {
+                DoctestTestSettings doctestSettings = TestCommon.LoadDoctestSettings(new DoctestTestSettingsProvider(), TestCommon.DiscoveryRunSettingsAbsoluteSearchDirectoryExample);
 
-            Assert.IsTrue(doctestSettings.DiscoverySettings.AreSearchDirectoriesValid(_solutionDirectory, out string message));
-            Assert.IsTrue(string.IsNullOrEmpty(message));
+                Assert.IsNotNull(doctestSettings);
+                Assert.IsNotNull(doctestSettings.DiscoverySettings);
+                Assert.IsNotNull(doctestSettings.DiscoverySettings.SearchDirectories);
+                Assert.IsNotEmpty(doctestSettings.DiscoverySettings.SearchDirectories);
+                Assert.HasCount(1, doctestSettings.DiscoverySettings.SearchDirectories);
+                Assert.AreEqual(_solutionDirectory + "\\UsingDoctestMain", doctestSettings.DiscoverySettings.SearchDirectories[0]);
+
+                Assert.IsTrue(doctestSettings.DiscoverySettings.AreSearchDirectoriesValid(_solutionDirectory, out string message));
+                Assert.IsTrue(string.IsNullOrEmpty(message));
+            });
         }
 
         [TestMethod]
         public void SearchDirectoriesInvalid()
         {
-            DoctestTestSettings doctestSettings = TestCommon.LoadDoctestSettings(new DoctestTestSettingsProvider(), TestCommon.DiscoveryRunSettingsInvalidSearchDirectoryExample);
+            TestCommon.AssertErrorOutput(() =>
+            {
+                DoctestTestSettings doctestSettings = TestCommon.LoadDoctestSettings(new DoctestTestSettingsProvider(), TestCommon.DiscoveryRunSettingsInvalidSearchDirectoryExample);
 
-            Assert.IsNotNull(doctestSettings);
-            Assert.IsNotNull(doctestSettings.DiscoverySettings);
-            Assert.IsNotNull(doctestSettings.DiscoverySettings.SearchDirectories);
-            Assert.IsNotEmpty(doctestSettings.DiscoverySettings.SearchDirectories);
-            Assert.HasCount(1, doctestSettings.DiscoverySettings.SearchDirectories);
-            Assert.AreEqual("NonExistentDirectory", doctestSettings.DiscoverySettings.SearchDirectories[0]);
+                Assert.IsNotNull(doctestSettings);
+                Assert.IsNotNull(doctestSettings.DiscoverySettings);
+                Assert.IsNotNull(doctestSettings.DiscoverySettings.SearchDirectories);
+                Assert.IsNotEmpty(doctestSettings.DiscoverySettings.SearchDirectories);
+                Assert.HasCount(1, doctestSettings.DiscoverySettings.SearchDirectories);
+                Assert.AreEqual("NonExistentDirectory", doctestSettings.DiscoverySettings.SearchDirectories[0]);
 
-            Assert.IsFalse(doctestSettings.DiscoverySettings.AreSearchDirectoriesValid(_solutionDirectory, out string message));
-            Assert.IsFalse(string.IsNullOrEmpty(message));
+                Assert.IsFalse(doctestSettings.DiscoverySettings.AreSearchDirectoriesValid(_solutionDirectory, out string message));
+                Assert.IsFalse(string.IsNullOrEmpty(message));
+            });
         }
     }
 }

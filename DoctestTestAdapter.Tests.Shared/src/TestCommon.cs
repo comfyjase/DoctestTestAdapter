@@ -45,23 +45,43 @@ namespace DoctestTestAdapter.Tests
         internal static string GodotExecutableFilePath = GodotExamplesSolutionDirectory + "bin\\godot.windows.editor.dev.x86_64.exe";
 
 #if DEBUG
+        internal static string NoDoctestUnitTestsExecutableFilePath = ExamplesSolutionDirectory + "bin\\x64\\Debug\\NoDoctestUnitTests\\NoDoctestUnitTests.exe";
+        internal static string OnlyTestCasesExecutableFilePath = ExamplesSolutionDirectory + "bin\\x64\\Debug\\OnlyTestCases\\OnlyTestCases.exe";
+        internal static string OnlyTestSuitesExecutableFilePath = ExamplesSolutionDirectory + "bin\\x64\\Debug\\OnlyTestSuites\\OnlyTestSuites.exe";
+        internal static string EmptySuitesExecutableFilePath = ExamplesSolutionDirectory + "bin\\x64\\Debug\\EmptyTestSuites\\EmptyTestSuites.exe";
         internal static string UsingDoctestMainExecutableFilePath = ExamplesSolutionDirectory + "bin\\x64\\Debug\\UsingDoctestMain\\UsingDoctestMain.exe";
         internal static string ExecutableUsingDLLExecutableFilePath = ExamplesSolutionDirectory + "bin\\x64\\Debug\\ExecutableUsingDLL\\ExecutableUsingDLL.exe";
         internal static string DLLExecutableFilePath = ExamplesSolutionDirectory + "bin\\x64\\Debug\\ExecutableUsingDLL\\DLL.dll";
 
+        internal static string NoDoctestUnitTestsPdbFilePath = ExamplesSolutionDirectory + "bin\\x64\\Debug\\NoDoctestUnitTests\\NoDoctestUnitTests.pdb";
+        internal static string OnlyTestCasesPdbFilePath = ExamplesSolutionDirectory + "bin\\x64\\Debug\\OnlyTestCases\\OnlyTestCases.pdb";
+        internal static string OnlyTestSuitesPdbFilePath = ExamplesSolutionDirectory + "bin\\x64\\Debug\\OnlyTestSuites\\OnlyTestSuites.pdb";
+        internal static string EmptyTestSuitesPdbFilePath = ExamplesSolutionDirectory + "bin\\x64\\Debug\\EmptyTestSuites\\EmptyTestSuites.pdb";
         internal static string UsingDoctestMainPdbFilePath = ExamplesSolutionDirectory + "bin\\x64\\Debug\\UsingDoctestMain\\UsingDoctestMain.pdb";
         internal static string ExecutableUsingDLLPdbFilePath = ExamplesSolutionDirectory + "bin\\x64\\Debug\\ExecutableUsingDLL\\ExecutableUsingDLL.pdb";
         internal static string DLLPdbFilePath = ExamplesSolutionDirectory + "bin\\x64\\Debug\\DLL\\DLL.pdb";
 #else
+        internal static string NoDoctestUnitTestsExecutableFilePath = ExamplesSolutionDirectory + "bin\\x64\\Release\\NoDoctestUnitTests\\NoDoctestUnitTests.exe";
+        internal static string OnlyTestCasesExecutableFilePath = ExamplesSolutionDirectory + "bin\\x64\\Release\\OnlyTestCases\\OnlyTestCases.exe";
+        internal static string OnlyTestSuitesExecutableFilePath = ExamplesSolutionDirectory + "bin\\x64\\Release\\OnlyTestSuites\\OnlyTestSuites.exe";
+        internal static string EmptySuitesExecutableFilePath = ExamplesSolutionDirectory + "bin\\x64\\Release\\EmptyTestSuites\\EmptyTestSuites.exe";
         internal static string UsingDoctestMainExecutableFilePath = ExamplesSolutionDirectory + "bin\\x64\\Release\\UsingDoctestMain\\UsingDoctestMain.exe";
         internal static string ExecutableUsingDLLExecutableFilePath = ExamplesSolutionDirectory + "bin\\x64\\Release\\ExecutableUsingDLL\\ExecutableUsingDLL.exe";
         internal static string DLLExecutableFilePath = ExamplesSolutionDirectory + "bin\\x64\\Release\\ExecutableUsingDLL\\DLL.dll";
 
+        internal static string NoDoctestUnitTestsPdbFilePath = ExamplesSolutionDirectory + "bin\\x64\\Release\\NoDoctestUnitTests\\NoDoctestUnitTests.pdb";
+        internal static string OnlyTestCasesPdbFilePath = ExamplesSolutionDirectory + "bin\\x64\\Release\\OnlyTestCases\\OnlyTestCases.pdb";
+        internal static string OnlyTestSuitesPdbFilePath = ExamplesSolutionDirectory + "bin\\x64\\Release\\OnlyTestSuites\\OnlyTestSuites.pdb";
+        internal static string EmptyTestSuitesPdbFilePath = ExamplesSolutionDirectory + "bin\\x64\\Release\\EmptyTestSuites\\EmptyTestSuites.pdb";
         internal static string UsingDoctestMainPdbFilePath = ExamplesSolutionDirectory + "bin\\x64\\Release\\UsingDoctestMain\\UsingDoctestMain.pdb";
         internal static string ExecutableUsingDLLPdbFilePath = ExamplesSolutionDirectory + "bin\\x64\\Release\\ExecutableUsingDLL\\ExecutableUsingDLL.pdb";
         internal static string DLLPdbFilePath = ExamplesSolutionDirectory + "bin\\x64\\Release\\DLL\\DLL.pdb";
 #endif
 
+        internal static string NoDoctestUnitTestsHeaderFilePath = ExamplesSolutionDirectory + "NoDoctestUnitTests\\NoUnitTests.h";
+        internal static string OnlyTestCasesTestHeaderFilePath = ExamplesSolutionDirectory + "OnlyTestCases\\TestCasesOnly.h";
+        internal static string OnlyTestSuitesTestHeaderFilePath = ExamplesSolutionDirectory + "OnlyTestSuites\\TestSuitesOnly.h";
+        internal static string EmptyTestSuitesTestHeaderFilePath = ExamplesSolutionDirectory + "EmptyTestSuites\\ValidTestCase.h";
         internal static string UsingDoctestMainTestHeaderFilePath = ExamplesSolutionDirectory + "UsingDoctestMain\\TestIsEvenUsingDoctestMain.h";
         internal static string UsingCustomMainTestHeaderFilePath = ExamplesSolutionDirectory + "UsingCustomMain\\TestIsEvenUsingCustomMain.h";
         internal static string ExecutableUsingDLLTestHeaderFilePath = ExamplesSolutionDirectory + "DLLExample\\ExecutableUsingDLL\\TestIsEvenExecutableUsingDLL.h";
@@ -317,6 +337,31 @@ namespace DoctestTestAdapter.Tests
                 .Returns(settingsProvider);
 
             return DoctestTestSettingsProvider.LoadSettings(runContext);
+        }
+
+        internal static void AssertErrorOutput(Action action)
+        {
+            string errors = string.Empty;
+
+            using (StringWriter stringWriter = new StringWriter())
+            {
+                TextWriter previousWriter = Console.Error;
+
+                Console.SetError(stringWriter);
+
+                action();
+
+                errors = stringWriter.ToString();
+
+                Console.SetError(previousWriter);
+            }
+
+            bool hasErrors = !string.IsNullOrEmpty(errors);
+            if (hasErrors)
+            {
+                Console.Error.WriteLine(errors);
+            }
+            Assert.IsFalse(hasErrors);
         }
 
         internal static void AssertStandardOutputSettingOutput(string output, string expectedHeaderFilePath)

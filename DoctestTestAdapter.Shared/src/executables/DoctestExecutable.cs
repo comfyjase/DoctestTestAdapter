@@ -85,8 +85,13 @@ namespace DoctestTestAdapter.Shared.Executables
 
             Start();
 
+            // This can happen in situations where the solution doesn't have any doctest unit tests in.
+            // Which should be valid since a user might have this test adapter installed but not have the project setup with unit tests straight away.
+            // So this test adapter should not error here and should handle this gracefully.
             if (string.IsNullOrEmpty(Output))
-                throw new NullReferenceException($"{FilePath} did not provide valid 'Output' for {Arguments}, abort!");
+            {
+                return doctestNames;
+            }
 
             string searchString = "===============================================================================";
             int startOfDoctestListIndex = Output.IndexOf(searchString) + searchString.Length;

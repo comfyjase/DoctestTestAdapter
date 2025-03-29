@@ -38,73 +38,79 @@ namespace DoctestTestAdapter.Tests.Keywords
         [TestMethod]
 		public void FindSingle()
 		{
-            Assert.IsNotEmpty(_allTestSuiteNames);
-            Assert.HasCount(2, _allTestSuiteNames);
-
-            List<IKeyword> keywords = new List<IKeyword>()
+            TestCommon.AssertErrorOutput(() =>
             {
-                new DoctestTestSuiteKeyword(_allTestSuiteNames)
-            };
+                Assert.IsNotEmpty(_allTestSuiteNames);
+                Assert.HasCount(2, _allTestSuiteNames);
 
-            TestCommon.AssertKeywords(TestCommon.UsingDoctestMainExecutableFilePath, 
-                TestCommon.UsingDoctestMainTestHeaderFilePath,
-                keywords, (int lineNumber, string testNamespace, List<TestCase> testCases) =>
+                List<IKeyword> keywords = new List<IKeyword>()
                 {
-                    if (lineNumber == 137)
-                    {
-                        Assert.IsFalse(string.IsNullOrEmpty(testNamespace));
-                        Assert.AreEqual("[UsingDoctestMainTestSuite]", testNamespace);
-                    }
-                    else if (lineNumber == 219)
-                    {
-                        Assert.IsTrue(string.IsNullOrEmpty(testNamespace));
-                        return true;
-                    }
+                    new DoctestTestSuiteKeyword(_allTestSuiteNames)
+                };
 
-                    return false;
-                });
+                TestCommon.AssertKeywords(TestCommon.UsingDoctestMainExecutableFilePath,
+                    TestCommon.UsingDoctestMainTestHeaderFilePath,
+                    keywords, (int lineNumber, string testNamespace, List<TestCase> testCases) =>
+                    {
+                        if (lineNumber == 137)
+                        {
+                            Assert.IsFalse(string.IsNullOrEmpty(testNamespace));
+                            Assert.AreEqual("[UsingDoctestMainTestSuite]", testNamespace);
+                        }
+                        else if (lineNumber == 219)
+                        {
+                            Assert.IsTrue(string.IsNullOrEmpty(testNamespace));
+                            return true;
+                        }
+
+                        return false;
+                    });
+            });
         }
 
         // Note, this means nested inside of a namespace. Can't nest TEST_SUITE inside of another TEST_SUITE afaik.
 		[TestMethod]
 		public void FindNested()
 		{
-            Assert.IsNotEmpty(_allTestSuiteNames);
-            Assert.HasCount(2, _allTestSuiteNames);
-
-            List<IKeyword> keywords = new List<IKeyword>()
+            TestCommon.AssertErrorOutput(() =>
             {
-                new NamespaceKeyword(),
-                new DoctestTestSuiteKeyword(_allTestSuiteNames)
-            };
+                Assert.IsNotEmpty(_allTestSuiteNames);
+                Assert.HasCount(2, _allTestSuiteNames);
 
-            TestCommon.AssertKeywords(TestCommon.UsingDoctestMainExecutableFilePath,
-                TestCommon.UsingDoctestMainTestHeaderFilePath,
-                keywords, (int lineNumber, string testNamespace, List<TestCase> testCases) =>
+                List<IKeyword> keywords = new List<IKeyword>()
                 {
-                    if (lineNumber == 508)
-                    {
-                        Assert.IsFalse(string.IsNullOrEmpty(testNamespace));
-                        Assert.AreEqual("UsingDoctestMainNamespaceAndTestSuite_Namespace", testNamespace);
-                    }
-                    else if (lineNumber == 510)
-                    {
-                        Assert.IsFalse(string.IsNullOrEmpty(testNamespace));
-                        Assert.AreEqual("UsingDoctestMainNamespaceAndTestSuite_Namespace::[UsingDoctestMainNamespaceAndTestSuite_TestSuite]", testNamespace);
-                    }
-                    else if (lineNumber == 592)
-                    {
-                        Assert.IsFalse(string.IsNullOrEmpty(testNamespace));
-                        Assert.AreEqual("UsingDoctestMainNamespaceAndTestSuite_Namespace", testNamespace);
-                    }
-                    else if (lineNumber == 593)
-                    {
-                        Assert.IsTrue(string.IsNullOrEmpty(testNamespace));
-                        return true;
-                    }
+                    new NamespaceKeyword(),
+                    new DoctestTestSuiteKeyword(_allTestSuiteNames)
+                };
 
-                    return false;
-                });
+                TestCommon.AssertKeywords(TestCommon.UsingDoctestMainExecutableFilePath,
+                    TestCommon.UsingDoctestMainTestHeaderFilePath,
+                    keywords, (int lineNumber, string testNamespace, List<TestCase> testCases) =>
+                    {
+                        if (lineNumber == 508)
+                        {
+                            Assert.IsFalse(string.IsNullOrEmpty(testNamespace));
+                            Assert.AreEqual("UsingDoctestMainNamespaceAndTestSuite_Namespace", testNamespace);
+                        }
+                        else if (lineNumber == 510)
+                        {
+                            Assert.IsFalse(string.IsNullOrEmpty(testNamespace));
+                            Assert.AreEqual("UsingDoctestMainNamespaceAndTestSuite_Namespace::[UsingDoctestMainNamespaceAndTestSuite_TestSuite]", testNamespace);
+                        }
+                        else if (lineNumber == 592)
+                        {
+                            Assert.IsFalse(string.IsNullOrEmpty(testNamespace));
+                            Assert.AreEqual("UsingDoctestMainNamespaceAndTestSuite_Namespace", testNamespace);
+                        }
+                        else if (lineNumber == 593)
+                        {
+                            Assert.IsTrue(string.IsNullOrEmpty(testNamespace));
+                            return true;
+                        }
+
+                        return false;
+                    });
+            });
         }
 	}
 }

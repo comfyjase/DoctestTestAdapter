@@ -120,7 +120,9 @@ namespace DoctestTestAdapter
             }
             catch(Exception ex)
             {
-                frameworkHandle.SendMessage(TestMessageLevel.Error, Helpers.Constants.ErrorMessagePrefix + $"[Test Executing]: {ex}");
+                string errorMessage = Helpers.Constants.ErrorMessagePrefix + $" [Test Executing]: \n{ex}";
+                Console.Error.WriteLine(errorMessage);
+                frameworkHandle.SendMessage(TestMessageLevel.Error, errorMessage);
             }
             finally
             {
