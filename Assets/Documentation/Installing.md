@@ -1,22 +1,24 @@
 # Test Adapter for Doctest
 
 ## Installing Test Adapter for Doctest
-Please feel free to install this test adapter by any of the following methods:
-
-### Visual Studio Marketplace
-TODO: Step by step instructions for installing via Visual Studio Marketplace.
+You can install this test adapter using any of the following methods:
 
 ### Visual Studio Extension Manager
-TODO: Step by step instructions for installing via Visual Studio Extension Manager.
+1. In visual studio, go to *Extensions* -> *Manage Extensions* and in the browse tab search for *Test Adapter for Doctest*.
+2. Click on *Install*.
+
+### Visual Studio Marketplace
+1. Go to the [Visual Studio Marketplace](https://marketplace.visualstudio.com/) and search for *Test Adapter for Doctest* and select it.
+2. Click on *Download* and install the vsix file.
 
 ### Release
-TODO: Step by step instructions for installing via GitHubs releases on this project.
+1. Go to the [GitHub Releases](https://github.com/comfyjase/DoctestTestAdapter/releases) for this repository.
+2. Find which ever released version you want to install and look under the *Assets* section and click on the `.vsix` file to download it and then you can install it.
 
 ### Developer Builds
-This can be useful if you want to use a version of this test adapter built from commits from main or dev branch.
+This can be useful if you want to use a version of this test adapter built from commits from dev branch.
 > [!NOTE]  
 > Since the dev branch is used for active development there may be stability issues if you use any builds from dev.  
-> main branch should always be considered stable.  
 > Builds are currently retained for 30 days.  
 
 1. Uninstall any installed versions of this test adapter to avoid any conflicts.
