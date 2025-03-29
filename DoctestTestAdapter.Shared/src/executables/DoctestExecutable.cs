@@ -88,11 +88,10 @@ namespace DoctestTestAdapter.Shared.Executables
             if (string.IsNullOrEmpty(Output))
                 throw new NullReferenceException($"{FilePath} did not provide valid 'Output' for {Arguments}, abort!");
 
-            string startSearchString = "===============================================================================\r\n";
-            string endSearchString = "\r\n===============================================================================";
-            int startOfDoctestListIndex = Output.IndexOf(startSearchString) + startSearchString.Length;
-            int endOfDoctestListIndex = Output.LastIndexOf(endSearchString);
-            string subString = Output.Substring(startOfDoctestListIndex, endOfDoctestListIndex - startOfDoctestListIndex);
+            string searchString = "===============================================================================";
+            int startOfDoctestListIndex = Output.IndexOf(searchString) + searchString.Length;
+            int endOfDoctestListIndex = Output.LastIndexOf(searchString);
+            string subString = Output.Substring(startOfDoctestListIndex, endOfDoctestListIndex - startOfDoctestListIndex).Trim();
 
             if (!string.IsNullOrEmpty(subString))
             {
