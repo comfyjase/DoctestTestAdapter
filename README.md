@@ -19,10 +19,7 @@ Free open source Visual Studio Test Adapter VSIX to search, list, run and debug 
 | Visual Studio Enterprise 2022 | ✅ | ✅ | ✅ |  
 
 ## 📖 Documentation
-* [Installing the Test Adapter for Doctest](https://github.com/comfyjase/DoctestTestAdapter/wiki/Installing-the-Test-Adapter-for-Doctest)  
-* [Building the Test Adapter for Doctest From Source](https://github.com/comfyjase/DoctestTestAdapter/wiki/Building-From-Source)  
-* [Code Implementation](https://github.com/comfyjase/DoctestTestAdapter/wiki/Code-Implementation)
-* [FAQ](https://github.com/comfyjase/DoctestTestAdapter/wiki/FAQ)
+Visit the [wiki](https://github.com/comfyjase/DoctestTestAdapter/wiki) for more information.
 
 ## 🧪 Test Coverage
 This repository has unit tests in the `DoctestTestAdapter.Tests` and `DoctestTestAdapter.Tests.Godot` projects so developers can quickly test their own code changes locally and make sure everything passes before making any commits.
