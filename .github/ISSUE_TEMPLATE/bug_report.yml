@@ -1,7 +1,7 @@
 name: Bug Report
 description: Report a bug for the test adapter for doctest
-title: "[DTA-XXX] [BUG] - Describe bug briefly "
-labels: bug
+title: "[DTA] [BUG] - Describe bug briefly "
+labels: [bug, triage]
 assignees: comfyjase
 
 body:
@@ -22,16 +22,28 @@ body:
       validations:
         required: true
 
-    - type: input
+    - type: dropdown
       attributes:
         label: Test Adapter Version
         description: |
-          Which version of **Test Adapter for Doctest** did you install and how did you install it?
-          - For released versions (VS Marketplace/VS Extension Manager/GitHub Releases), please provide the tag version. E.g. "v1.0.0".
-          - For developer versions (Developer Build/Built From Source), please provide platform-configuration-build timestamp-branch name-git commit sha.
-        placeholder: Test Adapter for Doctest v1.0.0 - Installed through the Visual Studio Extension Manager.
+          Which version of **Test Adapter for Doctest** did you use?
+        options:
+          - Pre-Release v0.1.0 (Default)
+          - main branch
+          - dev branch
+        default: 0
       validations:
         required: true
+        
+    - type: input
+      attributes:
+        label: Test Adapter Version Extra Information
+        description: |
+          If you selected main branch or dev branch above, please provide which commit/build you used:
+          - Dev builds use this format: platform-configuration-build timestamp-branch name-git commit sha.
+        placeholder: Windows-Debug-2025.03.30-00.47.36-dev-ffdaafc
+      validations:
+        required: false
 
     - type: textarea
       attributes:
