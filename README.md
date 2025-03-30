@@ -5,6 +5,8 @@ Free open source Visual Studio Test Adapter VSIX to search, list, run and debug 
 |--|--|
 | [![CI](https://github.com/comfyjase/DoctestTestAdapter/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/comfyjase/DoctestTestAdapter/actions/workflows/ci.yml) | [![CI](https://github.com/comfyjase/DoctestTestAdapter/actions/workflows/ci.yml/badge.svg?branch=dev)](https://github.com/comfyjase/DoctestTestAdapter/actions/workflows/ci.yml) |  
 
+![Gif showing a test case being written and then added to the test explorer window](Assets/Gifs/TestAdapterForDoctest.gif)
+
 ## 🖥️ Features
 * Visual Studio Test Adapter to run and debug C++ doctest unit tests.
 * Custom settings for test discovery and execution.
@@ -20,6 +22,7 @@ Free open source Visual Studio Test Adapter VSIX to search, list, run and debug 
 * [Installing the Test Adapter for Doctest](Assets/Documentation/Installing.md)  
 * [Building the Test Adapter for Doctest From Source](Assets/Documentation/Building.md)  
 * [Code Implementation](Assets/Documentation/Code.md)
+* [FAQ](Assets/Documentation/FAQ.md)
 
 ## 🧪 Test Coverage
 This repository has unit tests in the `DoctestTestAdapter.Tests` and `DoctestTestAdapter.Tests.Godot` projects so developers can quickly test their own code changes locally and make sure everything passes before making any commits.
