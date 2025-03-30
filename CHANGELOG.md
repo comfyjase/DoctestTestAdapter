@@ -5,7 +5,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ## [0.1.0-Pre-Release] - 2025-03-31
 
-See the [release]() for details and binary assets.
+See the [release](https://github.com/comfyjase/DoctestTestAdapter/releases) for binary assets.
 
 ### Added
 
