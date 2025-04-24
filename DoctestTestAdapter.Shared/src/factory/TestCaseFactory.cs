@@ -116,25 +116,30 @@ namespace DoctestTestAdapter.Shared.Factory
                 string testNamespace = string.Empty;
                 string testClassName = string.Empty;
 
-                List<Keyword> mainKeywords = new List<Keyword>()
+                List<Keyword> doctestKeywords = new List<Keyword>()
                 {
-                    new NamespaceKeyword(),
-                    new ClassKeyword(),
                     new DoctestTestSuiteKeyword(testSuiteNames),
                     new DoctestTestCaseKeyword(testCaseNames),
                     new DoctestTestCaseFixtureKeyword(testCaseNames),
                     new DoctestTestCaseTemplateKeyword(testCaseNames),
                 };
 
+                List<Keyword> languageKeywords = new List<Keyword>()
+                {
+                    new NamespaceKeyword(),
+                    new ClassKeyword(),
+                };
+
                 // If there are no test suites, then we can remove this keyword altogether.
                 if (testSuiteNames == null || testSuiteNames.Count == 0)
                 {
-                    mainKeywords.RemoveAt(2);
+                    doctestKeywords.RemoveAt(0);
                 }
 
                 List<IKeyword> allKeywords = new List<IKeyword>();
-                allKeywords.AddRange(mainKeywords);
-                allKeywords.Add(new CustomMacroKeyword(mainKeywords, _logger));
+                allKeywords.AddRange(languageKeywords);
+                allKeywords.AddRange(doctestKeywords);
+                allKeywords.Add(new CustomMacroKeyword(doctestKeywords, _logger));
 
                 // Loop over all of the source files and read them line by line
                 foreach (string sourceFilePath in allSourceFilePaths)
