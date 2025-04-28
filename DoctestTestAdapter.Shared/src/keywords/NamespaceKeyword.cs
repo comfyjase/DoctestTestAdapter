@@ -82,17 +82,33 @@ namespace DoctestTestAdapter.Shared.Keywords
             if (_currentNamespace == namespaceName)
             {
                 namespaceName = string.Empty;
+                _currentNamespace = namespaceName;
+            }
+            else if (namespaceName == string.Empty)
+            {
+                _currentNamespace = namespaceName;
             }
             // Otherwise, we're in a nested namespace. So only remove the last occurance of this namespace from the full namespace string.
             else
             {
                 int separatorIndex = namespaceName.LastIndexOf(doubleColonSeparator);
-                namespaceName = namespaceName.Substring(0, separatorIndex);
-
-                int nestedSeparatorIndex = namespaceName.LastIndexOf(doubleColonSeparator);
-                if (nestedSeparatorIndex != -1)
+                if (separatorIndex != -1)
                 {
-                    _currentNamespace = namespaceName.Substring(nestedSeparatorIndex, namespaceName.Length);
+                    // Updates the FULL namespace.
+                    // E.g. namespaceOne::namespaceTwo::namespaceThree -> namespaceOne::namespaceTwo
+                    namespaceName = namespaceName.Substring(0, separatorIndex);
+
+                    // Updates the current namespace to whatever the latest one is.
+                    // E.g.namespaceThree -> namespaceTwo
+                    int nestedSeparatorIndex = namespaceName.LastIndexOf(doubleColonSeparator);
+                    if (nestedSeparatorIndex != -1)
+                    {
+                        _currentNamespace = namespaceName.Substring(nestedSeparatorIndex);
+                    }
+                    else
+                    {
+                        _currentNamespace = namespaceName;
+                    }
                 }
                 else
                 {

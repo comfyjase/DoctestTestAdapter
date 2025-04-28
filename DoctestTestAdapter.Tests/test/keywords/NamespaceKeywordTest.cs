@@ -23,6 +23,7 @@
 // SOFTWARE.
 
 using System.Collections.Generic;
+using DoctestTestAdapter.Shared.Executables;
 using DoctestTestAdapter.Shared.Keywords;
 using Microsoft.VisualStudio.TestPlatform.ObjectModel;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -45,7 +46,7 @@ namespace DoctestTestAdapter.Tests.Keywords
                 TestCommon.AssertKeywords(TestCommon.UsingDoctestMainExecutableFilePath,
                     TestCommon.UsingDoctestMainTestHeaderFilePath,
                     keywords,
-                    (int lineNumber, string testNamespace, List<TestCase> testCases) =>
+                    (int lineNumber, string testNamespace, string testClassName, List <TestCase> testCases) =>
                     {
                         if (lineNumber == 321)
                         {
@@ -76,7 +77,7 @@ namespace DoctestTestAdapter.Tests.Keywords
                 TestCommon.AssertKeywords(TestCommon.UsingDoctestMainExecutableFilePath,
                     TestCommon.UsingDoctestMainTestHeaderFilePath,
                     keywords,
-                    (int lineNumber, string testNamespace, List<TestCase> testCases) =>
+                    (int lineNumber, string testNamespace, string testClassName, List<TestCase> testCases) =>
                     {
                         if (lineNumber == 413)
                         {
@@ -103,5 +104,120 @@ namespace DoctestTestAdapter.Tests.Keywords
                     });
             });
         }
-	}
+
+        [TestMethod]
+        public void FindWithUsingNamespace()
+        {
+            TestCommon.AssertErrorOutput(() =>
+            {
+                List<IKeyword> keywords = new List<IKeyword>()
+                {
+                    new NamespaceKeyword()
+                };
+
+                TestCommon.AssertKeywords(TestCommon.NamespaceKeywordsExecutableFilePath,
+                    TestCommon.NamespaceKeywordsHeaderFilePath,
+                    keywords,
+                    (int lineNumber, string testNamespace, string testClassName, List<TestCase> testCases) =>
+                    {
+                        if (lineNumber == 6 || lineNumber == 8)
+                        {
+                            Assert.IsFalse(string.IsNullOrEmpty(testNamespace));
+                            Assert.AreEqual("Test", testNamespace);
+                        }
+                        else if (lineNumber == 14)
+                        {
+                            Assert.IsTrue(string.IsNullOrEmpty(testNamespace));
+                            return true;
+                        }
+
+                        return false;
+                    });
+            });
+        }
+
+        [TestMethod]
+        public void FindWithMultipleNamespacesWithTheSameNameInTheSameFile()
+        {
+            TestCommon.AssertErrorOutput(() =>
+            {
+                List<string> allTestSuiteNames = new DoctestExecutable(TestCommon.NamespaceKeywordsExecutableFilePath, TestCommon.ExamplesSolutionDirectory, null, null, null, null).GetTestSuiteNames();
+
+                List<IKeyword> keywords = new List<IKeyword>()
+                {
+                    new NamespaceKeyword(),
+                    new DoctestTestSuiteKeyword(allTestSuiteNames)
+                };
+
+                TestCommon.AssertKeywords(TestCommon.NamespaceKeywordsExecutableFilePath,
+                    TestCommon.NamespaceKeywordsHeaderFilePath,
+                    keywords,
+                    (int lineNumber, string testNamespace, string testClassName, List<TestCase> testCases) =>
+                    {
+                        if (lineNumber == 6 || lineNumber == 8)
+                        {
+                            Assert.IsFalse(string.IsNullOrEmpty(testNamespace));
+                            Assert.AreEqual("Test", testNamespace);
+                        }
+                        else if (lineNumber == 14)
+                        {
+                            Assert.IsTrue(string.IsNullOrEmpty(testNamespace));
+                        }
+                        else if (lineNumber == 16)
+                        {
+                            Assert.IsFalse(string.IsNullOrEmpty(testNamespace));
+                            Assert.AreEqual("std", testNamespace);
+                        }
+                        else if (lineNumber == 22)
+                        {
+                            Assert.IsTrue(string.IsNullOrEmpty(testNamespace));
+                        }
+                        else if (lineNumber == 24 || lineNumber == 26)
+                        {
+                            Assert.IsTrue(string.IsNullOrEmpty(testNamespace));
+                        }
+                        else if (lineNumber == 30)
+                        {
+                            Assert.IsTrue(string.IsNullOrEmpty(testNamespace));
+                        }
+                        else if (lineNumber == 32 || lineNumber == 34)
+                        {
+                            Assert.IsFalse(string.IsNullOrEmpty(testNamespace));
+                            Assert.AreEqual("Test", testNamespace);
+                        }
+                        else if (lineNumber == 40)
+                        {
+                            Assert.IsTrue(string.IsNullOrEmpty(testNamespace));
+                        }
+                        else if (lineNumber == 42)
+                        {
+                            Assert.IsFalse(string.IsNullOrEmpty(testNamespace));
+                            Assert.AreEqual("Test", testNamespace);
+                        }
+                        else if (lineNumber == 44)
+                        {
+                            Assert.IsFalse(string.IsNullOrEmpty(testNamespace));
+                            Assert.AreEqual("Test::[Multiple Namespaces With The Same Name Suite]", testNamespace);
+                        }
+                        else if (lineNumber == 46)
+                        {
+                            Assert.IsFalse(string.IsNullOrEmpty(testNamespace));
+                            Assert.AreEqual("Test::[Multiple Namespaces With The Same Name Suite]", testNamespace);
+                        }
+                        else if (lineNumber == 52)
+                        {
+                            Assert.IsFalse(string.IsNullOrEmpty(testNamespace));
+                            Assert.AreEqual("Test", testNamespace);
+                        }
+                        else if (lineNumber == 53)
+                        {
+                            Assert.IsTrue(string.IsNullOrEmpty(testNamespace));
+                            return true;
+                        }
+                        
+                        return false;
+                    });
+            });
+        }
+    }
 }

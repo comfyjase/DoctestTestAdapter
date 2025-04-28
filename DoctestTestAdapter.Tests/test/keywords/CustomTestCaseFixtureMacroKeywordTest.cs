@@ -56,7 +56,7 @@ namespace DoctestTestAdapter.Tests.Keywords
                 TestCommon.AssertKeywords(TestCommon.UsingDoctestMainExecutableFilePath,
                     TestCommon.UsingDoctestMainTestHeaderFilePath,
                     keywords,
-                    (int lineNumber, string testNamespace, List<TestCase> testCases) =>
+                    (int lineNumber, string testNamespace, string testClassName, List<TestCase> testCases) =>
                     {
                         if (lineNumber == 125)
                         {
@@ -97,7 +97,7 @@ namespace DoctestTestAdapter.Tests.Keywords
                 TestCommon.AssertKeywords(TestCommon.UsingDoctestMainExecutableFilePath,
                     TestCommon.UsingDoctestMainTestHeaderFilePath,
                     keywords,
-                    (int lineNumber, string testNamespace, List<TestCase> testCases) =>
+                    (int lineNumber, string testNamespace, string testClassName, List<TestCase> testCases) =>
                     {
                         if (lineNumber == 216)
                         {
@@ -136,7 +136,7 @@ namespace DoctestTestAdapter.Tests.Keywords
                 TestCommon.AssertKeywords(TestCommon.UsingDoctestMainExecutableFilePath,
                     TestCommon.UsingDoctestMainTestHeaderFilePath,
                     keywords,
-                    (int lineNumber, string testNamespace, List<TestCase> testCases) =>
+                    (int lineNumber, string testNamespace, string testClassName, List<TestCase> testCases) =>
                     {
                         if (lineNumber == 400)
                         {
@@ -175,7 +175,7 @@ namespace DoctestTestAdapter.Tests.Keywords
                 TestCommon.AssertKeywords(TestCommon.UsingDoctestMainExecutableFilePath,
                     TestCommon.UsingDoctestMainTestHeaderFilePath,
                     keywords,
-                    (int lineNumber, string testNamespace, List<TestCase> testCases) =>
+                    (int lineNumber, string testNamespace, string testClassName, List<TestCase> testCases) =>
                     {
                         if (lineNumber == 494)
                         {
@@ -217,7 +217,7 @@ namespace DoctestTestAdapter.Tests.Keywords
                 TestCommon.AssertKeywords(TestCommon.UsingDoctestMainExecutableFilePath,
                     TestCommon.UsingDoctestMainTestHeaderFilePath,
                     keywords,
-                    (int lineNumber, string testNamespace, List<TestCase> testCases) =>
+                    (int lineNumber, string testNamespace, string testClassName, List<TestCase> testCases) =>
                     {
                         if (lineNumber == 589)
                         {

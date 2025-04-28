@@ -53,6 +53,11 @@ namespace DoctestTestAdapter.Shared.PatternSearcher
         internal BracketSearcher()
         { }
 
+        internal void Clear()
+        {
+            _bracketCounter.Clear();
+        }
+
         internal void Check(string line)
         {
             foreach (char letter in line)

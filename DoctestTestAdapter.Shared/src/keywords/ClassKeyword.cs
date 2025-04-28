@@ -101,17 +101,29 @@ namespace DoctestTestAdapter.Shared.Keywords
             if (_currentClassName == className)
             {
                 className = string.Empty;
+                _currentClassName = namespaceName;
+            }
+            else if (className == string.Empty)
+            {
+                _currentClassName = className;
             }
             // Otherwise, we're in a nested class. So only remove the last occurance of this className from the full className string.
             else
             {
                 int separatorIndex = className.LastIndexOf(doubleColonSeparator);
-                className = className.Substring(0, separatorIndex);
-
-                int nestedSeparatorIndex = className.LastIndexOf(doubleColonSeparator);
-                if (nestedSeparatorIndex != -1)
+                if (separatorIndex != -1)
                 {
-                    _currentClassName = className.Substring(nestedSeparatorIndex, className.Length);
+                    className = className.Substring(0, separatorIndex);
+
+                    int nestedSeparatorIndex = className.LastIndexOf(doubleColonSeparator);
+                    if (nestedSeparatorIndex != -1)
+                    {
+                        _currentClassName = className.Substring(nestedSeparatorIndex);
+                    }
+                    else
+                    {
+                        _currentClassName = className;
+                    }
                 }
                 else
                 {

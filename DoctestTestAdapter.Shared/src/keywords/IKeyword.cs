@@ -29,6 +29,6 @@ namespace DoctestTestAdapter.Shared.Keywords
 {
     internal interface IKeyword
     {
-        void Check(string executableFilePath, string sourceFilePath, ref string namespaceName, ref string className, string line, int lineNumber, ref List<TestCase> allTestCases);
+        void Check(string executableFilePath, string sourceFilePath, ref string namespaceName, ref string className, string line, int lineNumber, ref List<TestCase> allTestCases, bool reachedEndOfFile);
     }
 }

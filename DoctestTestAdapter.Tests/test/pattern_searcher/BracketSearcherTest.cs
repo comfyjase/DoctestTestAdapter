@@ -44,6 +44,26 @@ namespace DoctestTestAdapter.Tests.PatternSearcher
                 "}",
             "}"
         };
+        private List<string> _exampleCodeVariant = new List<string>()
+        {
+            "namespace A {",
+                "namespace B {",
+                    "void Foo() {",
+                    "}",
+                "}",
+            "}"
+        };
+        private List<string> _exampleCodeVariantTwo = new List<string>()
+        {
+            "int i = 0;",
+            "if (true) {",
+                "i = 0;",
+            "} else if (false) {",
+                "i = 1;",
+            "} else {",
+                "i = 2;",
+            "}"
+        };
         private bool _onFoundOpenBracketFunctionCalled = false;
         private bool _onFoundCloseBracketFunctionCalled = false;
         private bool _onLeaveBracketScopeFunctionCalled = false;
@@ -80,6 +100,38 @@ namespace DoctestTestAdapter.Tests.PatternSearcher
         }
 
         [TestMethod]
+        public void FoundOpenBracketVariant()
+        {
+            TestCommon.AssertErrorOutput(() =>
+            {
+                Assert.IsNotNull(_bracketSearcher);
+                _onFoundOpenBracketFunctionCalled = false;
+
+                _bracketSearcher.OnFoundOpenBracket += OnFoundOpenBracket;
+                _bracketSearcher.Check(_exampleCodeVariant[0]);
+                _bracketSearcher.OnFoundOpenBracket -= OnFoundOpenBracket;
+
+                Assert.IsTrue(_onFoundOpenBracketFunctionCalled);
+            });
+        }
+
+        [TestMethod]
+        public void FoundOpenBracketVariantTwo()
+        {
+            TestCommon.AssertErrorOutput(() =>
+            {
+                Assert.IsNotNull(_bracketSearcher);
+                _onFoundOpenBracketFunctionCalled = false;
+
+                _bracketSearcher.OnFoundOpenBracket += OnFoundOpenBracket;
+                _bracketSearcher.Check(_exampleCodeVariantTwo[1]);
+                _bracketSearcher.OnFoundOpenBracket -= OnFoundOpenBracket;
+
+                Assert.IsTrue(_onFoundOpenBracketFunctionCalled);
+            });
+        }
+
+        [TestMethod]
         public void FoundCloseBracket()
         {
             TestCommon.AssertErrorOutput(() =>
@@ -97,6 +149,40 @@ namespace DoctestTestAdapter.Tests.PatternSearcher
         }
 
         [TestMethod]
+        public void FoundCloseBracketVariant()
+        {
+            TestCommon.AssertErrorOutput(() =>
+            {
+                Assert.IsNotNull(_bracketSearcher);
+                _onFoundCloseBracketFunctionCalled = false;
+
+                _bracketSearcher.OnFoundCloseBracket += OnFoundCloseBracket;
+                _bracketSearcher.Check(_exampleCodeVariant[2]);
+                _bracketSearcher.Check(_exampleCodeVariant[3]);
+                _bracketSearcher.OnFoundCloseBracket -= OnFoundCloseBracket;
+
+                Assert.IsTrue(_onFoundCloseBracketFunctionCalled);
+            });
+        }
+
+        [TestMethod]
+        public void FoundCloseBracketVariantTwo()
+        {
+            TestCommon.AssertErrorOutput(() =>
+            {
+                Assert.IsNotNull(_bracketSearcher);
+                _onFoundCloseBracketFunctionCalled = false;
+
+                _bracketSearcher.OnFoundCloseBracket += OnFoundCloseBracket;
+                _bracketSearcher.Check(_exampleCodeVariantTwo[1]);
+                _bracketSearcher.Check(_exampleCodeVariantTwo[3]);
+                _bracketSearcher.OnFoundCloseBracket -= OnFoundCloseBracket;
+
+                Assert.IsTrue(_onFoundCloseBracketFunctionCalled);
+            });
+        }
+
+        [TestMethod]
         public void LeaveScope()
         {
             TestCommon.AssertErrorOutput(() =>
@@ -106,6 +192,38 @@ namespace DoctestTestAdapter.Tests.PatternSearcher
 
                 _bracketSearcher.OnLeaveBracketScope += OnLeaveBracketScope;
                 _exampleCode.ForEach(s => _bracketSearcher.Check(s));
+                _bracketSearcher.OnLeaveBracketScope -= OnLeaveBracketScope;
+
+                Assert.IsTrue(_onLeaveBracketScopeFunctionCalled);
+            });
+        }
+
+        [TestMethod]
+        public void LeaveScopeVariant()
+        {
+            TestCommon.AssertErrorOutput(() =>
+            {
+                Assert.IsNotNull(_bracketSearcher);
+                _onLeaveBracketScopeFunctionCalled = false;
+
+                _bracketSearcher.OnLeaveBracketScope += OnLeaveBracketScope;
+                _exampleCodeVariant.ForEach(s => _bracketSearcher.Check(s));
+                _bracketSearcher.OnLeaveBracketScope -= OnLeaveBracketScope;
+
+                Assert.IsTrue(_onLeaveBracketScopeFunctionCalled);
+            });
+        }
+
+        [TestMethod]
+        public void LeaveScopeVariantTwo()
+        {
+            TestCommon.AssertErrorOutput(() =>
+            {
+                Assert.IsNotNull(_bracketSearcher);
+                _onLeaveBracketScopeFunctionCalled = false;
+
+                _bracketSearcher.OnLeaveBracketScope += OnLeaveBracketScope;
+                _exampleCodeVariantTwo.ForEach(s => _bracketSearcher.Check(s));
                 _bracketSearcher.OnLeaveBracketScope -= OnLeaveBracketScope;
 
                 Assert.IsTrue(_onLeaveBracketScopeFunctionCalled);
@@ -139,6 +257,56 @@ namespace DoctestTestAdapter.Tests.PatternSearcher
                 Assert.AreEqual(1, _bracketSearcher.NumberOfUnpairedBrackets);
 
                 _bracketSearcher.Check(_exampleCode[8]);
+                Assert.AreEqual(0, _bracketSearcher.NumberOfUnpairedBrackets);
+            });
+        }
+
+        [TestMethod]
+        public void SearchVariant()
+        {
+            TestCommon.AssertErrorOutput(() =>
+            {
+                Assert.IsNotNull(_bracketSearcher);
+                Assert.AreEqual(0, _bracketSearcher.NumberOfUnpairedBrackets);
+
+                _bracketSearcher.Check(_exampleCodeVariant[0]);
+                Assert.AreEqual(1, _bracketSearcher.NumberOfUnpairedBrackets);
+
+                _bracketSearcher.Check(_exampleCodeVariant[1]);
+                Assert.AreEqual(2, _bracketSearcher.NumberOfUnpairedBrackets);
+
+                _bracketSearcher.Check(_exampleCodeVariant[2]);
+                Assert.AreEqual(3, _bracketSearcher.NumberOfUnpairedBrackets);
+
+                _bracketSearcher.Check(_exampleCodeVariant[3]);
+                Assert.AreEqual(2, _bracketSearcher.NumberOfUnpairedBrackets);
+
+                _bracketSearcher.Check(_exampleCodeVariant[4]);
+                Assert.AreEqual(1, _bracketSearcher.NumberOfUnpairedBrackets);
+
+                _bracketSearcher.Check(_exampleCodeVariant[5]);
+                Assert.AreEqual(0, _bracketSearcher.NumberOfUnpairedBrackets);
+            });
+        }
+
+        [TestMethod]
+        public void SearchVariantTwo()
+        {
+            TestCommon.AssertErrorOutput(() =>
+            {
+                Assert.IsNotNull(_bracketSearcher);
+                Assert.AreEqual(0, _bracketSearcher.NumberOfUnpairedBrackets);
+
+                _bracketSearcher.Check(_exampleCodeVariantTwo[1]);
+                Assert.AreEqual(1, _bracketSearcher.NumberOfUnpairedBrackets);
+
+                _bracketSearcher.Check(_exampleCodeVariantTwo[3]);
+                Assert.AreEqual(1, _bracketSearcher.NumberOfUnpairedBrackets);
+
+                _bracketSearcher.Check(_exampleCodeVariantTwo[5]);
+                Assert.AreEqual(1, _bracketSearcher.NumberOfUnpairedBrackets);
+
+                _bracketSearcher.Check(_exampleCodeVariantTwo[7]);
                 Assert.AreEqual(0, _bracketSearcher.NumberOfUnpairedBrackets);
             });
         }

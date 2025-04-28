@@ -32,6 +32,7 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Xml;
 
 namespace DoctestTestAdapter.Tests
@@ -49,6 +50,8 @@ namespace DoctestTestAdapter.Tests
         internal static string OnlyTestCasesExecutableFilePath = ExamplesSolutionDirectory + "bin\\x64\\Debug\\OnlyTestCases\\OnlyTestCases.exe";
         internal static string OnlyTestSuitesExecutableFilePath = ExamplesSolutionDirectory + "bin\\x64\\Debug\\OnlyTestSuites\\OnlyTestSuites.exe";
         internal static string EmptySuitesExecutableFilePath = ExamplesSolutionDirectory + "bin\\x64\\Debug\\EmptyTestSuites\\EmptyTestSuites.exe";
+        internal static string ClassKeywordsExecutableFilePath = ExamplesSolutionDirectory + "bin\\x64\\Debug\\ClassKeywords\\ClassKeywords.exe";
+        internal static string NamespaceKeywordsExecutableFilePath = ExamplesSolutionDirectory + "bin\\x64\\Debug\\NamespaceKeywords\\NamespaceKeywords.exe";
         internal static string UsingDoctestMainExecutableFilePath = ExamplesSolutionDirectory + "bin\\x64\\Debug\\UsingDoctestMain\\UsingDoctestMain.exe";
         internal static string ExecutableUsingDLLExecutableFilePath = ExamplesSolutionDirectory + "bin\\x64\\Debug\\ExecutableUsingDLL\\ExecutableUsingDLL.exe";
         internal static string DLLExecutableFilePath = ExamplesSolutionDirectory + "bin\\x64\\Debug\\ExecutableUsingDLL\\DLL.dll";
@@ -64,6 +67,8 @@ namespace DoctestTestAdapter.Tests
         internal static string NoDoctestUnitTestsExecutableFilePath = ExamplesSolutionDirectory + "bin\\x64\\Release\\NoDoctestUnitTests\\NoDoctestUnitTests.exe";
         internal static string OnlyTestCasesExecutableFilePath = ExamplesSolutionDirectory + "bin\\x64\\Release\\OnlyTestCases\\OnlyTestCases.exe";
         internal static string OnlyTestSuitesExecutableFilePath = ExamplesSolutionDirectory + "bin\\x64\\Release\\OnlyTestSuites\\OnlyTestSuites.exe";
+        internal static string ClassKeywordsExecutableFilePath = ExamplesSolutionDirectory + "bin\\x64\\Release\\ClassKeywords\\ClassKeywords.exe";
+        internal static string NamespaceKeywordsExecutableFilePath = ExamplesSolutionDirectory + "bin\\x64\\Release\\NamespaceKeywords\\NamespaceKeywords.exe";
         internal static string EmptySuitesExecutableFilePath = ExamplesSolutionDirectory + "bin\\x64\\Release\\EmptyTestSuites\\EmptyTestSuites.exe";
         internal static string UsingDoctestMainExecutableFilePath = ExamplesSolutionDirectory + "bin\\x64\\Release\\UsingDoctestMain\\UsingDoctestMain.exe";
         internal static string ExecutableUsingDLLExecutableFilePath = ExamplesSolutionDirectory + "bin\\x64\\Release\\ExecutableUsingDLL\\ExecutableUsingDLL.exe";
@@ -81,6 +86,8 @@ namespace DoctestTestAdapter.Tests
         internal static string NoDoctestUnitTestsHeaderFilePath = ExamplesSolutionDirectory + "NoDoctestUnitTests\\NoUnitTests.h";
         internal static string OnlyTestCasesTestHeaderFilePath = ExamplesSolutionDirectory + "OnlyTestCases\\TestCasesOnly.h";
         internal static string OnlyTestSuitesTestHeaderFilePath = ExamplesSolutionDirectory + "OnlyTestSuites\\TestSuitesOnly.h";
+        internal static string ClassKeywordsHeaderFilePath = ExamplesSolutionDirectory + "ClassKeywords\\Classes.h";
+        internal static string NamespaceKeywordsHeaderFilePath = ExamplesSolutionDirectory + "NamespaceKeywords\\Namespaces.h";
         internal static string EmptyTestSuitesTestHeaderFilePath = ExamplesSolutionDirectory + "EmptyTestSuites\\ValidTestCase.h";
         internal static string UsingDoctestMainTestHeaderFilePath = ExamplesSolutionDirectory + "UsingDoctestMain\\TestIsEvenUsingDoctestMain.h";
         internal static string UsingCustomMainTestHeaderFilePath = ExamplesSolutionDirectory + "UsingCustomMain\\TestIsEvenUsingCustomMain.h";
@@ -448,7 +455,7 @@ namespace DoctestTestAdapter.Tests
             }
         }
 
-        internal static void AssertKeywords(string executableFilePath, string headerFilePath, List<IKeyword> keywords, Func<int, string, List<TestCase>, bool> testFunction)
+        internal static void AssertKeywords(string executableFilePath, string headerFilePath, List<IKeyword> keywords, Func<int, string, string, List<TestCase>, bool> testFunction)
         {
             Assert.IsNotEmpty(keywords);
 
@@ -469,9 +476,10 @@ namespace DoctestTestAdapter.Tests
                     ref testClassName,
                     line,
                     currentLineNumber,
-                    ref testCases));
+                    ref testCases,
+                    currentLineNumber == allLines.Count()));
 
-                if (testFunction(currentLineNumber, testNamespace, testCases))
+                if (testFunction(currentLineNumber, testNamespace, testClassName, testCases))
                 {
                     return;
                 }

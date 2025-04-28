@@ -75,10 +75,11 @@ namespace DoctestTestAdapter.Shared.Keywords
 
         internal abstract void OnExitKeywordScope(string executableFilePath, string sourceFilePath, ref string namespaceName, ref string className, string line, int lineNumber, ref List<TestCase> allTestCases);
 
-        public void Check(string executableFilePath, string sourceFilePath, ref string namespaceName, ref string className, string line, int lineNumber, ref List<TestCase> allTestCases)
+        public void Check(string executableFilePath, string sourceFilePath, ref string namespaceName, ref string className, string line, int lineNumber, ref List<TestCase> allTestCases, bool reachedEndOfFile)
         {
             Match keywordRegexMatch = _regexSearchPattern.Match(line);
-            bool validMatch = keywordRegexMatch.Success && !line.EndsWith(";");
+            bool lineCheck = ((this is ClassKeyword || this is NamespaceKeyword) ? !line.Contains(";") : !line.EndsWith(";"));
+            bool validMatch = keywordRegexMatch.Success && lineCheck;
             if (validMatch)
             {
                 if (!_isInKeywordScope)
@@ -90,20 +91,40 @@ namespace DoctestTestAdapter.Shared.Keywords
                 // Guaranteed to be entering some kind of keyword scope now.
                 // So track the relevant index of what bracket we expect to open/close this keyword scope.
                 _relevantBracketIndexForKeywordScope.Push(_bracketSearcher.NumberOfUnpairedBrackets);
-                
+                // And it's important to check for paired brackets for this scope within the one line too.
+                _hasPairedBracketsForKeywordScope = false;
                 _bracketSearcher.Check(line);
                 OnEnterKeywordScope(executableFilePath, sourceFilePath, ref namespaceName, ref className, line, lineNumber, ref allTestCases);
+                
+                // In case a keyword was declared and scoped within the same line.
+                // E.g. namespace Test {}
+                if (_hasPairedBracketsForKeywordScope)
+                {
+                    OnExitKeywordScope(executableFilePath, sourceFilePath, ref namespaceName, ref className, line, lineNumber, ref allTestCases);
+                }
             }
             // Even if the regex match fails, we might already be inside of a keyword scope - so check brackets to update inside state.
             else if (_isInKeywordScope)
             {
                 _hasPairedBracketsForKeywordScope = false;
-
                 _bracketSearcher.Check(line);
 
-                if (_hasPairedBracketsForKeywordScope)
+                // A fallback: If we have reached the end of the file and for some reason there are still unpaired brackets.
+                // Which can happen if extra brackets are within #if blocks for example.
+                // Then just manually clear data here for the next search.
+                if (reachedEndOfFile && _bracketSearcher.NumberOfUnpairedBrackets > 0)
                 {
+                    namespaceName = "";
+                    className = "";
                     OnExitKeywordScope(executableFilePath, sourceFilePath, ref namespaceName, ref className, line, lineNumber, ref allTestCases);
+                    _bracketSearcher.Clear();
+                }
+                else
+                {
+                    if (_hasPairedBracketsForKeywordScope)
+                    {
+                        OnExitKeywordScope(executableFilePath, sourceFilePath, ref namespaceName, ref className, line, lineNumber, ref allTestCases);
+                    }
                 }
             }
         }

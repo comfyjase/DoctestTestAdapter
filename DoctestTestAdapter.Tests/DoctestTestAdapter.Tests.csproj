@@ -59,6 +59,7 @@
     <Compile Include="test\keywords\CustomTestCaseFixtureMacroKeywordTest.cs" />
     <Compile Include="test\keywords\DoctestTestCaseFixtureKeywordTest.cs" />
     <Compile Include="test\keywords\CustomTestCaseTemplateMacroKeywordTest.cs" />
+    <Compile Include="test\keywords\ClassKeywordTest.cs" />
     <Compile Include="test\pattern_searcher\BracketSearcherTest.cs" />
     <Compile Include="test\settings\DoctestTestSettingsTest.cs" />
     <Compile Include="test\settings\DoctestGeneralSettingsTest.cs" />

@@ -246,7 +246,7 @@ namespace DoctestTestAdapter.Shared.Keywords
             }
         }
 
-        public void Check(string executableFilePath, string sourceFilePath, ref string namespaceName, ref string className, string line, int lineNumber, ref List<TestCase> allTestCases)
+        public void Check(string executableFilePath, string sourceFilePath, ref string namespaceName, ref string className, string line, int lineNumber, ref List<TestCase> allTestCases, bool reachedEndOfFile)
         {
             CheckForMacroDefinition(line);
             CheckForMacroImplementation(executableFilePath, sourceFilePath, ref namespaceName, ref className, line, lineNumber, ref allTestCases);

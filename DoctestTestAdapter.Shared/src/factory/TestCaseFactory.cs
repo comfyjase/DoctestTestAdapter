@@ -150,7 +150,7 @@ namespace DoctestTestAdapter.Shared.Factory
                     foreach (string line in allLines)
                     {
                         ++currentLineNumber;
-                        allKeywords.ForEach(k => k.Check(_executableFilePath, sourceFilePath, ref testNamespace, ref testClassName, line, currentLineNumber, ref testCases));
+                        allKeywords.ForEach(k => k.Check(_executableFilePath, sourceFilePath, ref testNamespace, ref testClassName, line, currentLineNumber, ref testCases, currentLineNumber == allLines.Count()));
                     }
                 }
             }
