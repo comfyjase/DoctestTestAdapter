@@ -3,6 +3,16 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
+## [0.1.1-Pre-Release] - 2025-04-29
+
+See the [release](https://github.com/comfyjase/DoctestTestAdapter/releases) for binary assets.
+
+### Fixed 
+
+#### Discovery
+* Fixed issues with out of range index for substring for namespace/class keyword checks when searching source files.
+* Fixed issue with custom macro keywords checking for custom namespace/class keywords.
+
 ## [0.1.0-Pre-Release] - 2025-03-31
 
 See the [release](https://github.com/comfyjase/DoctestTestAdapter/releases) for binary assets.

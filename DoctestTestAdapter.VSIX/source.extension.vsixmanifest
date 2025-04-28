@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <PackageManifest Version="2.0.0" xmlns="http://schemas.microsoft.com/developer/vsx-schema/2011" xmlns:d="http://schemas.microsoft.com/developer/vsx-schema-design/2011">
     <Metadata>
-        <Identity Id="DoctestTestAdapterVSIX.91901ec3-5a5b-4c47-96a5-df751740fc69" Version="0.1.0" Language="en-US" Publisher="Jase Mottershead" />
+        <Identity Id="DoctestTestAdapterVSIX.91901ec3-5a5b-4c47-96a5-df751740fc69" Version="0.1.1" Language="en-US" Publisher="Jase Mottershead" />
         <DisplayName>Test Adapter for Doctest</DisplayName>
         <Description xml:space="preserve">Enables Visual Studio's testing tools with unit tests written for doctest.</Description>
         <MoreInfo>https://github.com/comfyjase/DoctestTestAdapter</MoreInfo>
