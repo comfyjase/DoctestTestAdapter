@@ -36,6 +36,8 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "TestsOnlyInHPPFiles", "Test
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "TestsOnlyInHFiles", "TestsOnlyInHFiles\TestsOnlyInHFiles.vcxproj", "{72468362-49F3-4110-AF42-BD1DD00E50B9}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Special_Characters-In.FolderPath", "Special_Characters-In.FolderPath\Special_Characters-In.FolderPath\Special_Characters-In.FolderPath.vcxproj", "{86DDBCF7-7F78-44C9-885D-B959695BA0C6}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|x64 = Debug|x64
@@ -156,6 +158,14 @@ Global
 		{72468362-49F3-4110-AF42-BD1DD00E50B9}.Release|x64.Build.0 = Release|x64
 		{72468362-49F3-4110-AF42-BD1DD00E50B9}.Release|x86.ActiveCfg = Release|Win32
 		{72468362-49F3-4110-AF42-BD1DD00E50B9}.Release|x86.Build.0 = Release|Win32
+		{86DDBCF7-7F78-44C9-885D-B959695BA0C6}.Debug|x64.ActiveCfg = Debug|x64
+		{86DDBCF7-7F78-44C9-885D-B959695BA0C6}.Debug|x64.Build.0 = Debug|x64
+		{86DDBCF7-7F78-44C9-885D-B959695BA0C6}.Debug|x86.ActiveCfg = Debug|Win32
+		{86DDBCF7-7F78-44C9-885D-B959695BA0C6}.Debug|x86.Build.0 = Debug|Win32
+		{86DDBCF7-7F78-44C9-885D-B959695BA0C6}.Release|x64.ActiveCfg = Release|x64
+		{86DDBCF7-7F78-44C9-885D-B959695BA0C6}.Release|x64.Build.0 = Release|x64
+		{86DDBCF7-7F78-44C9-885D-B959695BA0C6}.Release|x86.ActiveCfg = Release|Win32
+		{86DDBCF7-7F78-44C9-885D-B959695BA0C6}.Release|x86.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

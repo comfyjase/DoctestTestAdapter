@@ -428,5 +428,50 @@ namespace DoctestTestAdapter.Tests.Execution
                 Assert.AreEqual(TestOutcome.Passed, capturedTestResults.Values[0].Outcome);
             });
         }
+
+        [TestMethod]
+        public void ExecuteExeWithSpecialCharactersExample()
+        {
+            TestCommon.AssertErrorOutput(() =>
+            {
+                IFrameworkHandle frameworkHandle = A.Fake<IFrameworkHandle>();
+                IRunContext runContext = A.Fake<IRunContext>();
+                Captured<TestMessageLevel> capturedTestMessageLevels = A.Captured<TestMessageLevel>();
+                Captured<string> capturedTestMessages = A.Captured<string>();
+                Captured<TestCase> capturedTestCases = A.Captured<TestCase>();
+                Captured<TestResult> capturedTestResults = A.Captured<TestResult>();
+                A.CallTo(() => frameworkHandle.SendMessage(capturedTestMessageLevels._, capturedTestMessages._))
+                   .DoesNothing();
+                A.CallTo(() => frameworkHandle.RecordStart(capturedTestCases._))
+                    .DoesNothing();
+                A.CallTo(() => frameworkHandle.RecordResult(capturedTestResults._))
+                    .DoesNothing();
+
+                DoctestTestSettings doctestTestSettings = null;
+                if (!string.IsNullOrEmpty(TestCommon.RunSettingsWithSpecialCharactersExample))
+                {
+                    DoctestTestSettingsProvider settingsProvider = new DoctestTestSettingsProvider();
+                    doctestTestSettings = TestCommon.LoadDoctestSettings(settingsProvider, TestCommon.RunSettingsWithSpecialCharactersExample);
+                    A.CallTo(() => runContext.RunSettings.GetSettings(DoctestTestSettings.RunSettingsXmlNode))
+                        .Returns(settingsProvider);
+                }
+
+                List<TestCase> testCases = new TestCaseFactory(TestCommon.SpecialCharactersExecutableFilePath, null, runContext, frameworkHandle).CreateTestCases();
+                Assert.HasCount(5, testCases);
+
+                TestCommon.AssertTestCase(testCases[0],
+                    TestCommon.SpecialCharactersExecutableFilePath,
+                    "Empty Namespace::Empty Class::[SpecialCharactersInFolderPath] - Is Even",
+                    "[SpecialCharactersInFolderPath] - Is Even",
+                    TestCommon.SpecialCharactersHeaderFilePath,
+                    10);
+
+                ITestExecutor doctestTestExecutor = new DoctestTestExecutor();
+                doctestTestExecutor.RunTests(testCases, runContext, frameworkHandle);
+
+                Assert.HasCount(5, capturedTestResults.Values);
+                Assert.AreEqual(TestOutcome.Passed, capturedTestResults.Values[0].Outcome);
+            });
+        }
     }
 }

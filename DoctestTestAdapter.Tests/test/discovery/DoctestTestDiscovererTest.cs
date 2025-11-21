@@ -252,7 +252,7 @@ namespace DoctestTestAdapter.Tests.Discovery
         [TestMethod]
         public void DiscoverExeWithEnableDebugLogsSetting() =>
             UsingDoctestMainExe(TestCommon.GeneralRunSettingsEnableDebugLogsExample, true);
-
+        
         [TestMethod]
         public void DiscoverExeWithTestsOnlyInHFiles()
         {
@@ -310,6 +310,35 @@ namespace DoctestTestAdapter.Tests.Discovery
                 doctestTestDiscoverer.DiscoverTests(sources, discoveryContext, messageLogger, testCaseDiscoverySink);
 
                 Assert.HasCount(1, capturedTestCases.Values);
+            });
+        }
+
+        [TestMethod]
+        public void DiscoverExeWithSpecialCharactersExample()
+        {
+            TestCommon.AssertErrorOutput(() =>
+            {
+                IEnumerable<string> sources = new List<string>() { TestCommon.SpecialCharactersExecutableFilePath };
+                IRunContext discoveryContext = A.Fake<IRunContext>();
+                IMessageLogger messageLogger = A.Fake<IMessageLogger>();
+                ITestCaseDiscoverySink testCaseDiscoverySink = A.Fake<ITestCaseDiscoverySink>();
+                Captured<TestCase> capturedTestCases = A.Captured<TestCase>();
+                A.CallTo(() => testCaseDiscoverySink.SendTestCase(capturedTestCases._))
+                    .DoesNothing();
+
+                DoctestTestSettings doctestTestSettings = null;
+                if (!string.IsNullOrEmpty(TestCommon.RunSettingsWithSpecialCharactersExample))
+                {
+                    DoctestTestSettingsProvider settingsProvider = new DoctestTestSettingsProvider();
+                    doctestTestSettings = TestCommon.LoadDoctestSettings(settingsProvider, TestCommon.RunSettingsWithSpecialCharactersExample);
+                    A.CallTo(() => discoveryContext.RunSettings.GetSettings(DoctestTestSettings.RunSettingsXmlNode))
+                        .Returns(settingsProvider);
+                }
+
+                ITestDiscoverer doctestTestDiscoverer = new DoctestTestDiscoverer();
+                doctestTestDiscoverer.DiscoverTests(sources, discoveryContext, messageLogger, testCaseDiscoverySink);
+
+                Assert.HasCount(5, capturedTestCases.Values);
             });
         }
     }

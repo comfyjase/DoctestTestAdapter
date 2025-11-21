@@ -49,7 +49,7 @@ namespace DoctestTestAdapter.Shared.Keywords
 
         internal Keyword()
         {
-            _regexSearchPattern = new Regex(@"(^|[\t])\b" + Word + @"\b");
+            _regexSearchPattern = new Regex(@"(^|^\s+)\b" + Word + @"\b");
             _bracketSearcher.OnFoundCloseBracket += OnFoundCloseBracket;
             _bracketSearcher.OnLeaveBracketScope += OnLeaveBracketScope;
         }

@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>  
+<RunSettings>  
+	<RunConfiguration>  
+		<!-- set default session timeout to 5m -->  
+		<TestSessionTimeout>500000</TestSessionTimeout>  
+		<TreatNoTestsAsError>true</TreatNoTestsAsError>  
+		<ResultsDirectory>C:\Repositories\DoctestTestAdapter\DoctestTestAdapter.Examples\Special_Characters-In.FolderPath\TestResults</ResultsDirectory>
+		<SolutionDirectory>C:\Repositories\DoctestTestAdapter\DoctestTestAdapter.Examples\Special_Characters-In.FolderPath\</SolutionDirectory>
+		<MaxCpuCount>0</MaxCpuCount>
+		<EnvironmentVariables>
+			<VSTEST_BACKGROUND_DISCOVERY>1</VSTEST_BACKGROUND_DISCOVERY>
+		</EnvironmentVariables>
+		<CollectSourceInformation>True</CollectSourceInformation>
+	</RunConfiguration>  
+</RunSettings>  

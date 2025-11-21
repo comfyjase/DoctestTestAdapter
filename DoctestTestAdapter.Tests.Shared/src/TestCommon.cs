@@ -59,6 +59,7 @@ namespace DoctestTestAdapter.Tests
         internal static string TestsOnlyInHFilesExecutableFilePath = ExamplesSolutionDirectory + "bin\\x64\\Debug\\TestsOnlyInHFiles\\TestsOnlyInHFiles.exe";
         internal static string TestsOnlyInHPPFilesExecutableFilePath = ExamplesSolutionDirectory + "bin\\x64\\Debug\\TestsOnlyInHPPFiles\\TestsOnlyInHPPFiles.exe";
         internal static string TestsOnlyInCPPFilesExecutableFilePath = ExamplesSolutionDirectory + "bin\\x64\\Debug\\TestsOnlyInCPPFiles\\TestsOnlyInCPPFiles.exe";
+        internal static string SpecialCharactersExecutableFilePath = ExamplesSolutionDirectory + "Special_Characters-In.FolderPath\\bin\\x64\\Debug\\Special_Characters-In.FolderPath\\SpecialCharactersInFolderPath.exe";
 
         internal static string NoDoctestUnitTestsPdbFilePath = ExamplesSolutionDirectory + "bin\\x64\\Debug\\NoDoctestUnitTests\\NoDoctestUnitTests.pdb";
         internal static string OnlyTestCasesPdbFilePath = ExamplesSolutionDirectory + "bin\\x64\\Debug\\OnlyTestCases\\OnlyTestCases.pdb";
@@ -71,6 +72,7 @@ namespace DoctestTestAdapter.Tests
         internal static string TestsOnlyInHFilesPdbFilePath = ExamplesSolutionDirectory + "bin\\x64\\Debug\\TestsOnlyInHFiles\\TestsOnlyInHFiles.pdb";
         internal static string TestsOnlyInHPPFilesPdbFilePath = ExamplesSolutionDirectory + "bin\\x64\\Debug\\TestsOnlyInHPPFiles\\TestsOnlyInHPPFiles.pdb";
         internal static string TestsOnlyInCPPFilesPdbFilePath = ExamplesSolutionDirectory + "bin\\x64\\Debug\\TestsOnlyInCPPFiles\\TestsOnlyInCPPFiles.pdb";
+        internal static string SpecialCharactersPdbFilePath = ExamplesSolutionDirectory + "Special_Characters-In.FolderPath\\bin\\x64\\Debug\\Special_Characters-In.FolderPath\\SpecialCharactersInFolderPath.pdb";
 #else
         internal static string NoDoctestUnitTestsExecutableFilePath = ExamplesSolutionDirectory + "bin\\x64\\Release\\NoDoctestUnitTests\\NoDoctestUnitTests.exe";
         internal static string OnlyTestCasesExecutableFilePath = ExamplesSolutionDirectory + "bin\\x64\\Release\\OnlyTestCases\\OnlyTestCases.exe";
@@ -85,6 +87,7 @@ namespace DoctestTestAdapter.Tests
         internal static string TestsOnlyInHFilesExecutableFilePath = ExamplesSolutionDirectory + "bin\\x64\\Release\\TestsOnlyInHFiles\\TestsOnlyInHFiles.exe";
         internal static string TestsOnlyInHPPFilesExecutableFilePath = ExamplesSolutionDirectory + "bin\\x64\\Release\\TestsOnlyInHPPFiles\\TestsOnlyInHPPFiles.exe";
         internal static string TestsOnlyInCPPFilesExecutableFilePath = ExamplesSolutionDirectory + "bin\\x64\\Release\\TestsOnlyInCPPFiles\\TestsOnlyInCPPFiles.exe";
+        internal static string SpecialCharactersExecutableFilePath = ExamplesSolutionDirectory + "Special_Characters-In.FolderPath\\bin\\x64\\Release\\Special_Characters-In.FolderPath\\SpecialCharactersInFolderPath.exe";
 
         internal static string NoDoctestUnitTestsPdbFilePath = ExamplesSolutionDirectory + "bin\\x64\\Release\\NoDoctestUnitTests\\NoDoctestUnitTests.pdb";
         internal static string OnlyTestCasesPdbFilePath = ExamplesSolutionDirectory + "bin\\x64\\Release\\OnlyTestCases\\OnlyTestCases.pdb";
@@ -97,6 +100,7 @@ namespace DoctestTestAdapter.Tests
         internal static string TestsOnlyInHFilesPdbFilePath = ExamplesSolutionDirectory + "bin\\x64\\Release\\TestsOnlyInHFiles\\TestsOnlyInHFiles.pdb";
         internal static string TestsOnlyInHPPFilesPdbFilePath = ExamplesSolutionDirectory + "bin\\x64\\Release\\TestsOnlyInHPPFiles\\TestsOnlyInHPPFiles.pdb";
         internal static string TestsOnlyInCPPFilesPdbFilePath = ExamplesSolutionDirectory + "bin\\x64\\Release\\TestsOnlyInCPPFiles\\TestsOnlyInCPPFiles.pdb";
+        internal static string SpecialCharactersPdbFilePath = ExamplesSolutionDirectory + "Special_Characters-In.FolderPath\\bin\\x64\\Release\\Special_Characters-In.FolderPath\\SpecialCharactersInFolderPath.pdb";
 #endif
 
         internal static string NoDoctestUnitTestsHeaderFilePath = ExamplesSolutionDirectory + "NoDoctestUnitTests\\NoUnitTests.h";
@@ -112,6 +116,7 @@ namespace DoctestTestAdapter.Tests
         internal static string TestsOnlyInHFilesTestHeaderFilePath = ExamplesSolutionDirectory + "TestsOnlyInHFiles\\TestIsEven.h";
         internal static string TestsOnlyInHPPFilesTestHeaderFilePath = ExamplesSolutionDirectory + "TestsOnlyInHPPFiles\\TestIsEven.hpp";
         internal static string TestsOnlyInCPPFilesTestHeaderFilePath = ExamplesSolutionDirectory + "TestsOnlyInCPPFiles\\TestIsEven.cpp";
+        internal static string SpecialCharactersHeaderFilePath = ExamplesSolutionDirectory + "Special_Characters-In.FolderPath\\Special_Characters-In.FolderPath\\TestIsEven.h";
 
         private static string RunSettingsStart =
             "<?xml version=\"1.0\" encoding=\"utf-8\"?>\n"
@@ -229,6 +234,22 @@ namespace DoctestTestAdapter.Tests
                         ExecutorRunSettingsExecutableOverrideEnd +
                     ExecutorRunSettingsEnd +
                 DoctestRunSettingsEnd +
+            RunSettingsEnd;
+
+        internal static string RunSettingsWithSpecialCharactersExample =
+            RunSettingsStart +
+                @"<RunConfiguration>  
+    <!-- set default session timeout to 5m -->  
+	<TestSessionTimeout>500000</TestSessionTimeout>  
+	<TreatNoTestsAsError>true</TreatNoTestsAsError>  
+	<ResultsDirectory>C:\Repositories\DoctestTestAdapter\DoctestTestAdapter.Examples\Special_Characters-In.FolderPath\TestResults</ResultsDirectory>
+	<SolutionDirectory>C:\Repositories\DoctestTestAdapter\DoctestTestAdapter.Examples\Special_Characters-In.FolderPath\</SolutionDirectory>
+	<MaxCpuCount>0</MaxCpuCount>
+	<EnvironmentVariables>
+	<VSTEST_BACKGROUND_DISCOVERY>1</VSTEST_BACKGROUND_DISCOVERY>
+	</EnvironmentVariables>
+	<CollectSourceInformation>True</CollectSourceInformation>
+</RunConfiguration>" + "\n" +
             RunSettingsEnd;
 
         internal static string GodotRunSettingsExample =
