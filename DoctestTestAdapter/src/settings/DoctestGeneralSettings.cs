@@ -30,6 +30,11 @@ namespace DoctestTestAdapter.Settings
     public class DoctestGeneralSettings
     {
         /// <summary>
+        /// Used to provide the test adapter with a folder path for searching for source files under.
+        /// </summary>
+        public string RootDirectory { get; set; } = string.Empty;
+
+        /// <summary>
         /// These arguments will be supplied first before any doctest command arguments are provided.
         /// E.g. with CommandArguments = --test
         /// Example command line would end up being: --test --test-case=*"[TestDecorator] Test 1"*,*"[TestDecorator] Test 2"*

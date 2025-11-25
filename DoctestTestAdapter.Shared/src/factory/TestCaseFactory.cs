@@ -40,10 +40,10 @@ namespace DoctestTestAdapter.Shared.Factory
     {
         private readonly string _executableFilePath = null;
         private readonly string _executableDirectory = null;
-        private readonly string _solutionDirectory = null;
         private readonly DoctestTestSettings _settings = null;
         private readonly IRunContext _runContext = null;
         private readonly IMessageLogger _logger = null;
+        private readonly string _rootDirectory = null;
 
         internal TestCaseFactory(string executableFilePath, DoctestTestSettings settings, IRunContext runContext, IMessageLogger logger)
         {
@@ -51,10 +51,10 @@ namespace DoctestTestAdapter.Shared.Factory
 
             _executableFilePath = executableFilePath;
             _executableDirectory = Directory.GetParent(_executableFilePath).FullName;
-            _solutionDirectory = Utilities.GetSolutionDirectory(_executableDirectory);
             _settings = settings;
             _runContext = runContext;
             _logger = logger;
+            _rootDirectory = Utilities.GetRootDirectory(_executableDirectory, _settings, _logger);
         }
 
         internal static TestCase CreateTestCase(string testOwner, string testNamespace, string testClassName, string testCaseName, string sourceCodeFilePath, int lineNumber)
@@ -85,7 +85,7 @@ namespace DoctestTestAdapter.Shared.Factory
             Profiler profiler = new Profiler();
             profiler.Start();
             {
-                DoctestExecutable doctestExecutable = new DoctestExecutable(_executableFilePath, _solutionDirectory, _settings, _runContext, _logger, null);
+                DoctestExecutable doctestExecutable = new DoctestExecutable(_executableFilePath, _rootDirectory, _settings, _runContext, _logger, null);
                 List<string> testSuiteNames = doctestExecutable.GetTestSuiteNames();
                 List<string> testCaseNames = doctestExecutable.GetTestCaseNames();
 
@@ -95,10 +95,10 @@ namespace DoctestTestAdapter.Shared.Factory
                     return testCases;
                 }
 
-                DumpBinExecutable dumpBinExecutable = new DumpBinExecutable(_executableFilePath, _solutionDirectory, _settings, _runContext, _logger);
+                DumpBinExecutable dumpBinExecutable = new DumpBinExecutable(_executableFilePath, _rootDirectory, _settings, _runContext, _logger);
                 string pdbFilePath = dumpBinExecutable.GetPDBFilePath();
 
-                CVDumpExecutable cvDumpExecutable = new CVDumpExecutable(pdbFilePath, _solutionDirectory, _settings, _runContext, _logger);
+                CVDumpExecutable cvDumpExecutable = new CVDumpExecutable(pdbFilePath, _rootDirectory, _settings, _runContext, _logger);
                 List<string> dependencies = dumpBinExecutable.GetDependencies()
                     .Where(d => File.Exists(Path.Combine(_executableDirectory, d)))
                     .Select(d => Path.Combine(_executableDirectory, d))

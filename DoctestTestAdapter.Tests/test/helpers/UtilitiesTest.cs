@@ -32,16 +32,16 @@ namespace DoctestTestAdapter.Tests.Helpers
     public class UtilitiesTest
     {
         [TestMethod]
-        public void SolutionDirectory()
-            => TestCommon.AssertErrorOutput(() => { Assert.IsTrue(Utilities.GetSolutionDirectory().EndsWith("DoctestTestAdapter")); });
+        public void RootDirectory()
+            => TestCommon.AssertErrorOutput(() => { Assert.IsTrue(Utilities.GetRootDirectory().EndsWith("DoctestTestAdapter")); });
 
         [TestMethod]
-        public void SolutionDirectoryExe()
-            => TestCommon.AssertErrorOutput(() => { Assert.IsTrue(Utilities.GetSolutionDirectory(TestCommon.UsingDoctestMainExecutableFilePath).EndsWith("DoctestTestAdapter.Examples")); });
+        public void RootDirectoryExe()
+            => TestCommon.AssertErrorOutput(() => { Assert.IsTrue(Utilities.GetRootDirectory(TestCommon.UsingDoctestMainExecutableFilePath).EndsWith("DoctestTestAdapter.Examples")); });
 
         [TestMethod]
-        public void SolutionDirectoryDLL()
-            => TestCommon.AssertErrorOutput(() => { Assert.IsTrue(Utilities.GetSolutionDirectory(TestCommon.DLLExecutableFilePath).EndsWith("DoctestTestAdapter.Examples")); });
+        public void RootDirectoryDLL()
+            => TestCommon.AssertErrorOutput(() => { Assert.IsTrue(Utilities.GetRootDirectory(TestCommon.DLLExecutableFilePath).EndsWith("DoctestTestAdapter.Examples")); });
 
         [TestMethod]
         public void VsInstallDirectory()

@@ -38,32 +38,32 @@ namespace DoctestTestAdapter.Shared.Executables
         internal string Output { get; private set; } = null;
         internal string Arguments { get; set; } = null;
         internal DoctestTestSettings Settings { get; private set; } = null;
-        internal string SolutionDirectory { get; private set; } = null;
+        internal string RootDirectory { get; private set; } = null;
         internal IRunContext RunContext { get; private set; } = null;
         internal IMessageLogger Logger { get; private set; } = null;
         internal IFrameworkHandle FrameworkHandle { get; private set; } = null;
 
         private Process _process = null;
 
-        internal Executable(string filePath, string solutionDirectory, DoctestTestSettings settings, IRunContext runContext, IMessageLogger logger, IFrameworkHandle frameworkHandle = null) : this(filePath, solutionDirectory, null, settings, runContext, logger, frameworkHandle)
+        internal Executable(string filePath, string rootDirectory, DoctestTestSettings settings, IRunContext runContext, IMessageLogger logger, IFrameworkHandle frameworkHandle = null) : this(filePath, rootDirectory, null, settings, runContext, logger, frameworkHandle)
         { }
 
         /// <summary>
         /// Executable Constructor.
         /// </summary>
         /// <param name="filePath">Full file path to the exe to run.</param>
-        /// <param name="solutionDirectory">Full file path to the solution directory.</param>
+        /// <param name="rootDirectory">Full file path to the root directory.</param>
         /// <param name="arguments">Command arguments to use.</param>
         /// <param name="settings">Doctest test adapter settings.</param>
         /// <param name="logger"></param>
         /// <exception cref="FileNotFoundException">Thrown if filePath doesn't exist.</exception>
-        internal Executable(string filePath, string solutionDirectory, string arguments, DoctestTestSettings settings, IRunContext runContext, IMessageLogger logger, IFrameworkHandle frameworkHandle)
+        internal Executable(string filePath, string rootDirectory, string arguments, DoctestTestSettings settings, IRunContext runContext, IMessageLogger logger, IFrameworkHandle frameworkHandle)
         {
             if (!filePath.Equals(@"cmd.exe") && !File.Exists(filePath))
                 throw new FileNotFoundException($"Could not find file {filePath}, abort!");
 
             FilePath = filePath;
-            SolutionDirectory = solutionDirectory;
+            RootDirectory = rootDirectory;
             Arguments = arguments;
             Settings = settings;
             RunContext = runContext;
@@ -80,7 +80,7 @@ namespace DoctestTestAdapter.Shared.Executables
             processStartInfo.RedirectStandardError = true;
             processStartInfo.FileName = string.Format("\"{0}\"", (string.IsNullOrEmpty(exeOverridePath) ? FilePath : exeOverridePath));
             processStartInfo.Arguments = Arguments;
-            processStartInfo.WorkingDirectory = SolutionDirectory;
+            processStartInfo.WorkingDirectory = RootDirectory;
 
             if (waitForExit)
             {
@@ -107,7 +107,7 @@ namespace DoctestTestAdapter.Shared.Executables
             }
             else if (RunContext.IsBeingDebugged && FrameworkHandle != null)
             {
-                int processId = FrameworkHandle.LaunchProcessWithDebuggerAttached(FilePath, SolutionDirectory, Arguments, null);
+                int processId = FrameworkHandle.LaunchProcessWithDebuggerAttached(FilePath, RootDirectory, Arguments, null);
                 _process = Process.GetProcessById(processId) ?? throw new NullReferenceException($"Failed to start process {FilePath} with debugger attached - _process is null, abort!");
                 _process.EnableRaisingEvents = true;
                 _process.Exited += ProcessExited;

@@ -31,7 +31,7 @@ namespace DoctestTestAdapter.Tests.Settings
     [TestClass]
     public class DoctestExecutorSettingsTest
     {
-        private string _solutionDirectory = Utilities.GetSolutionDirectory(TestCommon.UsingDoctestMainExecutableFilePath);
+        private string _rootDirectory = Utilities.GetRootDirectory(TestCommon.UsingDoctestMainExecutableFilePath);
 
         [TestMethod]
         public void ExecutableOverrideRelative()
@@ -54,7 +54,7 @@ namespace DoctestTestAdapter.Tests.Settings
                 Assert.AreEqual("bin\\x64\\Release\\UsingCustomMain\\UsingCustomMain.exe", doctestSettings.ExecutorSettings.ExecutableOverrides[0].Value);
 #endif
 
-                Assert.IsTrue(doctestSettings.ExecutorSettings.AreExecutableOverridesValid(_solutionDirectory, out string message));
+                Assert.IsTrue(doctestSettings.ExecutorSettings.AreExecutableOverridesValid(_rootDirectory, out string message));
                 Assert.IsTrue(string.IsNullOrEmpty(message));
             });
         }
@@ -73,14 +73,14 @@ namespace DoctestTestAdapter.Tests.Settings
                 Assert.HasCount(1, doctestSettings.ExecutorSettings.ExecutableOverrides);
 
 #if DEBUG
-                Assert.AreEqual(_solutionDirectory + "\\bin\\x64\\Debug\\UsingDoctestMain\\UsingDoctestMain.exe", doctestSettings.ExecutorSettings.ExecutableOverrides[0].Key);
-                Assert.AreEqual(_solutionDirectory + "\\bin\\x64\\Debug\\UsingCustomMain\\UsingCustomMain.exe", doctestSettings.ExecutorSettings.ExecutableOverrides[0].Value);
+                Assert.AreEqual(_rootDirectory + "\\bin\\x64\\Debug\\UsingDoctestMain\\UsingDoctestMain.exe", doctestSettings.ExecutorSettings.ExecutableOverrides[0].Key);
+                Assert.AreEqual(_rootDirectory + "\\bin\\x64\\Debug\\UsingCustomMain\\UsingCustomMain.exe", doctestSettings.ExecutorSettings.ExecutableOverrides[0].Value);
 #else
-                Assert.AreEqual(_solutionDirectory + "\\bin\\x64\\Release\\UsingDoctestMain\\UsingDoctestMain.exe", doctestSettings.ExecutorSettings.ExecutableOverrides[0].Key);
-                Assert.AreEqual(_solutionDirectory + "\\bin\\x64\\Release\\UsingCustomMain\\UsingCustomMain.exe", doctestSettings.ExecutorSettings.ExecutableOverrides[0].Value);
+                Assert.AreEqual(_rootDirectory + "\\bin\\x64\\Release\\UsingDoctestMain\\UsingDoctestMain.exe", doctestSettings.ExecutorSettings.ExecutableOverrides[0].Key);
+                Assert.AreEqual(_rootDirectory + "\\bin\\x64\\Release\\UsingCustomMain\\UsingCustomMain.exe", doctestSettings.ExecutorSettings.ExecutableOverrides[0].Value);
 #endif
 
-                Assert.IsTrue(doctestSettings.ExecutorSettings.AreExecutableOverridesValid(_solutionDirectory, out string message));
+                Assert.IsTrue(doctestSettings.ExecutorSettings.AreExecutableOverridesValid(_rootDirectory, out string message));
                 Assert.IsTrue(string.IsNullOrEmpty(message));
             });
         }
@@ -101,7 +101,7 @@ namespace DoctestTestAdapter.Tests.Settings
                 Assert.AreEqual("NonExistentDirectoryA\\To\\NonExistentExecutableA.exe", doctestSettings.ExecutorSettings.ExecutableOverrides[0].Key);
                 Assert.AreEqual("NonExistentDirectoryB\\To\\NonExistentExecutableB.exe", doctestSettings.ExecutorSettings.ExecutableOverrides[0].Value);
 
-                Assert.IsFalse(doctestSettings.ExecutorSettings.AreExecutableOverridesValid(_solutionDirectory, out string message));
+                Assert.IsFalse(doctestSettings.ExecutorSettings.AreExecutableOverridesValid(_rootDirectory, out string message));
                 Assert.IsFalse(string.IsNullOrEmpty(message));
             });
         }

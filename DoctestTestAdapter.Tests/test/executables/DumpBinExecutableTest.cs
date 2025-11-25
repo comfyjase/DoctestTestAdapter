@@ -32,7 +32,7 @@ namespace DoctestTestAdapter.Tests.Executables
     [TestClass]
     public class DumpBinExecutableTest
     {
-        private DumpBinExecutable _dumpBinExecutable = new DumpBinExecutable(TestCommon.UsingDoctestMainExecutableFilePath, TestCommon.ExamplesSolutionDirectory, null, null, null);
+        private DumpBinExecutable _dumpBinExecutable = new DumpBinExecutable(TestCommon.UsingDoctestMainExecutableFilePath, TestCommon.ExamplesRootDirectory, null, null, null);
 
         [TestMethod]
         public void DependenciesExe()

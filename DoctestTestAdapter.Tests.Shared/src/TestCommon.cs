@@ -39,84 +39,84 @@ namespace DoctestTestAdapter.Tests
 {
     internal static class TestCommon
     {
-        internal static string SolutionDirectory = Utilities.GetSolutionDirectory();
-        internal static string ExamplesSolutionDirectory = SolutionDirectory + "\\DoctestTestAdapter.Examples\\";
-        internal static string GodotExamplesSolutionDirectory = SolutionDirectory + "\\DoctestTestAdapter.Examples.Godot\\";
+        internal static string RootDirectory = Utilities.GetRootDirectory();
+        internal static string ExamplesRootDirectory = RootDirectory + "\\DoctestTestAdapter.Examples\\";
+        internal static string GodotExamplesRootDirectory = RootDirectory + "\\DoctestTestAdapter.Examples.Godot\\";
         
-        internal static string GodotExecutableFilePath = GodotExamplesSolutionDirectory + "bin\\godot.windows.editor.dev.x86_64.exe";
+        internal static string GodotExecutableFilePath = GodotExamplesRootDirectory + "bin\\godot.windows.editor.dev.x86_64.exe";
 
 #if DEBUG
-        internal static string NoDoctestUnitTestsExecutableFilePath = ExamplesSolutionDirectory + "bin\\x64\\Debug\\NoDoctestUnitTests\\NoDoctestUnitTests.exe";
-        internal static string OnlyTestCasesExecutableFilePath = ExamplesSolutionDirectory + "bin\\x64\\Debug\\OnlyTestCases\\OnlyTestCases.exe";
-        internal static string OnlyTestSuitesExecutableFilePath = ExamplesSolutionDirectory + "bin\\x64\\Debug\\OnlyTestSuites\\OnlyTestSuites.exe";
-        internal static string EmptySuitesExecutableFilePath = ExamplesSolutionDirectory + "bin\\x64\\Debug\\EmptyTestSuites\\EmptyTestSuites.exe";
-        internal static string ClassKeywordsExecutableFilePath = ExamplesSolutionDirectory + "bin\\x64\\Debug\\ClassKeywords\\ClassKeywords.exe";
-        internal static string NamespaceKeywordsExecutableFilePath = ExamplesSolutionDirectory + "bin\\x64\\Debug\\NamespaceKeywords\\NamespaceKeywords.exe";
-        internal static string UsingDoctestMainExecutableFilePath = ExamplesSolutionDirectory + "bin\\x64\\Debug\\UsingDoctestMain\\UsingDoctestMain.exe";
-        internal static string ExecutableUsingDLLExecutableFilePath = ExamplesSolutionDirectory + "bin\\x64\\Debug\\ExecutableUsingDLL\\ExecutableUsingDLL.exe";
-        internal static string DLLExecutableFilePath = ExamplesSolutionDirectory + "bin\\x64\\Debug\\ExecutableUsingDLL\\DLL.dll";
-        internal static string PrintOutputExecutableFilePath = ExamplesSolutionDirectory + "bin\\x64\\Debug\\PrintOutput\\PrintOutput.exe";
-        internal static string TestsOnlyInHFilesExecutableFilePath = ExamplesSolutionDirectory + "bin\\x64\\Debug\\TestsOnlyInHFiles\\TestsOnlyInHFiles.exe";
-        internal static string TestsOnlyInHPPFilesExecutableFilePath = ExamplesSolutionDirectory + "bin\\x64\\Debug\\TestsOnlyInHPPFiles\\TestsOnlyInHPPFiles.exe";
-        internal static string TestsOnlyInCPPFilesExecutableFilePath = ExamplesSolutionDirectory + "bin\\x64\\Debug\\TestsOnlyInCPPFiles\\TestsOnlyInCPPFiles.exe";
-        internal static string SpecialCharactersExecutableFilePath = ExamplesSolutionDirectory + "Special_Characters-In.FolderPath\\bin\\x64\\Debug\\Special_Characters-In.FolderPath\\SpecialCharactersInFolderPath.exe";
+        internal static string NoDoctestUnitTestsExecutableFilePath = ExamplesRootDirectory + "bin\\x64\\Debug\\NoDoctestUnitTests\\NoDoctestUnitTests.exe";
+        internal static string OnlyTestCasesExecutableFilePath = ExamplesRootDirectory + "bin\\x64\\Debug\\OnlyTestCases\\OnlyTestCases.exe";
+        internal static string OnlyTestSuitesExecutableFilePath = ExamplesRootDirectory + "bin\\x64\\Debug\\OnlyTestSuites\\OnlyTestSuites.exe";
+        internal static string EmptySuitesExecutableFilePath = ExamplesRootDirectory + "bin\\x64\\Debug\\EmptyTestSuites\\EmptyTestSuites.exe";
+        internal static string ClassKeywordsExecutableFilePath = ExamplesRootDirectory + "bin\\x64\\Debug\\ClassKeywords\\ClassKeywords.exe";
+        internal static string NamespaceKeywordsExecutableFilePath = ExamplesRootDirectory + "bin\\x64\\Debug\\NamespaceKeywords\\NamespaceKeywords.exe";
+        internal static string UsingDoctestMainExecutableFilePath = ExamplesRootDirectory + "bin\\x64\\Debug\\UsingDoctestMain\\UsingDoctestMain.exe";
+        internal static string ExecutableUsingDLLExecutableFilePath = ExamplesRootDirectory + "bin\\x64\\Debug\\ExecutableUsingDLL\\ExecutableUsingDLL.exe";
+        internal static string DLLExecutableFilePath = ExamplesRootDirectory + "bin\\x64\\Debug\\ExecutableUsingDLL\\DLL.dll";
+        internal static string PrintOutputExecutableFilePath = ExamplesRootDirectory + "bin\\x64\\Debug\\PrintOutput\\PrintOutput.exe";
+        internal static string TestsOnlyInHFilesExecutableFilePath = ExamplesRootDirectory + "bin\\x64\\Debug\\TestsOnlyInHFiles\\TestsOnlyInHFiles.exe";
+        internal static string TestsOnlyInHPPFilesExecutableFilePath = ExamplesRootDirectory + "bin\\x64\\Debug\\TestsOnlyInHPPFiles\\TestsOnlyInHPPFiles.exe";
+        internal static string TestsOnlyInCPPFilesExecutableFilePath = ExamplesRootDirectory + "bin\\x64\\Debug\\TestsOnlyInCPPFiles\\TestsOnlyInCPPFiles.exe";
+        internal static string SpecialCharactersExecutableFilePath = ExamplesRootDirectory + "Special_Characters-In.FolderPath\\bin\\x64\\Debug\\Special_Characters-In.FolderPath\\SpecialCharactersInFolderPath.exe";
 
-        internal static string NoDoctestUnitTestsPdbFilePath = ExamplesSolutionDirectory + "bin\\x64\\Debug\\NoDoctestUnitTests\\NoDoctestUnitTests.pdb";
-        internal static string OnlyTestCasesPdbFilePath = ExamplesSolutionDirectory + "bin\\x64\\Debug\\OnlyTestCases\\OnlyTestCases.pdb";
-        internal static string OnlyTestSuitesPdbFilePath = ExamplesSolutionDirectory + "bin\\x64\\Debug\\OnlyTestSuites\\OnlyTestSuites.pdb";
-        internal static string EmptyTestSuitesPdbFilePath = ExamplesSolutionDirectory + "bin\\x64\\Debug\\EmptyTestSuites\\EmptyTestSuites.pdb";
-        internal static string UsingDoctestMainPdbFilePath = ExamplesSolutionDirectory + "bin\\x64\\Debug\\UsingDoctestMain\\UsingDoctestMain.pdb";
-        internal static string ExecutableUsingDLLPdbFilePath = ExamplesSolutionDirectory + "bin\\x64\\Debug\\ExecutableUsingDLL\\ExecutableUsingDLL.pdb";
-        internal static string DLLPdbFilePath = ExamplesSolutionDirectory + "bin\\x64\\Debug\\DLL\\DLL.pdb";
-        internal static string PrintOutputPdbFilePath = ExamplesSolutionDirectory + "bin\\x64\\Debug\\PrintOutput\\PrintOutput.pdb";
-        internal static string TestsOnlyInHFilesPdbFilePath = ExamplesSolutionDirectory + "bin\\x64\\Debug\\TestsOnlyInHFiles\\TestsOnlyInHFiles.pdb";
-        internal static string TestsOnlyInHPPFilesPdbFilePath = ExamplesSolutionDirectory + "bin\\x64\\Debug\\TestsOnlyInHPPFiles\\TestsOnlyInHPPFiles.pdb";
-        internal static string TestsOnlyInCPPFilesPdbFilePath = ExamplesSolutionDirectory + "bin\\x64\\Debug\\TestsOnlyInCPPFiles\\TestsOnlyInCPPFiles.pdb";
-        internal static string SpecialCharactersPdbFilePath = ExamplesSolutionDirectory + "Special_Characters-In.FolderPath\\bin\\x64\\Debug\\Special_Characters-In.FolderPath\\SpecialCharactersInFolderPath.pdb";
+        internal static string NoDoctestUnitTestsPdbFilePath = ExamplesRootDirectory + "bin\\x64\\Debug\\NoDoctestUnitTests\\NoDoctestUnitTests.pdb";
+        internal static string OnlyTestCasesPdbFilePath = ExamplesRootDirectory + "bin\\x64\\Debug\\OnlyTestCases\\OnlyTestCases.pdb";
+        internal static string OnlyTestSuitesPdbFilePath = ExamplesRootDirectory + "bin\\x64\\Debug\\OnlyTestSuites\\OnlyTestSuites.pdb";
+        internal static string EmptyTestSuitesPdbFilePath = ExamplesRootDirectory + "bin\\x64\\Debug\\EmptyTestSuites\\EmptyTestSuites.pdb";
+        internal static string UsingDoctestMainPdbFilePath = ExamplesRootDirectory + "bin\\x64\\Debug\\UsingDoctestMain\\UsingDoctestMain.pdb";
+        internal static string ExecutableUsingDLLPdbFilePath = ExamplesRootDirectory + "bin\\x64\\Debug\\ExecutableUsingDLL\\ExecutableUsingDLL.pdb";
+        internal static string DLLPdbFilePath = ExamplesRootDirectory + "bin\\x64\\Debug\\DLL\\DLL.pdb";
+        internal static string PrintOutputPdbFilePath = ExamplesRootDirectory + "bin\\x64\\Debug\\PrintOutput\\PrintOutput.pdb";
+        internal static string TestsOnlyInHFilesPdbFilePath = ExamplesRootDirectory + "bin\\x64\\Debug\\TestsOnlyInHFiles\\TestsOnlyInHFiles.pdb";
+        internal static string TestsOnlyInHPPFilesPdbFilePath = ExamplesRootDirectory + "bin\\x64\\Debug\\TestsOnlyInHPPFiles\\TestsOnlyInHPPFiles.pdb";
+        internal static string TestsOnlyInCPPFilesPdbFilePath = ExamplesRootDirectory + "bin\\x64\\Debug\\TestsOnlyInCPPFiles\\TestsOnlyInCPPFiles.pdb";
+        internal static string SpecialCharactersPdbFilePath = ExamplesRootDirectory + "Special_Characters-In.FolderPath\\bin\\x64\\Debug\\Special_Characters-In.FolderPath\\SpecialCharactersInFolderPath.pdb";
 #else
-        internal static string NoDoctestUnitTestsExecutableFilePath = ExamplesSolutionDirectory + "bin\\x64\\Release\\NoDoctestUnitTests\\NoDoctestUnitTests.exe";
-        internal static string OnlyTestCasesExecutableFilePath = ExamplesSolutionDirectory + "bin\\x64\\Release\\OnlyTestCases\\OnlyTestCases.exe";
-        internal static string OnlyTestSuitesExecutableFilePath = ExamplesSolutionDirectory + "bin\\x64\\Release\\OnlyTestSuites\\OnlyTestSuites.exe";
-        internal static string ClassKeywordsExecutableFilePath = ExamplesSolutionDirectory + "bin\\x64\\Release\\ClassKeywords\\ClassKeywords.exe";
-        internal static string NamespaceKeywordsExecutableFilePath = ExamplesSolutionDirectory + "bin\\x64\\Release\\NamespaceKeywords\\NamespaceKeywords.exe";
-        internal static string EmptySuitesExecutableFilePath = ExamplesSolutionDirectory + "bin\\x64\\Release\\EmptyTestSuites\\EmptyTestSuites.exe";
-        internal static string UsingDoctestMainExecutableFilePath = ExamplesSolutionDirectory + "bin\\x64\\Release\\UsingDoctestMain\\UsingDoctestMain.exe";
-        internal static string ExecutableUsingDLLExecutableFilePath = ExamplesSolutionDirectory + "bin\\x64\\Release\\ExecutableUsingDLL\\ExecutableUsingDLL.exe";
-        internal static string DLLExecutableFilePath = ExamplesSolutionDirectory + "bin\\x64\\Release\\ExecutableUsingDLL\\DLL.dll";
-        internal static string PrintOutputExecutableFilePath = ExamplesSolutionDirectory + "bin\\x64\\Release\\PrintOutput\\PrintOutput.exe";
-        internal static string TestsOnlyInHFilesExecutableFilePath = ExamplesSolutionDirectory + "bin\\x64\\Release\\TestsOnlyInHFiles\\TestsOnlyInHFiles.exe";
-        internal static string TestsOnlyInHPPFilesExecutableFilePath = ExamplesSolutionDirectory + "bin\\x64\\Release\\TestsOnlyInHPPFiles\\TestsOnlyInHPPFiles.exe";
-        internal static string TestsOnlyInCPPFilesExecutableFilePath = ExamplesSolutionDirectory + "bin\\x64\\Release\\TestsOnlyInCPPFiles\\TestsOnlyInCPPFiles.exe";
-        internal static string SpecialCharactersExecutableFilePath = ExamplesSolutionDirectory + "Special_Characters-In.FolderPath\\bin\\x64\\Release\\Special_Characters-In.FolderPath\\SpecialCharactersInFolderPath.exe";
+        internal static string NoDoctestUnitTestsExecutableFilePath = ExamplesRootDirectory + "bin\\x64\\Release\\NoDoctestUnitTests\\NoDoctestUnitTests.exe";
+        internal static string OnlyTestCasesExecutableFilePath = ExamplesRootDirectory + "bin\\x64\\Release\\OnlyTestCases\\OnlyTestCases.exe";
+        internal static string OnlyTestSuitesExecutableFilePath = ExamplesRootDirectory + "bin\\x64\\Release\\OnlyTestSuites\\OnlyTestSuites.exe";
+        internal static string ClassKeywordsExecutableFilePath = ExamplesRootDirectory + "bin\\x64\\Release\\ClassKeywords\\ClassKeywords.exe";
+        internal static string NamespaceKeywordsExecutableFilePath = ExamplesRootDirectory + "bin\\x64\\Release\\NamespaceKeywords\\NamespaceKeywords.exe";
+        internal static string EmptySuitesExecutableFilePath = ExamplesRootDirectory + "bin\\x64\\Release\\EmptyTestSuites\\EmptyTestSuites.exe";
+        internal static string UsingDoctestMainExecutableFilePath = ExamplesRootDirectory + "bin\\x64\\Release\\UsingDoctestMain\\UsingDoctestMain.exe";
+        internal static string ExecutableUsingDLLExecutableFilePath = ExamplesRootDirectory + "bin\\x64\\Release\\ExecutableUsingDLL\\ExecutableUsingDLL.exe";
+        internal static string DLLExecutableFilePath = ExamplesRootDirectory + "bin\\x64\\Release\\ExecutableUsingDLL\\DLL.dll";
+        internal static string PrintOutputExecutableFilePath = ExamplesRootDirectory + "bin\\x64\\Release\\PrintOutput\\PrintOutput.exe";
+        internal static string TestsOnlyInHFilesExecutableFilePath = ExamplesRootDirectory + "bin\\x64\\Release\\TestsOnlyInHFiles\\TestsOnlyInHFiles.exe";
+        internal static string TestsOnlyInHPPFilesExecutableFilePath = ExamplesRootDirectory + "bin\\x64\\Release\\TestsOnlyInHPPFiles\\TestsOnlyInHPPFiles.exe";
+        internal static string TestsOnlyInCPPFilesExecutableFilePath = ExamplesRootDirectory + "bin\\x64\\Release\\TestsOnlyInCPPFiles\\TestsOnlyInCPPFiles.exe";
+        internal static string SpecialCharactersExecutableFilePath = ExamplesRootDirectory + "Special_Characters-In.FolderPath\\bin\\x64\\Release\\Special_Characters-In.FolderPath\\SpecialCharactersInFolderPath.exe";
 
-        internal static string NoDoctestUnitTestsPdbFilePath = ExamplesSolutionDirectory + "bin\\x64\\Release\\NoDoctestUnitTests\\NoDoctestUnitTests.pdb";
-        internal static string OnlyTestCasesPdbFilePath = ExamplesSolutionDirectory + "bin\\x64\\Release\\OnlyTestCases\\OnlyTestCases.pdb";
-        internal static string OnlyTestSuitesPdbFilePath = ExamplesSolutionDirectory + "bin\\x64\\Release\\OnlyTestSuites\\OnlyTestSuites.pdb";
-        internal static string EmptyTestSuitesPdbFilePath = ExamplesSolutionDirectory + "bin\\x64\\Release\\EmptyTestSuites\\EmptyTestSuites.pdb";
-        internal static string UsingDoctestMainPdbFilePath = ExamplesSolutionDirectory + "bin\\x64\\Release\\UsingDoctestMain\\UsingDoctestMain.pdb";
-        internal static string ExecutableUsingDLLPdbFilePath = ExamplesSolutionDirectory + "bin\\x64\\Release\\ExecutableUsingDLL\\ExecutableUsingDLL.pdb";
-        internal static string DLLPdbFilePath = ExamplesSolutionDirectory + "bin\\x64\\Release\\DLL\\DLL.pdb";
-        internal static string PrintOutputPdbFilePath = ExamplesSolutionDirectory + "bin\\x64\\Release\\PrintOutput\\PrintOutput.pdb";
-        internal static string TestsOnlyInHFilesPdbFilePath = ExamplesSolutionDirectory + "bin\\x64\\Release\\TestsOnlyInHFiles\\TestsOnlyInHFiles.pdb";
-        internal static string TestsOnlyInHPPFilesPdbFilePath = ExamplesSolutionDirectory + "bin\\x64\\Release\\TestsOnlyInHPPFiles\\TestsOnlyInHPPFiles.pdb";
-        internal static string TestsOnlyInCPPFilesPdbFilePath = ExamplesSolutionDirectory + "bin\\x64\\Release\\TestsOnlyInCPPFiles\\TestsOnlyInCPPFiles.pdb";
-        internal static string SpecialCharactersPdbFilePath = ExamplesSolutionDirectory + "Special_Characters-In.FolderPath\\bin\\x64\\Release\\Special_Characters-In.FolderPath\\SpecialCharactersInFolderPath.pdb";
+        internal static string NoDoctestUnitTestsPdbFilePath = ExamplesRootDirectory + "bin\\x64\\Release\\NoDoctestUnitTests\\NoDoctestUnitTests.pdb";
+        internal static string OnlyTestCasesPdbFilePath = ExamplesRootDirectory + "bin\\x64\\Release\\OnlyTestCases\\OnlyTestCases.pdb";
+        internal static string OnlyTestSuitesPdbFilePath = ExamplesRootDirectory + "bin\\x64\\Release\\OnlyTestSuites\\OnlyTestSuites.pdb";
+        internal static string EmptyTestSuitesPdbFilePath = ExamplesRootDirectory + "bin\\x64\\Release\\EmptyTestSuites\\EmptyTestSuites.pdb";
+        internal static string UsingDoctestMainPdbFilePath = ExamplesRootDirectory + "bin\\x64\\Release\\UsingDoctestMain\\UsingDoctestMain.pdb";
+        internal static string ExecutableUsingDLLPdbFilePath = ExamplesRootDirectory + "bin\\x64\\Release\\ExecutableUsingDLL\\ExecutableUsingDLL.pdb";
+        internal static string DLLPdbFilePath = ExamplesRootDirectory + "bin\\x64\\Release\\DLL\\DLL.pdb";
+        internal static string PrintOutputPdbFilePath = ExamplesRootDirectory + "bin\\x64\\Release\\PrintOutput\\PrintOutput.pdb";
+        internal static string TestsOnlyInHFilesPdbFilePath = ExamplesRootDirectory + "bin\\x64\\Release\\TestsOnlyInHFiles\\TestsOnlyInHFiles.pdb";
+        internal static string TestsOnlyInHPPFilesPdbFilePath = ExamplesRootDirectory + "bin\\x64\\Release\\TestsOnlyInHPPFiles\\TestsOnlyInHPPFiles.pdb";
+        internal static string TestsOnlyInCPPFilesPdbFilePath = ExamplesRootDirectory + "bin\\x64\\Release\\TestsOnlyInCPPFiles\\TestsOnlyInCPPFiles.pdb";
+        internal static string SpecialCharactersPdbFilePath = ExamplesRootDirectory + "Special_Characters-In.FolderPath\\bin\\x64\\Release\\Special_Characters-In.FolderPath\\SpecialCharactersInFolderPath.pdb";
 #endif
 
-        internal static string NoDoctestUnitTestsHeaderFilePath = ExamplesSolutionDirectory + "NoDoctestUnitTests\\NoUnitTests.h";
-        internal static string OnlyTestCasesTestHeaderFilePath = ExamplesSolutionDirectory + "OnlyTestCases\\TestCasesOnly.h";
-        internal static string OnlyTestSuitesTestHeaderFilePath = ExamplesSolutionDirectory + "OnlyTestSuites\\TestSuitesOnly.h";
-        internal static string ClassKeywordsHeaderFilePath = ExamplesSolutionDirectory + "ClassKeywords\\Classes.h";
-        internal static string NamespaceKeywordsHeaderFilePath = ExamplesSolutionDirectory + "NamespaceKeywords\\Namespaces.h";
-        internal static string EmptyTestSuitesTestHeaderFilePath = ExamplesSolutionDirectory + "EmptyTestSuites\\ValidTestCase.h";
-        internal static string UsingDoctestMainTestHeaderFilePath = ExamplesSolutionDirectory + "UsingDoctestMain\\TestIsEvenUsingDoctestMain.h";
-        internal static string UsingCustomMainTestHeaderFilePath = ExamplesSolutionDirectory + "UsingCustomMain\\TestIsEvenUsingCustomMain.h";
-        internal static string ExecutableUsingDLLTestHeaderFilePath = ExamplesSolutionDirectory + "DLLExample\\ExecutableUsingDLL\\TestIsEvenExecutableUsingDLL.h";
-        internal static string DLLTestHeaderFilePath = ExamplesSolutionDirectory + "DLLExample\\DLL\\TestIsEvenDLL.h";
-        internal static string TestsOnlyInHFilesTestHeaderFilePath = ExamplesSolutionDirectory + "TestsOnlyInHFiles\\TestIsEven.h";
-        internal static string TestsOnlyInHPPFilesTestHeaderFilePath = ExamplesSolutionDirectory + "TestsOnlyInHPPFiles\\TestIsEven.hpp";
-        internal static string TestsOnlyInCPPFilesTestHeaderFilePath = ExamplesSolutionDirectory + "TestsOnlyInCPPFiles\\TestIsEven.cpp";
-        internal static string SpecialCharactersHeaderFilePath = ExamplesSolutionDirectory + "Special_Characters-In.FolderPath\\Special_Characters-In.FolderPath\\TestIsEven.h";
+        internal static string NoDoctestUnitTestsHeaderFilePath = ExamplesRootDirectory + "NoDoctestUnitTests\\NoUnitTests.h";
+        internal static string OnlyTestCasesTestHeaderFilePath = ExamplesRootDirectory + "OnlyTestCases\\TestCasesOnly.h";
+        internal static string OnlyTestSuitesTestHeaderFilePath = ExamplesRootDirectory + "OnlyTestSuites\\TestSuitesOnly.h";
+        internal static string ClassKeywordsHeaderFilePath = ExamplesRootDirectory + "ClassKeywords\\Classes.h";
+        internal static string NamespaceKeywordsHeaderFilePath = ExamplesRootDirectory + "NamespaceKeywords\\Namespaces.h";
+        internal static string EmptyTestSuitesTestHeaderFilePath = ExamplesRootDirectory + "EmptyTestSuites\\ValidTestCase.h";
+        internal static string UsingDoctestMainTestHeaderFilePath = ExamplesRootDirectory + "UsingDoctestMain\\TestIsEvenUsingDoctestMain.h";
+        internal static string UsingCustomMainTestHeaderFilePath = ExamplesRootDirectory + "UsingCustomMain\\TestIsEvenUsingCustomMain.h";
+        internal static string ExecutableUsingDLLTestHeaderFilePath = ExamplesRootDirectory + "DLLExample\\ExecutableUsingDLL\\TestIsEvenExecutableUsingDLL.h";
+        internal static string DLLTestHeaderFilePath = ExamplesRootDirectory + "DLLExample\\DLL\\TestIsEvenDLL.h";
+        internal static string TestsOnlyInHFilesTestHeaderFilePath = ExamplesRootDirectory + "TestsOnlyInHFiles\\TestIsEven.h";
+        internal static string TestsOnlyInHPPFilesTestHeaderFilePath = ExamplesRootDirectory + "TestsOnlyInHPPFiles\\TestIsEven.hpp";
+        internal static string TestsOnlyInCPPFilesTestHeaderFilePath = ExamplesRootDirectory + "TestsOnlyInCPPFiles\\TestIsEven.cpp";
+        internal static string SpecialCharactersHeaderFilePath = ExamplesRootDirectory + "Special_Characters-In.FolderPath\\Special_Characters-In.FolderPath\\TestIsEven.h";
 
         private static string RunSettingsStart =
             "<?xml version=\"1.0\" encoding=\"utf-8\"?>\n"
@@ -140,6 +140,7 @@ namespace DoctestTestAdapter.Tests
             RunSettingsStart +
                 DoctestRunSettingsStart +
                     GeneralRunSettingsStart +
+                        "\t\t\t<RootDirectory>C:/Just/An/Example/Path</RootDirectory>\n" +
                         "\t\t\t<CommandArguments>--test</CommandArguments>\n" +
                         "\t\t\t<EnableDebugLogs>true</EnableDebugLogs>\n" +
                     GeneralRunSettingsEnd +
@@ -172,7 +173,7 @@ namespace DoctestTestAdapter.Tests
                 DoctestRunSettingsStart +
                     DiscoveryRunSettingsStart +
                         DiscoveryRunSettingsSearchDirectoriesStart +
-                            "\t\t\t\t<string>" + ExamplesSolutionDirectory + "UsingDoctestMain</string>\n" +
+                            "\t\t\t\t<string>" + ExamplesRootDirectory + "UsingDoctestMain</string>\n" +
                         DiscoveryRunSettingsSearchDirectoriesEnd +
                     DiscoveryRunSettingsEnd +
                 DoctestRunSettingsEnd +
@@ -213,11 +214,11 @@ namespace DoctestTestAdapter.Tests
                     ExecutorRunSettingsStart +
                         ExecutorRunSettingsExecutableOverrideStart +
 #if DEBUG
-                            "\t\t\t\t\t<Key>" + ExamplesSolutionDirectory + "bin\\x64\\Debug\\UsingDoctestMain\\UsingDoctestMain.exe</Key>\n" +
-                            "\t\t\t\t\t<Value>" + ExamplesSolutionDirectory + "bin\\x64\\Debug\\UsingCustomMain\\UsingCustomMain.exe</Value>\n" +
+                            "\t\t\t\t\t<Key>" + ExamplesRootDirectory + "bin\\x64\\Debug\\UsingDoctestMain\\UsingDoctestMain.exe</Key>\n" +
+                            "\t\t\t\t\t<Value>" + ExamplesRootDirectory + "bin\\x64\\Debug\\UsingCustomMain\\UsingCustomMain.exe</Value>\n" +
 #else
-                            "\t\t\t\t\t<Key>" + ExamplesSolutionDirectory + "bin\\x64\\Release\\UsingDoctestMain\\UsingDoctestMain.exe</Key>\n" +
-                            "\t\t\t\t\t<Value>" + ExamplesSolutionDirectory + "bin\\x64\\Release\\UsingCustomMain\\UsingCustomMain.exe</Value>\n" +
+                            "\t\t\t\t\t<Key>" + ExamplesRootDirectory + "bin\\x64\\Release\\UsingDoctestMain\\UsingDoctestMain.exe</Key>\n" +
+                            "\t\t\t\t\t<Value>" + ExamplesRootDirectory + "bin\\x64\\Release\\UsingCustomMain\\UsingCustomMain.exe</Value>\n" +
 #endif
                         ExecutorRunSettingsExecutableOverrideEnd +
                     ExecutorRunSettingsEnd +

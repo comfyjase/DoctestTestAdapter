@@ -141,7 +141,7 @@ namespace DoctestTestAdapter.Tests.Keywords
         {
             TestCommon.AssertErrorOutput(() =>
             {
-                List<string> allTestSuiteNames = new DoctestExecutable(TestCommon.NamespaceKeywordsExecutableFilePath, TestCommon.ExamplesSolutionDirectory, null, null, null, null).GetTestSuiteNames();
+                List<string> allTestSuiteNames = new DoctestExecutable(TestCommon.NamespaceKeywordsExecutableFilePath, TestCommon.ExamplesRootDirectory, null, null, null, null).GetTestSuiteNames();
 
                 List<IKeyword> keywords = new List<IKeyword>()
                 {

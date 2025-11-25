@@ -43,7 +43,7 @@ namespace DoctestTestAdapter.Settings
         /// </summary>
         public List<string> SearchDirectories { get; set; } = new List<string>();
 
-        public bool AreSearchDirectoriesValid(string solutionDirectory, out string message)
+        public bool AreSearchDirectoriesValid(string rootDirectory, out string message)
         {
             message = string.Empty;
 
@@ -52,8 +52,8 @@ namespace DoctestTestAdapter.Settings
                 bool relativePathIsValid = false;
                 bool absolutePathIsValid = false;
 
-                // Relative to the solution directory.
-                string relativePath = solutionDirectory + "\\" + searchDirectory + "\\";
+                // Relative to the root directory.
+                string relativePath = rootDirectory + "\\" + searchDirectory + "\\";
                 if (Directory.Exists(relativePath))
                 {
                     relativePathIsValid = true;
@@ -67,7 +67,7 @@ namespace DoctestTestAdapter.Settings
                 // If both relative and absolute paths are invalid, report this.
                 if (!relativePathIsValid && !absolutePathIsValid)
                 {
-                    message += (Constants.WarningMessagePrefix + " - Search directory in the .runsettings file: " + searchDirectory + " doesn't exist relative to the solution directory or as an absolute path. To fix, please make sure a directory named " + searchDirectory + " exists under " + solutionDirectory + " or make sure it exists as an absolute path on your system.");
+                    message += (Constants.WarningMessagePrefix + " - Search directory in the .runsettings file: " + searchDirectory + " doesn't exist relative to the root directory or as an absolute path. To fix, please make sure a directory named " + searchDirectory + " exists under " + rootDirectory + " or make sure it exists as an absolute path on your system.");
                 }
             }
 

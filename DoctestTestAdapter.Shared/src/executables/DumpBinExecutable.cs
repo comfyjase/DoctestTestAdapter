@@ -45,7 +45,7 @@ namespace DoctestTestAdapter.Shared.Executables
         /// <param name="discoveredExecutableFilePath">Full file path to the discovered executable.</param>
         /// <param name="settings">Doctest test adapter settings.</param>
         /// <exception cref="FileNotFoundException">Thrown if VsDevCmd.bat could not be found.</exception>
-        internal DumpBinExecutable(string discoveredExecutableFilePath, string solutionDirectory, DoctestTestSettings settings, IRunContext runContext, IMessageLogger logger) : base(@"cmd.exe", solutionDirectory, settings, runContext, logger)
+        internal DumpBinExecutable(string discoveredExecutableFilePath, string rootDirectory, DoctestTestSettings settings, IRunContext runContext, IMessageLogger logger) : base(@"cmd.exe", rootDirectory, settings, runContext, logger)
         {
             _batFilePath = Utilities.GetVSInstallDirectory() + "\\Common7\\Tools\\VsDevCmd.bat";
             if (!File.Exists(_batFilePath))

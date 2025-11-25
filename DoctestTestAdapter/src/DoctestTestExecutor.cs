@@ -39,7 +39,7 @@ namespace DoctestTestAdapter
     [ExtensionUri(Helpers.Constants.ExecutorUriString)]
     public sealed class DoctestTestExecutor : ITestExecutor
     {
-        private string _solutionDirectory = null;
+        private string _rootDirectory = null;
         private bool _cancelled = false; 
         private bool _waitingForTestResults = false;
         private int _currentNumberOfTestBatches = 0;
@@ -85,9 +85,9 @@ namespace DoctestTestAdapter
 
                 foreach (TestCase test in tests)
                 {
-                    if (string.IsNullOrEmpty(_solutionDirectory))
+                    if (string.IsNullOrEmpty(_rootDirectory))
                     {
-                        _solutionDirectory = Utilities.GetSolutionDirectory(test.Source);
+                        _rootDirectory = Utilities.GetRootDirectory(test.Source, settings, frameworkHandle);
                     }
 
                     DoctestExecutable existingTestExecutable = _testExecutables.Find(t => (t.FilePath.Equals(test.Source)));
@@ -97,7 +97,7 @@ namespace DoctestTestAdapter
                     }
                     else
                     {
-                        DoctestExecutable newTestExecutable = new DoctestExecutable(test.Source, _solutionDirectory, settings, runContext, frameworkHandle, frameworkHandle);
+                        DoctestExecutable newTestExecutable = new DoctestExecutable(test.Source, _rootDirectory, settings, runContext, frameworkHandle, frameworkHandle);
                         newTestExecutable.TrackTestCase(test);
                         _testExecutables.Add(newTestExecutable);
                     }
@@ -150,9 +150,9 @@ namespace DoctestTestAdapter
                     return;
                 }
 
-                if (string.IsNullOrEmpty(_solutionDirectory))
+                if (string.IsNullOrEmpty(_rootDirectory))
                 {
-                    _solutionDirectory = Utilities.GetSolutionDirectory(source);
+                    _rootDirectory = Utilities.GetRootDirectory(source, settings, frameworkHandle);
                 }
 
                 TestCaseFactory testCaseFactory = new TestCaseFactory(source, settings, runContext, frameworkHandle);

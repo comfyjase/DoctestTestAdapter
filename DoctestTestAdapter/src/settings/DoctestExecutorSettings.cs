@@ -61,7 +61,7 @@ namespace DoctestTestAdapter.Settings
     {
         public List<ExecutableOverride> ExecutableOverrides { get; set; } = new List<ExecutableOverride>();
 
-        public bool AreExecutableOverridesValid(string solutionDirectory, out string message)
+        public bool AreExecutableOverridesValid(string rootDirectory, out string message)
         {
             message = string.Empty;
 
@@ -75,8 +75,8 @@ namespace DoctestTestAdapter.Settings
                 string keyFilePath = executableOverride.Key;
                 string valueFilePath = executableOverride.Value;
 
-                // Relative to the solution directory.
-                string relativePath = solutionDirectory + "\\" + keyFilePath;
+                // Relative to the root directory.
+                string relativePath = rootDirectory + "\\" + keyFilePath;
                 if (File.Exists(relativePath))
                 {
                     relativeKeyPathIsValid = true;
@@ -87,7 +87,7 @@ namespace DoctestTestAdapter.Settings
                     absoluteKeyPathIsValid = true;
                 }
 
-                relativePath = solutionDirectory + "\\" + valueFilePath;
+                relativePath = rootDirectory + "\\" + valueFilePath;
                 if (File.Exists(relativePath))
                 {
                     relativeValuePathIsValid = true;
@@ -100,11 +100,11 @@ namespace DoctestTestAdapter.Settings
                 // If both relative and absolute paths are invalid, report this.
                 if (!relativeKeyPathIsValid && !absoluteKeyPathIsValid)
                 {
-                    message += (Constants.WarningMessagePrefix + " - Executable override key in the .runsettings file: " + keyFilePath + " doesn't exist relative to the solution directory or as an absolute path. To fix, please make sure a file named " + keyFilePath + " exists under " + solutionDirectory + " or make sure it exists as an absolute path on your system.");
+                    message += (Constants.WarningMessagePrefix + " - Executable override key in the .runsettings file: " + keyFilePath + " doesn't exist relative to the root directory or as an absolute path. To fix, please make sure a file named " + keyFilePath + " exists under " + rootDirectory + " or make sure it exists as an absolute path on your system.");
                 }
                 if (!relativeValuePathIsValid && !absoluteValuePathIsValid)
                 {
-                    message += (Constants.WarningMessagePrefix + " - Executable override value in the .runsettings file: " + valueFilePath + " doesn't exist relative to the solution directory or as an absolute path. To fix, please make sure a directory named " + valueFilePath + " exists under " + solutionDirectory + " or make sure it exists as an absolute path on your system.");
+                    message += (Constants.WarningMessagePrefix + " - Executable override value in the .runsettings file: " + valueFilePath + " doesn't exist relative to the root directory or as an absolute path. To fix, please make sure a directory named " + valueFilePath + " exists under " + rootDirectory + " or make sure it exists as an absolute path on your system.");
                 }
             }
 

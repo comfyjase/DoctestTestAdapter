@@ -33,7 +33,7 @@ namespace DoctestTestAdapter.Tests.Keywords
 	[TestClass]
 	public class DoctestTestSuiteKeywordTest
 	{
-        private List<string> _allTestSuiteNames = new DoctestExecutable(TestCommon.UsingDoctestMainExecutableFilePath, TestCommon.ExamplesSolutionDirectory, null, null, null, null).GetTestSuiteNames();
+        private List<string> _allTestSuiteNames = new DoctestExecutable(TestCommon.UsingDoctestMainExecutableFilePath, TestCommon.ExamplesRootDirectory, null, null, null, null).GetTestSuiteNames();
 
         [TestMethod]
 		public void FindSingle()

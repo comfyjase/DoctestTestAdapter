@@ -31,6 +31,19 @@ namespace DoctestTestAdapter.Tests.Settings
     public class DoctestGeneralSettingsTest
     {
         [TestMethod]
+        public void RootDirectory()
+        {
+            TestCommon.AssertErrorOutput(() =>
+            {
+                DoctestTestSettings doctestSettings = TestCommon.LoadDoctestSettings(new DoctestTestSettingsProvider(), TestCommon.GeneralRunSettingsExample);
+                Assert.IsNotNull(doctestSettings);
+                Assert.IsNotNull(doctestSettings.GeneralSettings);
+                Assert.IsFalse(string.IsNullOrEmpty(doctestSettings.GeneralSettings.RootDirectory));
+                Assert.AreEqual("C:/Just/An/Example/Path", doctestSettings.GeneralSettings.RootDirectory);
+            });
+        }
+
+        [TestMethod]
         public void CommandArguments()
         {
             TestCommon.AssertErrorOutput(() =>

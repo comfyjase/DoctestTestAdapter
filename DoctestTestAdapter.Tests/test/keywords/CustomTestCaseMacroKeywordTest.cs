@@ -34,8 +34,8 @@ namespace DoctestTestAdapter.Tests.Keywords
     [TestClass]
     public class CustomTestCaseMacroKeywordTest
     {
-        private List<string> _allTestSuiteNames = new DoctestExecutable(TestCommon.UsingDoctestMainExecutableFilePath, TestCommon.ExamplesSolutionDirectory, null, null, null, null).GetTestSuiteNames();
-        private List<string> _allTestCaseNames = new DoctestExecutable(TestCommon.UsingDoctestMainExecutableFilePath, TestCommon.ExamplesSolutionDirectory, null, null, null, null).GetTestCaseNames();
+        private List<string> _allTestSuiteNames = new DoctestExecutable(TestCommon.UsingDoctestMainExecutableFilePath, TestCommon.ExamplesRootDirectory, null, null, null, null).GetTestSuiteNames();
+        private List<string> _allTestCaseNames = new DoctestExecutable(TestCommon.UsingDoctestMainExecutableFilePath, TestCommon.ExamplesRootDirectory, null, null, null, null).GetTestCaseNames();
 
         [TestMethod]
         public void FindInNoNamespaceOrTestSuite()

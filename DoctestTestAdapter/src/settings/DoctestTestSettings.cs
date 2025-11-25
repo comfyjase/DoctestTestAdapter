@@ -65,6 +65,17 @@ namespace DoctestTestAdapter.Settings
         //
 
         // General Settings
+        public bool TryGetRootDirectory(out string rootDirectory)
+        {
+            if (GeneralSettings != null && !string.IsNullOrEmpty(GeneralSettings.RootDirectory))
+            {
+                rootDirectory = GeneralSettings.RootDirectory;
+                return true;
+            }
+            rootDirectory = null;
+            return false;
+        }
+
         public bool TryGetCommandArguments(out string commandArguments)
         {
             if (GeneralSettings != null && !string.IsNullOrEmpty(GeneralSettings.CommandArguments))

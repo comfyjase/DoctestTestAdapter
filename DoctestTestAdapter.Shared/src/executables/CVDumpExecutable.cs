@@ -38,7 +38,7 @@ namespace DoctestTestAdapter.Shared.Executables
         private static readonly string CVDumpFilePath = Directory.GetParent(Assembly.GetExecutingAssembly().CodeBase.Replace(@"file:///", string.Empty)) + "\\thirdparty\\cvdump\\cvdump.exe";
         private string _pdbFilePath = null;
 
-        internal CVDumpExecutable(string pdbFilePath, string solutionDirectory, DoctestTestSettings settings, IRunContext runContext, IMessageLogger logger) : base(CVDumpFilePath, solutionDirectory, settings, runContext, logger)
+        internal CVDumpExecutable(string pdbFilePath, string rootDirectory, DoctestTestSettings settings, IRunContext runContext, IMessageLogger logger) : base(CVDumpFilePath, rootDirectory, settings, runContext, logger)
         {
             SetPdbFilePath(pdbFilePath);
         }
@@ -68,7 +68,7 @@ namespace DoctestTestAdapter.Shared.Executables
             // User has given specific search directories to use, so make sure we only return source files from those directories.
             if (Settings != null && Settings.TryGetSearchDirectories(out List<string> searchDirectories))
             {
-                if (Settings.DiscoverySettings.AreSearchDirectoriesValid(SolutionDirectory, out string message))
+                if (Settings.DiscoverySettings.AreSearchDirectoriesValid(RootDirectory, out string message))
                 {
                     sourceFiles.AddRange
                     (
@@ -76,7 +76,7 @@ namespace DoctestTestAdapter.Shared.Executables
                             // Note: the .Substring is used because the string table adds some kind of virtual address information before the header file path.
                             // Getting the first index of the space will make sure the string starts from the beginning of the file path.
                             .Select(s => s.Trim('\r', '\n').Substring(s.IndexOf(" ") + 1))
-                            .Where(s => (searchDirectories.Any(sd => (s.Contains(SolutionDirectory + "\\" + sd + "\\") || (s.Contains(SolutionDirectory) && s.Contains(sd + "\\")))) && !s.Contains("doctest.h") && fileExtensions.Any(s.EndsWith) && !s.Contains(".gen.") && File.Exists(s)))
+                            .Where(s => (searchDirectories.Any(sd => (s.Contains(RootDirectory + "\\" + sd + "\\") || (s.Contains(RootDirectory) && s.Contains(sd + "\\")))) && !s.Contains("doctest.h") && fileExtensions.Any(s.EndsWith) && !s.Contains(".gen.") && File.Exists(s)))
                             .ToList()
                     );
                 }
@@ -91,7 +91,7 @@ namespace DoctestTestAdapter.Shared.Executables
                     (
                         stringTableStr.Split('\n')
                             .Select(s => s.Trim('\r', '\n').Substring(s.IndexOf(" ") + 1))
-                            .Where(s => (s.Contains(SolutionDirectory) && !s.Contains("doctest.h") && fileExtensions.Any(s.EndsWith) && !s.Contains(".gen.") && File.Exists(s)))
+                            .Where(s => (s.Contains(RootDirectory) && !s.Contains("doctest.h") && fileExtensions.Any(s.EndsWith) && !s.Contains(".gen.") && File.Exists(s)))
                             .ToList()
                     );
                 }
@@ -103,7 +103,7 @@ namespace DoctestTestAdapter.Shared.Executables
                 (
                     stringTableStr.Split('\n')
                         .Select(s => s.Trim('\r', '\n').Substring(s.IndexOf(" ") + 1))
-                        .Where(s => (s.Contains(SolutionDirectory) && !s.Contains("doctest.h") && fileExtensions.Any(s.EndsWith) && !s.Contains(".gen.") && File.Exists(s)))
+                        .Where(s => (s.Contains(RootDirectory) && !s.Contains("doctest.h") && fileExtensions.Any(s.EndsWith) && !s.Contains(".gen.") && File.Exists(s)))
                         .ToList()
                 );
             }

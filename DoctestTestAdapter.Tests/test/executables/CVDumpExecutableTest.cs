@@ -35,7 +35,7 @@ namespace DoctestTestAdapter.Tests.Executables
     [TestClass]
     public class CVDumpExecutableTest
     {
-        private CVDumpExecutable _cvDumpExecutable = new CVDumpExecutable(TestCommon.UsingDoctestMainPdbFilePath, TestCommon.ExamplesSolutionDirectory, null, null, null);
+        private CVDumpExecutable _cvDumpExecutable = new CVDumpExecutable(TestCommon.UsingDoctestMainPdbFilePath, TestCommon.ExamplesRootDirectory, null, null, null);
 
         [TestMethod]
         public void SourceFilesExe()

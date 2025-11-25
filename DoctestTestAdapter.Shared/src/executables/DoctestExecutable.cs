@@ -59,7 +59,7 @@ namespace DoctestTestAdapter.Shared.Executables
 
         internal event EventHandler<EventArgs> Finished = null;
 
-        internal DoctestExecutable(string executableFilePath, string solutionDirectory, DoctestTestSettings settings, IRunContext runContext, IMessageLogger logger, IFrameworkHandle frameworkHandle) : base(executableFilePath, solutionDirectory, settings, runContext, logger, frameworkHandle)
+        internal DoctestExecutable(string executableFilePath, string rootDirectory, DoctestTestSettings settings, IRunContext runContext, IMessageLogger logger, IFrameworkHandle frameworkHandle) : base(executableFilePath, rootDirectory, settings, runContext, logger, frameworkHandle)
         {}
 
         private List<string> GetDoctestKeywordNames(DoctestKeywordNameType nameType)
@@ -390,7 +390,7 @@ namespace DoctestTestAdapter.Shared.Executables
             string testSource = FilePath;
             if (Settings != null && Settings.TryGetExecutableOverrides(out List<ExecutableOverride> executableOverrides))
             {
-                if (Settings.ExecutorSettings.AreExecutableOverridesValid(SolutionDirectory, out string message))
+                if (Settings.ExecutorSettings.AreExecutableOverridesValid(RootDirectory, out string message))
                 {
                     foreach (ExecutableOverride executableOverride in executableOverrides)
                     {
@@ -402,7 +402,7 @@ namespace DoctestTestAdapter.Shared.Executables
                         // If the key filepath doesn't exist that means it must be relative.
                         if (!File.Exists(key))
                         {
-                            keyFullPath = Path.Combine(SolutionDirectory, key);
+                            keyFullPath = Path.Combine(RootDirectory, key);
                         }
 
                         if (testSource.Equals(keyFullPath))
@@ -410,10 +410,10 @@ namespace DoctestTestAdapter.Shared.Executables
                             string valueFullPath = value;
                             if (!File.Exists(value))
                             {
-                                valueFullPath = Path.Combine(SolutionDirectory, value);
+                                valueFullPath = Path.Combine(RootDirectory, value);
                             }
 
-                            testSource = Path.Combine(SolutionDirectory, valueFullPath);
+                            testSource = Path.Combine(RootDirectory, valueFullPath);
                             break;
                         }
                     }

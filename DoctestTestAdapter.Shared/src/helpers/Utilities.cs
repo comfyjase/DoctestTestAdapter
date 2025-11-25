@@ -22,13 +22,15 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
+using DoctestTestAdapter.Settings;
+using DoctestTestAdapter.Shared.Profiling;
+using Microsoft.VisualStudio.TestPlatform.ObjectModel.Logging;
+using Microsoft.Win32;
+using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.IO;
 using System.Linq;
-using System;
-using Microsoft.Win32;
-using System.Globalization;
-using DoctestTestAdapter.Shared.Profiling;
 using System.Runtime.CompilerServices;
 
 namespace DoctestTestAdapter.Shared.Helpers
@@ -36,13 +38,30 @@ namespace DoctestTestAdapter.Shared.Helpers
     internal static class Utilities
     {
         /// <summary>
-        /// GetSolutionDirectory.
+        /// GetRootDirectory.
         /// </summary>
         /// <param name="startingDirectoryPath">Starting path to work out where the parent solution directory is. Uses Environment.CurrentDirectory if nothing is provided.</param>
-        /// <returns>string - Full path to the solution directory.</returns>
+        /// <param name="settings"></param>
+        /// <param name="logger"></param>
+        /// <returns>string - Full path to the root directory for the VS solution.</returns>
         /// <exception cref="FileNotFoundException">Thrown if no solution file is found.</exception>
-        internal static string GetSolutionDirectory(string startingDirectoryPath = null)
+        internal static string GetRootDirectory(string startingDirectoryPath = null, DoctestTestSettings settings = null, IMessageLogger logger = null)
         {
+            if (settings != null && settings.TryGetRootDirectory(out string rootDirectory))
+            {
+                if (Directory.Exists(rootDirectory))
+                {
+                    return rootDirectory;
+                }
+                else
+                {
+                    if (logger != null)
+                    {
+                        logger.SendMessage(TestMessageLevel.Warning, $"{Constants.WarningMessagePrefix} .runsetting RootDirectory: {rootDirectory} has been provided but doesn't exist. Please provide a directory path that exists.");
+                    }
+                }
+            }
+
             string path = startingDirectoryPath;
 
             // No starting path provided.
@@ -61,12 +80,12 @@ namespace DoctestTestAdapter.Shared.Helpers
             Profiler profiler = new Profiler();
             profiler.Start();
             {
-                while (directory != null && !directory.EnumerateFiles("*.sln").Any())
+                while (directory != null && !directory.EnumerateFiles("*.sln", SearchOption.AllDirectories).Any())
                     directory = directory.Parent;
             }
             profiler.End();
 
-            return directory?.FullName ?? throw new FileNotFoundException($"Could not find solution file in {directory}, abort!");
+            return directory?.FullName ?? throw new FileNotFoundException($"Could not find rootDirectory with searching starting from {startingDirectoryPath}, abort!");
         }
 
         /// <summary>
@@ -177,7 +196,7 @@ namespace DoctestTestAdapter.Shared.Helpers
         /// <exception cref="ArgumentException">Thrown if arg is empty.</exception>
         internal static void CheckEnumerable<T>(IEnumerable<T> arg, string nameOfArg, [CallerMemberName] string memberName = "")
         {
-            CheckNull(arg, nameOfArg, memberName); 
+            CheckNull(arg, nameOfArg, memberName);
             if (arg.Count() == 0)
                 throw new ArgumentException(Constants.ErrorMessagePrefix + " " + memberName + ": Argument '" + nameOfArg + "' cannot be empty, abort!", nameOfArg);
         }

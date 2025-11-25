@@ -24,6 +24,7 @@
 
 using DoctestTestAdapter.Settings;
 using DoctestTestAdapter.Shared.Factory;
+using DoctestTestAdapter.Shared.Helpers;
 using FakeItEasy;
 using Microsoft.VisualStudio.TestPlatform.ObjectModel;
 using Microsoft.VisualStudio.TestPlatform.ObjectModel.Adapter;
@@ -456,7 +457,7 @@ namespace DoctestTestAdapter.Tests.Execution
                         .Returns(settingsProvider);
                 }
 
-                List<TestCase> testCases = new TestCaseFactory(TestCommon.SpecialCharactersExecutableFilePath, null, runContext, frameworkHandle).CreateTestCases();
+                List<TestCase> testCases = new TestCaseFactory(TestCommon.SpecialCharactersExecutableFilePath, doctestTestSettings, runContext, frameworkHandle).CreateTestCases();
                 Assert.HasCount(5, testCases);
 
                 TestCommon.AssertTestCase(testCases[0],
@@ -470,6 +471,57 @@ namespace DoctestTestAdapter.Tests.Execution
                 doctestTestExecutor.RunTests(testCases, runContext, frameworkHandle);
 
                 Assert.HasCount(5, capturedTestResults.Values);
+                Assert.AreEqual(TestOutcome.Passed, capturedTestResults.Values[0].Outcome);
+            });
+        }
+
+        [TestMethod]
+        public void ExecuteExeWithRootDirectorySetting()
+        {
+            TestCommon.AssertErrorOutput(() =>
+            {
+                IFrameworkHandle frameworkHandle = A.Fake<IFrameworkHandle>();
+                IRunContext runContext = A.Fake<IRunContext>();
+                Captured<TestMessageLevel> capturedTestMessageLevels = A.Captured<TestMessageLevel>();
+                Captured<string> capturedTestMessages = A.Captured<string>();
+                Captured<TestCase> capturedTestCases = A.Captured<TestCase>();
+                Captured<TestResult> capturedTestResults = A.Captured<TestResult>();
+                A.CallTo(() => frameworkHandle.SendMessage(capturedTestMessageLevels._, capturedTestMessages._))
+                   .DoesNothing();
+                A.CallTo(() => frameworkHandle.RecordStart(capturedTestCases._))
+                    .DoesNothing();
+                A.CallTo(() => frameworkHandle.RecordResult(capturedTestResults._))
+                    .DoesNothing();
+
+                // Using utilities root directory to make sure I don't hardcode path
+                string rootDirectory = Utilities.GetRootDirectory();
+                string settingsAsString = TestCommon.GeneralRunSettingsExample;
+                settingsAsString = settingsAsString.Replace("C:/Just/An/Example/Path", rootDirectory);
+
+                DoctestTestSettings doctestTestSettings = null;
+                if (!string.IsNullOrEmpty(settingsAsString))
+                {
+                    DoctestTestSettingsProvider settingsProvider = new DoctestTestSettingsProvider();
+                    doctestTestSettings = TestCommon.LoadDoctestSettings(settingsProvider, settingsAsString);
+                    A.CallTo(() => runContext.RunSettings.GetSettings(DoctestTestSettings.RunSettingsXmlNode))
+                        .Returns(settingsProvider);
+                }
+
+                List<TestCase> testCases = new TestCaseFactory(TestCommon.TestsOnlyInHFilesExecutableFilePath, doctestTestSettings, runContext, frameworkHandle).CreateTestCases();
+                Assert.HasCount(1, testCases);
+
+                TestCommon.AssertTestCase(testCases[0],
+                    TestCommon.TestsOnlyInHFilesExecutableFilePath,
+                    "Empty Namespace::Empty Class::[TestsOnlyInHFiles] - Is Even",
+                    "[TestsOnlyInHFiles] - Is Even",
+                    TestCommon.TestsOnlyInHFilesTestHeaderFilePath,
+                    10);
+
+                ITestExecutor doctestTestExecutor = new DoctestTestExecutor();
+                doctestTestExecutor.RunTests(testCases, runContext, frameworkHandle);
+
+                Assert.HasCount(1, capturedTestResults.Values);
+                Assert.AreEqual(TestCommon.TestsOnlyInHFilesTestHeaderFilePath, capturedTestCases.Values[0].CodeFilePath);
                 Assert.AreEqual(TestOutcome.Passed, capturedTestResults.Values[0].Outcome);
             });
         }

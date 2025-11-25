@@ -32,6 +32,7 @@ using System.Linq;
 using DoctestTestAdapter.Settings;
 using System.IO;
 using System;
+using DoctestTestAdapter.Shared.Helpers;
 
 namespace DoctestTestAdapter.Tests.Discovery
 {
@@ -339,6 +340,41 @@ namespace DoctestTestAdapter.Tests.Discovery
                 doctestTestDiscoverer.DiscoverTests(sources, discoveryContext, messageLogger, testCaseDiscoverySink);
 
                 Assert.HasCount(5, capturedTestCases.Values);
+            });
+        }
+
+        [TestMethod]
+        public void DiscoverExeWithRootDirectorySetting()
+        {
+            TestCommon.AssertErrorOutput(() =>
+            {
+                IEnumerable<string> sources = new List<string>() { TestCommon.TestsOnlyInHFilesExecutableFilePath };
+                IRunContext discoveryContext = A.Fake<IRunContext>();
+                IMessageLogger messageLogger = A.Fake<IMessageLogger>();
+                ITestCaseDiscoverySink testCaseDiscoverySink = A.Fake<ITestCaseDiscoverySink>();
+                Captured<TestCase> capturedTestCases = A.Captured<TestCase>();
+                A.CallTo(() => testCaseDiscoverySink.SendTestCase(capturedTestCases._))
+                    .DoesNothing();
+
+                // Using utilities root directory to make sure I don't hardcode path
+                string rootDirectory = Utilities.GetRootDirectory();
+                string settingsAsString = TestCommon.GeneralRunSettingsExample;
+                settingsAsString = settingsAsString.Replace("C:/Just/An/Example/Path", rootDirectory);
+
+                DoctestTestSettings doctestTestSettings = null;
+                if (!string.IsNullOrEmpty(settingsAsString))
+                {
+                    DoctestTestSettingsProvider settingsProvider = new DoctestTestSettingsProvider();
+                    doctestTestSettings = TestCommon.LoadDoctestSettings(settingsProvider, settingsAsString);
+                    A.CallTo(() => discoveryContext.RunSettings.GetSettings(DoctestTestSettings.RunSettingsXmlNode))
+                        .Returns(settingsProvider);
+                }
+
+                ITestDiscoverer doctestTestDiscoverer = new DoctestTestDiscoverer();
+                doctestTestDiscoverer.DiscoverTests(sources, discoveryContext, messageLogger, testCaseDiscoverySink);
+
+                Assert.HasCount(1, capturedTestCases.Values);
+                Assert.AreEqual(TestCommon.TestsOnlyInHFilesTestHeaderFilePath, capturedTestCases.Values[0].CodeFilePath);
             });
         }
     }

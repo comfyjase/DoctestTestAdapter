@@ -32,8 +32,8 @@ namespace DoctestTestAdapter.Tests.Executables
     [TestClass]
     public class DoctestExecutableTest
     {
-        private DoctestExecutable _doctestExecutableExe = new DoctestExecutable(TestCommon.UsingDoctestMainExecutableFilePath, TestCommon.ExamplesSolutionDirectory, null, null, null, null);
-        private DoctestExecutable _doctestExecutableExeAndDLL = new DoctestExecutable(TestCommon.ExecutableUsingDLLExecutableFilePath, TestCommon.ExamplesSolutionDirectory, null, null, null, null);
+        private DoctestExecutable _doctestExecutableExe = new DoctestExecutable(TestCommon.UsingDoctestMainExecutableFilePath, TestCommon.ExamplesRootDirectory, null, null, null, null);
+        private DoctestExecutable _doctestExecutableExeAndDLL = new DoctestExecutable(TestCommon.ExecutableUsingDLLExecutableFilePath, TestCommon.ExamplesRootDirectory, null, null, null, null);
 
         [TestMethod]
         public void TestSuiteNamesExe()
