@@ -31,10 +31,11 @@ body:
           - Pre-Release v0.1.0
           - Pre-Release v0.1.1
           - Pre-Release v0.2.0
-          - Pre-Release v0.2.1 (Default)
+          - Pre-Release v0.2.1
+          - Pre-Release v0.2.2 (Default)
           - main branch
           - dev branch
-        default: 3
+        default: 4
       validations:
         required: true
         
