@@ -294,7 +294,7 @@ namespace DoctestTestAdapter.Tests.Execution
                     .Returns(false);
 
                 List<TestCase> testCases = new TestCaseFactory(TestCommon.PrintOutputExecutableFilePath, null, runContext, frameworkHandle).CreateTestCases();
-                Assert.HasCount(11, testCases);
+                Assert.HasCount(14, testCases);
 
                 ITestExecutor doctestTestExecutor = new DoctestTestExecutor();
                 doctestTestExecutor.RunTests(testCases, runContext, frameworkHandle);
@@ -307,18 +307,45 @@ namespace DoctestTestAdapter.Tests.Execution
                 Assert.IsTrue(string.Join("\n", capturedTestResults.Values[2].ErrorMessage).Contains("INFO called for test that will fail with variable: 11"));
                 Assert.IsTrue(string.Join("\n", capturedTestResults.Values[3].ErrorMessage).Contains("INFO called for test that will fail with variable: 11"));
                 Assert.IsTrue(string.Join("\n", capturedTestResults.Values[3].ErrorMessage).Contains("Another INFO called for test that will fail with another_variable: 15"));
-                Assert.IsTrue(capturedTestResults.Values[4].Messages[0].Text.Contains("MESSAGE called before check"));
-                Assert.IsTrue(capturedTestResults.Values[4].Messages[1].Text.Contains("MESSAGE called after check"));
-                Assert.IsTrue(capturedTestResults.Values[5].Messages[0].Text.Contains("MESSAGE called before check with variable: 38"));
-                Assert.IsTrue(capturedTestResults.Values[5].Messages[1].Text.Contains("MESSAGE called after check with variable: 38"));
-                Assert.IsTrue(capturedTestResults.Values[6].Messages[0].Text.Contains("MESSAGE called before check with variable: 38"));
-                Assert.IsTrue(capturedTestResults.Values[6].Messages[1].Text.Contains("Another MESSAGE called before check with another_variable: 5"));
-                Assert.IsTrue(capturedTestResults.Values[6].Messages[2].Text.Contains("MESSAGE called after check with variable: 38"));
-                Assert.IsTrue(capturedTestResults.Values[6].Messages[3].Text.Contains("Another MESSAGE called after check with another_variable: 5"));
+                Assert.IsTrue(capturedTestResults.Values[4].Messages[0].Text.Contains("[PrintOutput] - MESSAGE"));
+                Assert.IsTrue(capturedTestResults.Values[4].Messages[1].Text.Contains("MESSAGE called before check"));
+                Assert.IsTrue(capturedTestResults.Values[4].Messages[2].Text.Contains("MESSAGE called after check"));
+                Assert.IsTrue(capturedTestResults.Values[5].Messages[0].Text.Contains("[PrintOutput] - MESSAGE With Variable"));
+                Assert.IsTrue(capturedTestResults.Values[5].Messages[1].Text.Contains("MESSAGE called before check with variable: 38"));
+                Assert.IsTrue(capturedTestResults.Values[5].Messages[2].Text.Contains("MESSAGE called after check with variable: 38"));
+                Assert.IsTrue(capturedTestResults.Values[6].Messages[0].Text.Contains("[PrintOutput] - Multiple MESSAGEs With Variable"));
+                Assert.IsTrue(capturedTestResults.Values[6].Messages[1].Text.Contains("MESSAGE called before check with variable: 38"));
+                Assert.IsTrue(capturedTestResults.Values[6].Messages[2].Text.Contains("Another MESSAGE called before check with another_variable: 5"));
+                Assert.IsTrue(capturedTestResults.Values[6].Messages[3].Text.Contains("MESSAGE called after check with variable: 38"));
+                Assert.IsTrue(capturedTestResults.Values[6].Messages[4].Text.Contains("Another MESSAGE called after check with another_variable: 5"));
                 Assert.IsTrue(string.Join("\n", capturedTestResults.Values[7].ErrorMessage).Contains("CHECK_MESSAGE called for failing test."));
                 Assert.IsTrue(string.Join("\n", capturedTestResults.Values[8].ErrorMessage).Contains("REQUIRE_MESSAGE called for failing test"));
                 Assert.IsTrue(string.Join("\n", capturedTestResults.Values[9].ErrorMessage).Contains("FAIL called for failing test"));
                 Assert.IsTrue(string.Join("\n", capturedTestResults.Values[10].ErrorMessage).Contains("FAIL_CHECK called for failing test"));
+                Assert.IsTrue(capturedTestResults.Values[12].Messages[0].Text.Contains("[PrintOutput] - With Passing SUBCASES"));
+                Assert.IsTrue(capturedTestResults.Values[12].Messages[1].Text.Contains("Message from TEST_CASE parent!"));
+                Assert.IsTrue(capturedTestResults.Values[12].Messages[2].Text.Contains("[PrintOutput] - Passing SUBCASE 1"));
+                Assert.IsTrue(capturedTestResults.Values[12].Messages[3].Text.Contains("Message from SUBCASE 1!"));
+                Assert.IsTrue(capturedTestResults.Values[12].Messages[4].Text.Contains("[PrintOutput] - Passing SUBCASE 2"));
+                Assert.IsTrue(capturedTestResults.Values[12].Messages[5].Text.Contains("Message from SUBCASE 2!"));
+                Assert.IsTrue(capturedTestResults.Values[12].Messages[6].Text.Contains("[PrintOutput] - Nested SUBCASEs"));
+                Assert.IsTrue(capturedTestResults.Values[12].Messages[7].Text.Contains("Message from Nested SUBCASE parent!"));
+                Assert.IsTrue(capturedTestResults.Values[12].Messages[8].Text.Contains("[PrintOutput] - Nested SUBCASE 1"));
+                Assert.IsTrue(capturedTestResults.Values[12].Messages[9].Text.Contains("Message from Nested SUBCASE 1!"));
+                Assert.IsTrue(capturedTestResults.Values[12].Messages[10].Text.Contains("[PrintOutput] - Nested SUBCASE 2"));
+                Assert.IsTrue(capturedTestResults.Values[12].Messages[11].Text.Contains("Message from Nested SUBCASE 2!"));
+
+                string failingSubcasesErrorMessages = string.Join("\n", capturedTestResults.Values[13].ErrorMessage);
+                Assert.IsTrue(failingSubcasesErrorMessages.Contains("[PrintOutput] - Failing SUBCASE 1"));
+                Assert.IsTrue(failingSubcasesErrorMessages.Contains("Some info when failing from TEST_CASE parent!"));
+                Assert.IsTrue(failingSubcasesErrorMessages.Contains("Info from SUBCASE 1!"));
+                Assert.IsTrue(failingSubcasesErrorMessages.Contains("[PrintOutput] - Failing SUBCASE 2"));
+                Assert.IsTrue(failingSubcasesErrorMessages.Contains("Info from SUBCASE 2!"));
+                Assert.IsTrue(failingSubcasesErrorMessages.Contains("[PrintOutput] - Nested SUBCASE 1"));
+                Assert.IsTrue(failingSubcasesErrorMessages.Contains("Info from Nested SUBCASE parent!"));
+                Assert.IsTrue(failingSubcasesErrorMessages.Contains("Info from Nested SUBCASE 1!"));
+                Assert.IsTrue(failingSubcasesErrorMessages.Contains("[PrintOutput] - Nested SUBCASE 2"));
+                Assert.IsTrue(failingSubcasesErrorMessages.Contains("Info from Nested SUBCASE 2!"));
             });
         }
 

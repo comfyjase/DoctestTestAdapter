@@ -78,4 +78,81 @@ namespace TestPrintOutput
 	{
 		FAIL_CHECK("FAIL_CHECK called for failing test");
 	}
+
+	TEST_CASE("[PrintOutput] - Multiple CHECK + INFO")
+	{
+		INFO("INFO called for test that will fail");
+		CHECK(false);
+
+		INFO("Another INFO called for test that will fail");
+		CHECK(false);
+	}
+
+	TEST_CASE("[PrintOutput] - With Passing SUBCASES")
+	{
+		MESSAGE("Message from TEST_CASE parent!");
+
+		SUBCASE("[PrintOutput] - Passing SUBCASE 1")
+		{
+			MESSAGE("Message from SUBCASE 1!");
+			CHECK(true);
+		}
+
+		SUBCASE("[PrintOutput] - Passing SUBCASE 2")
+		{
+			MESSAGE("Message from SUBCASE 2!");
+			CHECK(true);
+		}
+
+		SUBCASE("[PrintOutput] - Nested SUBCASEs")
+		{
+			MESSAGE("Message from Nested SUBCASE parent!");
+
+			SUBCASE("[PrintOutput] - Nested SUBCASE 1")
+			{
+				MESSAGE("Message from Nested SUBCASE 1!");
+				CHECK(true);
+			}
+
+			SUBCASE("[PrintOutput] - Nested SUBCASE 2")
+			{
+				MESSAGE("Message from Nested SUBCASE 2!");
+				CHECK(true);
+			}
+		}
+	}
+
+	TEST_CASE("[PrintOutput] - With Failing SUBCASES")
+	{
+		INFO("Some info when failing from TEST_CASE parent!");
+
+		SUBCASE("[PrintOutput] - Failing SUBCASE 1")
+		{
+			INFO("Info from SUBCASE 1!");
+			CHECK(false);
+		}
+
+		SUBCASE("[PrintOutput] - Failing SUBCASE 2")
+		{
+			INFO("Info from SUBCASE 2!");
+			CHECK(false);
+		}
+
+		SUBCASE("[PrintOutput] - Nested SUBCASEs")
+		{
+			INFO("Info from Nested SUBCASE parent!");
+
+			SUBCASE("[PrintOutput] - Nested SUBCASE 1")
+			{
+				INFO("Info from Nested SUBCASE 1!");
+				CHECK(false);
+			}
+
+			SUBCASE("[PrintOutput] - Nested SUBCASE 2")
+			{
+				INFO("Info from Nested SUBCASE 2!");
+				CHECK(false);
+			}
+		}
+	}
 }

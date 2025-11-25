@@ -60,7 +60,7 @@ namespace DoctestTestAdapter.Shared.Executables
         internal event EventHandler<EventArgs> Finished = null;
 
         internal DoctestExecutable(string executableFilePath, string rootDirectory, DoctestTestSettings settings, IRunContext runContext, IMessageLogger logger, IFrameworkHandle frameworkHandle) : base(executableFilePath, rootDirectory, settings, runContext, logger, frameworkHandle)
-        {}
+        { }
 
         private List<string> GetDoctestKeywordNames(DoctestKeywordNameType nameType)
         {
@@ -69,9 +69,9 @@ namespace DoctestTestAdapter.Shared.Executables
             string listArgument = null;
             switch (nameType)
             {
-                case DoctestKeywordNameType.TestSuite:  { listArgument = "--list-test-suites";  break; }
-                case DoctestKeywordNameType.TestCase:   { listArgument = "--list-test-cases";   break; }
-                default:                                { throw new InvalidEnumArgumentException($"Undefined DoctestKeywordNameType {nameType}, abort!"); }
+                case DoctestKeywordNameType.TestSuite: { listArgument = "--list-test-suites"; break; }
+                case DoctestKeywordNameType.TestCase: { listArgument = "--list-test-cases"; break; }
+                default: { throw new InvalidEnumArgumentException($"Undefined DoctestKeywordNameType {nameType}, abort!"); }
             }
 
             if (Settings != null && Settings.TryGetCommandArguments(out string commandArguments))
@@ -95,7 +95,7 @@ namespace DoctestTestAdapter.Shared.Executables
             {
                 return doctestNames;
             }
-            
+
             int startOfDoctestListIndex = Output.IndexOf(searchString) + searchString.Length;
             int endOfDoctestListIndex = Output.LastIndexOf(searchString);
             string subString = Output.Substring(startOfDoctestListIndex, endOfDoctestListIndex - startOfDoctestListIndex).Trim();
@@ -134,6 +134,221 @@ namespace DoctestTestAdapter.Shared.Executables
             }
         }
 
+        private bool HasMessageBeenReported(TestResult testResult, string message)
+        {
+            bool hasMessageBeenReported = false;
+
+            foreach (TestResultMessage existingTestResultMessage in testResult.Messages)
+            {
+                if (existingTestResultMessage.Text.Trim() == message.Trim())
+                {
+                    hasMessageBeenReported = true;
+                    break;
+                }
+            }
+
+            return hasMessageBeenReported;
+        }
+
+        private List<XmlNodeList> FindAllSubCaseNodes(XmlNode node, string startingIndentationString, ref Dictionary<string, string> indentations)
+        {
+            List<XmlNodeList> subCaseNodeList = new List<XmlNodeList>();
+
+            XmlNodeList subCaseNodes = node.SelectNodes("SubCase");
+            subCaseNodeList.Add(subCaseNodes);
+
+            // If there are subCaseNodes... increase indent by 1 for subsequent node.
+            if (subCaseNodes.Count > 0)
+            {
+                XmlAttribute nameAttribute = node.Attributes["name"];
+                if (nameAttribute != null && !string.IsNullOrEmpty(nameAttribute.Value))
+                {
+                    if (!indentations.ContainsKey(nameAttribute.Value))
+                    {
+                        indentations.Add(nameAttribute.Value, startingIndentationString);
+                    }
+                }
+
+                startingIndentationString += "\t";
+            }
+            else
+            {
+                XmlAttribute nameAttribute = node.Attributes["name"];
+                if (nameAttribute != null && !string.IsNullOrEmpty(nameAttribute.Value))
+                {
+                    if (!indentations.ContainsKey(nameAttribute.Value))
+                    {
+                        indentations.Add(nameAttribute.Value, startingIndentationString);
+                    }
+                }
+            }
+
+            foreach (XmlNode subCaseNode in subCaseNodes)
+            {
+                subCaseNodeList.AddRange(FindAllSubCaseNodes(subCaseNode, startingIndentationString, ref indentations));
+            }
+
+            return subCaseNodeList;
+        }
+
+        private void ProcessMessages(XmlNode node, string nodeName, string startingIndentations, TestResult testResult, bool shouldAllowDuplicateMessages)
+        {
+            XmlNodeList messageNodes = node.SelectNodes("Message");
+            if (messageNodes.Count > 0)
+            {
+                bool doAnyNonErrorMessagesExist = false;
+                foreach (XmlNode messageNode in messageNodes)
+                {
+                    XmlAttribute typeAttribute = messageNode.Attributes["type"];
+                    if (typeAttribute != null && !string.IsNullOrEmpty(typeAttribute.Value) && !typeAttribute.Value.Contains("ERROR"))
+                    {
+                        doAnyNonErrorMessagesExist = true;
+                        break;
+                    }
+                }
+
+                // Message nodes only contain errors (e.g FAIL, FAIL_CHECK)
+                if (!doAnyNonErrorMessagesExist)
+                {
+                    return;
+                }
+
+                if (shouldAllowDuplicateMessages || !HasMessageBeenReported(testResult, nodeName))
+                {
+                    TestResultMessage testResultMessage = new TestResultMessage(TestResultMessage.StandardOutCategory, startingIndentations + nodeName + "\n");
+                    testResult.Messages.Add(testResultMessage);
+                }
+            }
+
+            foreach (XmlNode messageNode in messageNodes)
+            {
+                XmlAttribute typeAttribute = messageNode.Attributes["type"];
+                if (typeAttribute != null && !string.IsNullOrEmpty(typeAttribute.Value) && !typeAttribute.Value.Contains("ERROR"))
+                {
+                    XmlNode textNode = messageNode.SelectSingleNode("Text");
+                    if (textNode != null)
+                    {
+                        string message = startingIndentations + "\t" + textNode.InnerText.Trim() + "\n";
+                        if (shouldAllowDuplicateMessages || !HasMessageBeenReported(testResult, message))
+                        {
+                            TestResultMessage testResultMessage = new TestResultMessage(TestResultMessage.StandardOutCategory, message);
+                            testResult.Messages.Add(testResultMessage);
+                        }
+                    }
+                }
+            }
+        }
+
+        private void ProcessErrorMessages(XmlNode node, string nodeName, string startingIndentations, TestResult testResult, bool shouldAllowDuplicateMessages)
+        {
+            string errorMessage = (string.IsNullOrEmpty(testResult.ErrorMessage) ? "" : testResult.ErrorMessage.ToString());
+            XmlNodeList messageNodes = node.SelectNodes("Message");
+            XmlNodeList expressionNodes = node.SelectNodes("Expression");
+            bool isDuplicateMessage = false;
+
+            if (expressionNodes.Count > 0)
+            {
+                isDuplicateMessage = errorMessage.Contains(nodeName);
+                if (shouldAllowDuplicateMessages || !isDuplicateMessage)
+                {
+                    errorMessage += (startingIndentations + nodeName + "\n");
+                }
+            }
+
+            foreach (XmlNode expressionNode in expressionNodes)
+            {
+                isDuplicateMessage = false;
+
+                XmlAttribute lineAttribute = expressionNode.Attributes["line"];
+                if (lineAttribute != null && !string.IsNullOrEmpty(lineAttribute.Value))
+                {
+                    string lineString = ("Line " + lineAttribute.Value.Trim() + ": ");
+                    isDuplicateMessage = errorMessage.Contains(lineString);
+                    if (shouldAllowDuplicateMessages || !isDuplicateMessage)
+                    {
+                        errorMessage += (startingIndentations + "\t");
+                        errorMessage += lineString;
+                    }
+                }
+
+                XmlAttribute typeAttribute = expressionNode.Attributes["type"];
+                if (typeAttribute != null && !string.IsNullOrEmpty(typeAttribute.Value))
+                {
+                    // Not setting isDuplicateMessage here since it's valid to have multiple/duplicates of doctest types
+                    if (shouldAllowDuplicateMessages || !isDuplicateMessage)
+                    {
+                        errorMessage += typeAttribute.Value.Trim();
+                    }
+                }
+
+                XmlNode originalNode = expressionNode.SelectSingleNode("Original");
+                if (originalNode != null)
+                {
+                    // Not setting isDuplicateMessage here since it's valid to have multiple checks use the same evaluation.
+                    string originalNodeString = ("( " + originalNode.InnerText.Trim() + " ) is NOT correct!\n");
+                    if (shouldAllowDuplicateMessages || !isDuplicateMessage)
+                    {
+                        errorMessage += originalNodeString;
+                    }
+                }
+
+                XmlNodeList infoNodes = expressionNode.SelectNodes("Info");
+                foreach (XmlNode infoNode in infoNodes)
+                {
+                    string infoNodeString = infoNode.InnerText.Trim() + "\n";
+                    isDuplicateMessage = errorMessage.Contains(infoNodeString);
+                    if (shouldAllowDuplicateMessages || !isDuplicateMessage)
+                    {
+                        errorMessage += startingIndentations + "\t";
+                        errorMessage += infoNodeString;
+                    }
+                }
+            }
+
+            if (messageNodes.Count > 0)
+            {
+                foreach (XmlNode messageNode in messageNodes)
+                {
+                    XmlAttribute typeAttribute = messageNode.Attributes["type"];
+                    if (typeAttribute != null && !string.IsNullOrEmpty(typeAttribute.Value) && typeAttribute.Value.Contains("ERROR"))
+                    {
+                        // Checking if the name can be added here too incase there's just an error macro that is counted as a message on it's own.
+                        // E.g. TEST_CASE that only has FAIL or FAIL_CHECK in it. These don't use the expression node, they use the message node and Error type.
+                        // So add the name here (if it hasn't already been added).
+                        isDuplicateMessage = errorMessage.Contains(nodeName);
+                        if (shouldAllowDuplicateMessages || !isDuplicateMessage)
+                        {
+                            errorMessage += (startingIndentations + nodeName + "\n");
+                        }
+                        break;
+                    }
+                }
+            }
+
+            foreach (XmlNode messageNode in messageNodes)
+            {
+                isDuplicateMessage = false;
+
+                XmlAttribute typeAttribute = messageNode.Attributes["type"];
+                if (typeAttribute != null && !string.IsNullOrEmpty(typeAttribute.Value) && typeAttribute.Value.Contains("ERROR"))
+                {
+                    XmlNode textNode = messageNode.SelectSingleNode("Text");
+                    if (textNode != null)
+                    {
+                        string textNodeString = textNode.InnerText.Trim() + "\n";
+                        isDuplicateMessage = errorMessage.Contains(textNodeString);
+                        if (shouldAllowDuplicateMessages || !isDuplicateMessage)
+                        {
+                            errorMessage += "\t";
+                            errorMessage += textNodeString;
+                        }
+                    }
+                }
+            }
+
+            testResult.ErrorMessage = errorMessage;
+        }
+
         private void RecordTestStart()
         {
             foreach (TestCase testCase in _currentTestBatch.Tests)
@@ -148,6 +363,8 @@ namespace DoctestTestAdapter.Shared.Executables
 
             if (!File.Exists(_currentTestBatch.TestReportFilePath))
                 throw new FileNotFoundException($"Could not find file {_currentTestBatch.TestReportFilePath}, abort!");
+
+            bool shouldAllowDuplicateMessages = false;
 
             XmlDocument testReportDocument = new XmlDocument();
             testReportDocument.Load(_currentTestBatch.TestReportFilePath);
@@ -197,24 +414,9 @@ namespace DoctestTestAdapter.Shared.Executables
                             XmlNode resultsNode = testCaseNode.SelectSingleNode("OverallResultsAsserts");
                             if (resultsNode != null)
                             {
-                                XmlNodeList messageNodes = testCaseNode.SelectNodes("Message");
-                                foreach (XmlNode messageNode in messageNodes)
-                                {
-                                    XmlAttribute typeAttribute = messageNode.Attributes["type"];
-                                    if (typeAttribute != null && !string.IsNullOrEmpty(typeAttribute.Value) && !typeAttribute.Value.Contains("ERROR"))
-                                    {
-                                        XmlNode textNode = messageNode.SelectSingleNode("Text");
-                                        if (textNode != null)
-                                        {
-                                            TestResultMessage testResultMessage = new TestResultMessage
-                                                (
-                                                    TestResultMessage.StandardOutCategory,
-                                                    (textNode.InnerText.Trim() + "\n")
-                                                );
-                                            testResult.Messages.Add(testResultMessage);
-                                        }
-                                    }
-                                }
+                                string testCaseNameDecoration = "TEST_CASE(\"" + testCaseNameFromReport + "\")";
+
+                                ProcessMessages(testCaseNode, testCaseNameDecoration, "", testResult, shouldAllowDuplicateMessages);
 
                                 XmlAttribute durationAttribute = resultsNode.Attributes["duration"];
                                 if (durationAttribute != null && !string.IsNullOrEmpty(durationAttribute.Value))
@@ -237,45 +439,40 @@ namespace DoctestTestAdapter.Shared.Executables
                                     else
                                     {
                                         testResult.Outcome = TestOutcome.Failed;
+                                        ProcessErrorMessages(testCaseNode, testCaseNameDecoration, "", testResult, shouldAllowDuplicateMessages);
+                                    }
+                                }
 
-                                        string errorMessage = string.Empty;
+                                Dictionary<string, string> indentations = new Dictionary<string, string>();
+                                bool testCaseHasMessageSet = (testResult.Messages.Count() > 0);
+                                bool testCaseHasErrorsSet = !string.IsNullOrEmpty(testResult.ErrorMessage);
+                                List<XmlNodeList> subCaseNodeLists = FindAllSubCaseNodes(testCaseNode, "", ref indentations);
 
-                                        XmlNodeList expressionNodes = testCaseNode.SelectNodes("Expression");
-                                        foreach (XmlNode expressionNode in expressionNodes)
+
+                                foreach (XmlNodeList subCaseNodeList in subCaseNodeLists)
+                                {
+                                    foreach (XmlNode subCaseNode in subCaseNodeList)
+                                    {
+                                        XmlAttribute subCaseNameAttribute = subCaseNode.Attributes["name"];
+                                        if (subCaseNameAttribute != null && !string.IsNullOrWhiteSpace(subCaseNameAttribute.Value))
                                         {
-                                            XmlAttribute typeAttribute = expressionNode.Attributes["type"];
-                                            if (typeAttribute != null && !string.IsNullOrEmpty(typeAttribute.Value))
-                                            {
-                                                errorMessage += typeAttribute.Value.Trim();
-                                            }
+                                            string startingIndentation = indentations[subCaseNameAttribute.Value];
+                                            string subCaseNameDecoration = "SUBCASE(\"" + subCaseNameAttribute.Value + "\")";
+                                            int firstTabIndex = startingIndentation.IndexOf('\t');
 
-                                            XmlNode originalNode = expressionNode.SelectSingleNode("Original");
-                                            if (originalNode != null)
+                                            if (firstTabIndex == -1)
                                             {
-                                                errorMessage += ("( " + originalNode.InnerText.Trim() + " ) is NOT correct!\n");
+                                                ProcessMessages(subCaseNode, subCaseNameDecoration, startingIndentation, testResult, shouldAllowDuplicateMessages);
+                                                ProcessErrorMessages(subCaseNode, subCaseNameDecoration, startingIndentation, testResult, shouldAllowDuplicateMessages);
                                             }
-
-                                            XmlNodeList infoNodes = expressionNode.SelectNodes("Info");
-                                            foreach (XmlNode infoNode in infoNodes)
+                                            else
                                             {
-                                                errorMessage += infoNode.InnerText.Trim() + "\n";
+                                                string startingIndentationForMessages = testCaseHasMessageSet ? startingIndentation : startingIndentation.Remove(firstTabIndex, 1);
+                                                string startingIndentationForErrors = testCaseHasErrorsSet ? startingIndentation : startingIndentation.Remove(firstTabIndex, 1);
+                                                ProcessMessages(subCaseNode, subCaseNameDecoration, startingIndentationForMessages, testResult, shouldAllowDuplicateMessages);
+                                                ProcessErrorMessages(subCaseNode, subCaseNameDecoration, startingIndentationForErrors, testResult, shouldAllowDuplicateMessages);
                                             }
                                         }
-
-                                        foreach (XmlNode messageNode in messageNodes)
-                                        {
-                                            XmlAttribute typeAttribute = messageNode.Attributes["type"];
-                                            if (typeAttribute != null && !string.IsNullOrEmpty(typeAttribute.Value) && typeAttribute.Value.Contains("ERROR"))
-                                            {
-                                                XmlNode textNode = messageNode.SelectSingleNode("Text");
-                                                if (textNode != null)
-                                                {
-                                                    errorMessage += textNode.InnerText.Trim() + "\n";
-                                                }
-                                            }
-                                        }
-
-                                        testResult.ErrorMessage = errorMessage;
                                     }
                                 }
                             }
