@@ -257,17 +257,23 @@ namespace DoctestTestAdapter.Shared.Executables
 
             foreach (XmlNode expressionNode in expressionNodes)
             {
+                StackTrace stackTrace = new StackTrace();
+                stackTrace.AbsoluteFilePath = testResult.TestCase.CodeFilePath;
+                stackTrace.LineDescription = nodeName;
+
                 isDuplicateMessage = false;
 
                 XmlAttribute lineAttribute = expressionNode.Attributes["line"];
                 if (lineAttribute != null && !string.IsNullOrEmpty(lineAttribute.Value))
                 {
-                    string lineString = ("Line " + lineAttribute.Value.Trim() + ": ");
+                    string lineNumber = lineAttribute.Value.Trim();
+                    string lineString = ("Line " + lineNumber + ": ");
                     isDuplicateMessage = errorMessage.Contains(lineString);
                     if (shouldAllowDuplicateMessages || !isDuplicateMessage)
                     {
                         errorMessage += (startingIndentations + "\t");
                         errorMessage += lineString;
+                        stackTrace.LineNumber = lineNumber;
                     }
                 }
 
@@ -303,6 +309,11 @@ namespace DoctestTestAdapter.Shared.Executables
                         errorMessage += infoNodeString;
                     }
                 }
+
+                if (stackTrace.IsSet())
+                {
+                    testResult.ErrorStackTrace += stackTrace.AsString();
+                }
             }
 
             if (messageNodes.Count > 0)
@@ -327,6 +338,9 @@ namespace DoctestTestAdapter.Shared.Executables
 
             foreach (XmlNode messageNode in messageNodes)
             {
+                StackTrace stackTrace = new StackTrace();
+                stackTrace.LineDescription = nodeName;
+                stackTrace.AbsoluteFilePath = testResult.TestCase.CodeFilePath;
                 isDuplicateMessage = false;
 
                 XmlAttribute typeAttribute = messageNode.Attributes["type"];
@@ -343,6 +357,18 @@ namespace DoctestTestAdapter.Shared.Executables
                             errorMessage += textNodeString;
                         }
                     }
+                }
+
+                XmlAttribute lineAttribute = messageNode.Attributes["line"];
+                if (lineAttribute != null && !string.IsNullOrEmpty(lineAttribute.Value))
+                {
+                    string lineNumber = lineAttribute.Value.Trim();
+                    stackTrace.LineNumber = lineNumber;
+                }
+
+                if (stackTrace.IsSet())
+                {
+                    testResult.ErrorStackTrace += stackTrace.AsString();
                 }
             }
 

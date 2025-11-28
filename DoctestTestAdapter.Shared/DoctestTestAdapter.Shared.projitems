@@ -16,6 +16,7 @@
     <Compile Include="$(MSBuildThisFileDirectory)src\executables\DumpBinExecutable.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)src\executables\Executable.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)src\helpers\Constants.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)src\helpers\StackTrace.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)src\helpers\Utilities.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)src\keywords\ClassKeyword.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)src\keywords\CustomMacroKeyword.cs" />

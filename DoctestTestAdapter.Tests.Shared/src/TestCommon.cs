@@ -113,6 +113,7 @@ namespace DoctestTestAdapter.Tests
         internal static string UsingCustomMainTestHeaderFilePath = ExamplesRootDirectory + "UsingCustomMain\\TestIsEvenUsingCustomMain.h";
         internal static string ExecutableUsingDLLTestHeaderFilePath = ExamplesRootDirectory + "DLLExample\\ExecutableUsingDLL\\TestIsEvenExecutableUsingDLL.h";
         internal static string DLLTestHeaderFilePath = ExamplesRootDirectory + "DLLExample\\DLL\\TestIsEvenDLL.h";
+        internal static string PrintOutputHeaderFilePath = ExamplesRootDirectory + "PrintOutput\\PrintOutputDuringTests.h";
         internal static string TestsOnlyInHFilesTestHeaderFilePath = ExamplesRootDirectory + "TestsOnlyInHFiles\\TestIsEven.h";
         internal static string TestsOnlyInHPPFilesTestHeaderFilePath = ExamplesRootDirectory + "TestsOnlyInHPPFiles\\TestIsEven.hpp";
         internal static string TestsOnlyInCPPFilesTestHeaderFilePath = ExamplesRootDirectory + "TestsOnlyInCPPFiles\\TestIsEven.cpp";
