@@ -3,6 +3,25 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
+## [0.2.3-Pre-Release] - 2025-11-29
+
+See the [release](https://github.com/comfyjase/DoctestTestAdapter/releases) for binary assets.
+
+### Fixed
+
+#### Executor
+* Fixed test results not reporting errors or messages from SUBCASE(s).
+* Fixed test results repeating error messages.
+
+### Added
+
+#### Settings
+* SubCaseSplitter setting so users can override default SUBCASE divider string used in the test explorer window.
+
+#### Executor
+* Test explorer window output has more presentable formatting now (with indentation where appropriate).
+* Clickable stack trace error message which takes you directly to the line where unit tests failed.
+
 ## [0.2.2-Pre-Release] - 2025-11-25
 
 See the [release](https://github.com/comfyjase/DoctestTestAdapter/releases) for binary assets.
