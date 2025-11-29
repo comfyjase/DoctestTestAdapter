@@ -119,6 +119,8 @@ namespace DoctestTestAdapter.Tests
         internal static string TestsOnlyInCPPFilesTestHeaderFilePath = ExamplesRootDirectory + "TestsOnlyInCPPFiles\\TestIsEven.cpp";
         internal static string SpecialCharactersHeaderFilePath = ExamplesRootDirectory + "Special_Characters-In.FolderPath\\Special_Characters-In.FolderPath\\TestIsEven.h";
 
+        internal static string SubCaseSplitterExample = "#####################################################";
+
         private static string RunSettingsStart =
             "<?xml version=\"1.0\" encoding=\"utf-8\"?>\n"
             + "<RunSettings>\n";
@@ -192,6 +194,15 @@ namespace DoctestTestAdapter.Tests
             RunSettingsEnd;
 
         // Executor settings
+        internal static string ExecutorRunSettingsSubCaseSplitterExample =
+            RunSettingsStart +
+                DoctestRunSettingsStart +
+                    ExecutorRunSettingsStart +
+                        $"\t\t\t<SubCaseSplitter>{SubCaseSplitterExample}</SubCaseSplitter>\n" +
+                    ExecutorRunSettingsEnd +
+                DoctestRunSettingsEnd +
+            RunSettingsEnd;
+
         internal static string ExecutorRunSettingsRelativeExecutableOverrideExample =
             RunSettingsStart +
                 DoctestRunSettingsStart +

@@ -105,5 +105,18 @@ namespace DoctestTestAdapter.Tests.Settings
                 Assert.IsFalse(string.IsNullOrEmpty(message));
             });
         }
+
+        [TestMethod]
+        public void SubCaseSplitter()
+        {
+            TestCommon.AssertErrorOutput(() =>
+            {
+                DoctestTestSettings doctestSettings = TestCommon.LoadDoctestSettings(new DoctestTestSettingsProvider(), TestCommon.ExecutorRunSettingsSubCaseSplitterExample);
+                Assert.IsNotNull(doctestSettings);
+                Assert.IsNotNull(doctestSettings.ExecutorSettings);
+                Assert.IsFalse(string.IsNullOrEmpty(doctestSettings.ExecutorSettings.SubCaseSplitter));
+                Assert.AreEqual(TestCommon.SubCaseSplitterExample, doctestSettings.ExecutorSettings.SubCaseSplitter);
+            });
+        }
     }
 }

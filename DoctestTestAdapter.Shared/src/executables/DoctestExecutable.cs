@@ -191,7 +191,7 @@ namespace DoctestTestAdapter.Shared.Executables
             return subCaseNodeList;
         }
 
-        private void ProcessMessages(XmlNode node, string nodeName, string startingIndentations, TestResult testResult, bool shouldAllowDuplicateMessages)
+        private void ProcessMessages(XmlNode node, string nodeName, string startingIndentations, TestResult testResult, bool shouldAllowDuplicateMessages, string splitter = "")
         {
             XmlNodeList messageNodes = node.SelectNodes("Message");
             if (messageNodes.Count > 0)
@@ -215,6 +215,12 @@ namespace DoctestTestAdapter.Shared.Executables
 
                 if (shouldAllowDuplicateMessages || !HasMessageBeenReported(testResult, nodeName))
                 {
+                    if (!string.IsNullOrEmpty(splitter))
+                    {
+                        TestResultMessage splitterMessage = new TestResultMessage(TestResultMessage.StandardOutCategory, startingIndentations + splitter + "\n");
+                        testResult.Messages.Add(splitterMessage);
+                    }
+
                     TestResultMessage testResultMessage = new TestResultMessage(TestResultMessage.StandardOutCategory, startingIndentations + nodeName + "\n");
                     testResult.Messages.Add(testResultMessage);
                 }
@@ -239,7 +245,7 @@ namespace DoctestTestAdapter.Shared.Executables
             }
         }
 
-        private void ProcessErrorMessages(XmlNode node, string nodeName, string startingIndentations, TestResult testResult, bool shouldAllowDuplicateMessages)
+        private void ProcessErrorMessages(XmlNode node, string nodeName, string startingIndentations, TestResult testResult, bool shouldAllowDuplicateMessages, string splitter = "")
         {
             string errorMessage = (string.IsNullOrEmpty(testResult.ErrorMessage) ? "" : testResult.ErrorMessage.ToString());
             XmlNodeList messageNodes = node.SelectNodes("Message");
@@ -251,6 +257,11 @@ namespace DoctestTestAdapter.Shared.Executables
                 isDuplicateMessage = errorMessage.Contains(nodeName);
                 if (shouldAllowDuplicateMessages || !isDuplicateMessage)
                 {
+                    if (!string.IsNullOrEmpty(splitter))
+                    {
+                        errorMessage += (startingIndentations + splitter + "\n");
+                    }
+
                     errorMessage += (startingIndentations + nodeName + "\n");
                 }
             }
@@ -329,6 +340,11 @@ namespace DoctestTestAdapter.Shared.Executables
                         isDuplicateMessage = errorMessage.Contains(nodeName);
                         if (shouldAllowDuplicateMessages || !isDuplicateMessage)
                         {
+                            if (!string.IsNullOrEmpty(splitter))
+                            {
+                                errorMessage += (startingIndentations + splitter + "\n");
+                            }
+
                             errorMessage += (startingIndentations + nodeName + "\n");
                         }
                         break;
@@ -357,13 +373,13 @@ namespace DoctestTestAdapter.Shared.Executables
                             errorMessage += textNodeString;
                         }
                     }
-                }
 
-                XmlAttribute lineAttribute = messageNode.Attributes["line"];
-                if (lineAttribute != null && !string.IsNullOrEmpty(lineAttribute.Value))
-                {
-                    string lineNumber = lineAttribute.Value.Trim();
-                    stackTrace.LineNumber = lineNumber;
+                    XmlAttribute lineAttribute = messageNode.Attributes["line"];
+                    if (lineAttribute != null && !string.IsNullOrEmpty(lineAttribute.Value))
+                    {
+                        string lineNumber = lineAttribute.Value.Trim();
+                        stackTrace.LineNumber = lineNumber;
+                    }
                 }
 
                 if (stackTrace.IsSet())
@@ -474,6 +490,11 @@ namespace DoctestTestAdapter.Shared.Executables
                                 bool testCaseHasErrorsSet = !string.IsNullOrEmpty(testResult.ErrorMessage);
                                 List<XmlNodeList> subCaseNodeLists = FindAllSubCaseNodes(testCaseNode, "", ref indentations);
 
+                                string subCaseSplitter = "";
+                                if (Settings != null && Settings.TryGetSubCaseSplitter(out string splitter))
+                                {
+                                    subCaseSplitter = splitter;
+                                }
 
                                 foreach (XmlNodeList subCaseNodeList in subCaseNodeLists)
                                 {
@@ -488,15 +509,15 @@ namespace DoctestTestAdapter.Shared.Executables
 
                                             if (firstTabIndex == -1)
                                             {
-                                                ProcessMessages(subCaseNode, subCaseNameDecoration, startingIndentation, testResult, shouldAllowDuplicateMessages);
-                                                ProcessErrorMessages(subCaseNode, subCaseNameDecoration, startingIndentation, testResult, shouldAllowDuplicateMessages);
+                                                ProcessMessages(subCaseNode, subCaseNameDecoration, startingIndentation, testResult, shouldAllowDuplicateMessages, subCaseSplitter);
+                                                ProcessErrorMessages(subCaseNode, subCaseNameDecoration, startingIndentation, testResult, shouldAllowDuplicateMessages, subCaseSplitter);
                                             }
                                             else
                                             {
                                                 string startingIndentationForMessages = testCaseHasMessageSet ? startingIndentation : startingIndentation.Remove(firstTabIndex, 1);
                                                 string startingIndentationForErrors = testCaseHasErrorsSet ? startingIndentation : startingIndentation.Remove(firstTabIndex, 1);
-                                                ProcessMessages(subCaseNode, subCaseNameDecoration, startingIndentationForMessages, testResult, shouldAllowDuplicateMessages);
-                                                ProcessErrorMessages(subCaseNode, subCaseNameDecoration, startingIndentationForErrors, testResult, shouldAllowDuplicateMessages);
+                                                ProcessMessages(subCaseNode, subCaseNameDecoration, startingIndentationForMessages, testResult, shouldAllowDuplicateMessages, subCaseSplitter);
+                                                ProcessErrorMessages(subCaseNode, subCaseNameDecoration, startingIndentationForErrors, testResult, shouldAllowDuplicateMessages, subCaseSplitter);
                                             }
                                         }
                                     }

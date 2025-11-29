@@ -59,6 +59,8 @@ namespace DoctestTestAdapter.Settings
     [XmlType]
     public class DoctestExecutorSettings
     {
+        public string SubCaseSplitter { get; set; } = "===============================================================================";
+
         public List<ExecutableOverride> ExecutableOverrides { get; set; } = new List<ExecutableOverride>();
 
         public bool AreExecutableOverridesValid(string rootDirectory, out string message)

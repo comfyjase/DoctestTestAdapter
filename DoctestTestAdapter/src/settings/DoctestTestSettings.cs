@@ -111,6 +111,17 @@ namespace DoctestTestAdapter.Settings
         }
 
         // Executor Settings
+        public bool TryGetSubCaseSplitter(out string subCaseSplitter)
+        {
+            if (ExecutorSettings != null && !string.IsNullOrEmpty(ExecutorSettings.SubCaseSplitter))
+            {
+                subCaseSplitter = ExecutorSettings.SubCaseSplitter;
+                return true;
+            }
+            subCaseSplitter = null;
+            return false;
+        }
+
         public bool TryGetExecutableOverrides(out List<ExecutableOverride> executableOverrides)
         {
             if (ExecutorSettings != null && ExecutorSettings.ExecutableOverrides != null && ExecutorSettings.ExecutableOverrides.Count > 0)

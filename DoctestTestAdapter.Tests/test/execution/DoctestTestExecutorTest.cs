@@ -324,16 +324,16 @@ namespace DoctestTestAdapter.Tests.Execution
                 Assert.IsTrue(string.Join("\n", capturedTestResults.Values[10].ErrorMessage).Contains("FAIL_CHECK called for failing test"));
                 Assert.IsTrue(capturedTestResults.Values[12].Messages[0].Text.Contains("[PrintOutput] - With Passing SUBCASES"));
                 Assert.IsTrue(capturedTestResults.Values[12].Messages[1].Text.Contains("Message from TEST_CASE parent!"));
-                Assert.IsTrue(capturedTestResults.Values[12].Messages[2].Text.Contains("[PrintOutput] - Passing SUBCASE 1"));
-                Assert.IsTrue(capturedTestResults.Values[12].Messages[3].Text.Contains("Message from SUBCASE 1!"));
-                Assert.IsTrue(capturedTestResults.Values[12].Messages[4].Text.Contains("[PrintOutput] - Passing SUBCASE 2"));
-                Assert.IsTrue(capturedTestResults.Values[12].Messages[5].Text.Contains("Message from SUBCASE 2!"));
-                Assert.IsTrue(capturedTestResults.Values[12].Messages[6].Text.Contains("[PrintOutput] - Nested SUBCASEs"));
-                Assert.IsTrue(capturedTestResults.Values[12].Messages[7].Text.Contains("Message from Nested SUBCASE parent!"));
-                Assert.IsTrue(capturedTestResults.Values[12].Messages[8].Text.Contains("[PrintOutput] - Nested SUBCASE 1"));
-                Assert.IsTrue(capturedTestResults.Values[12].Messages[9].Text.Contains("Message from Nested SUBCASE 1!"));
-                Assert.IsTrue(capturedTestResults.Values[12].Messages[10].Text.Contains("[PrintOutput] - Nested SUBCASE 2"));
-                Assert.IsTrue(capturedTestResults.Values[12].Messages[11].Text.Contains("Message from Nested SUBCASE 2!"));
+                Assert.IsTrue(capturedTestResults.Values[12].Messages[3].Text.Contains("[PrintOutput] - Passing SUBCASE 1"));
+                Assert.IsTrue(capturedTestResults.Values[12].Messages[4].Text.Contains("Message from SUBCASE 1!"));
+                Assert.IsTrue(capturedTestResults.Values[12].Messages[6].Text.Contains("[PrintOutput] - Passing SUBCASE 2"));
+                Assert.IsTrue(capturedTestResults.Values[12].Messages[7].Text.Contains("Message from SUBCASE 2!"));
+                Assert.IsTrue(capturedTestResults.Values[12].Messages[9].Text.Contains("[PrintOutput] - Nested SUBCASEs"));
+                Assert.IsTrue(capturedTestResults.Values[12].Messages[10].Text.Contains("Message from Nested SUBCASE parent!"));
+                Assert.IsTrue(capturedTestResults.Values[12].Messages[12].Text.Contains("[PrintOutput] - Nested SUBCASE 1"));
+                Assert.IsTrue(capturedTestResults.Values[12].Messages[13].Text.Contains("Message from Nested SUBCASE 1!"));
+                Assert.IsTrue(capturedTestResults.Values[12].Messages[15].Text.Contains("[PrintOutput] - Nested SUBCASE 2"));
+                Assert.IsTrue(capturedTestResults.Values[12].Messages[16].Text.Contains("Message from Nested SUBCASE 2!"));
 
                 string failingSubcasesErrorMessages = string.Join("\n", capturedTestResults.Values[13].ErrorMessage);
                 Assert.IsTrue(failingSubcasesErrorMessages.Contains("[PrintOutput] - Failing SUBCASE 1"));
@@ -550,6 +550,56 @@ namespace DoctestTestAdapter.Tests.Execution
                 Assert.HasCount(1, capturedTestResults.Values);
                 Assert.AreEqual(TestCommon.TestsOnlyInHFilesTestHeaderFilePath, capturedTestCases.Values[0].CodeFilePath);
                 Assert.AreEqual(TestOutcome.Passed, capturedTestResults.Values[0].Outcome);
+            });
+        }
+
+        [TestMethod]
+        public void ExecuteExeWithSubCaseSplitterSetting()
+        {
+            TestCommon.AssertErrorOutput(() =>
+            {
+                IRunContext runContext = A.Fake<IRunContext>();
+                IFrameworkHandle frameworkHandle = A.Fake<IFrameworkHandle>();
+                Captured<TestMessageLevel> capturedTestMessageLevels = A.Captured<TestMessageLevel>();
+                Captured<string> capturedTestMessages = A.Captured<string>();
+                Captured<TestCase> capturedTestCases = A.Captured<TestCase>();
+                Captured<TestResult> capturedTestResults = A.Captured<TestResult>();
+                A.CallTo(() => frameworkHandle.SendMessage(capturedTestMessageLevels._, capturedTestMessages._))
+                   .DoesNothing();
+                A.CallTo(() => frameworkHandle.RecordStart(capturedTestCases._))
+                    .DoesNothing();
+                A.CallTo(() => frameworkHandle.RecordResult(capturedTestResults._))
+                    .DoesNothing();
+                A.CallTo(() => runContext.IsBeingDebugged)
+                    .Returns(false);
+
+                // Using utilities root directory to make sure I don't hardcode path
+                string rootDirectory = Utilities.GetRootDirectory();
+                string settingsAsString = TestCommon.ExecutorRunSettingsSubCaseSplitterExample;
+
+                DoctestTestSettings doctestTestSettings = null;
+                if (!string.IsNullOrEmpty(settingsAsString))
+                {
+                    DoctestTestSettingsProvider settingsProvider = new DoctestTestSettingsProvider();
+                    doctestTestSettings = TestCommon.LoadDoctestSettings(settingsProvider, settingsAsString);
+                    A.CallTo(() => runContext.RunSettings.GetSettings(DoctestTestSettings.RunSettingsXmlNode))
+                        .Returns(settingsProvider);
+                }
+
+                List<TestCase> testCases = new TestCaseFactory(TestCommon.PrintOutputExecutableFilePath, doctestTestSettings, runContext, frameworkHandle).CreateTestCases();
+                Assert.HasCount(14, testCases);
+
+                ITestExecutor doctestTestExecutor = new DoctestTestExecutor();
+                doctestTestExecutor.RunTests(testCases, runContext, frameworkHandle);
+
+                foreach (TestMessageLevel testMessageLevel in capturedTestMessageLevels.Values)
+                    Assert.AreEqual(TestMessageLevel.Informational, testMessageLevel);
+
+                Assert.IsTrue(capturedTestResults.Values[12].Messages[2].Text.Contains(TestCommon.SubCaseSplitterExample));
+                Assert.IsTrue(capturedTestResults.Values[12].Messages[5].Text.Contains(TestCommon.SubCaseSplitterExample));
+                Assert.IsTrue(capturedTestResults.Values[12].Messages[8].Text.Contains(TestCommon.SubCaseSplitterExample));
+                Assert.IsTrue(capturedTestResults.Values[12].Messages[11].Text.Contains(TestCommon.SubCaseSplitterExample));
+                Assert.IsTrue(capturedTestResults.Values[12].Messages[14].Text.Contains(TestCommon.SubCaseSplitterExample));
             });
         }
     }
